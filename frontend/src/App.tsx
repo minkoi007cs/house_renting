@@ -35,6 +35,7 @@ export function App() {
     <Router>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/auth/callback" element={<LoginPage />} />
         <Route
           path="/dashboard"
           element={
