@@ -45,14 +45,14 @@ export class UnitService {
       )
       .eq('id', unitId)
       .is('deleted_at', null)
-      .single();
+      .single() as any;
 
     if (error || !data) {
       throw new NotFoundException('Unit not found');
     }
 
     // Verify ownership
-    if (data.property.user_id !== userId) {
+    if ((data.property as any)?.user_id !== userId) {
       throw new ForbiddenException('Access denied');
     }
 

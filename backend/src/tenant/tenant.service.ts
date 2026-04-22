@@ -15,9 +15,9 @@ export class TenantService {
         property:properties(id, user_id)`,
       )
       .eq('id', unitId)
-      .single();
+      .single() as any;
 
-    if (!unit || unit.property.user_id !== userId) {
+    if (!unit || (unit.property as any)?.user_id !== userId) {
       throw new ForbiddenException('Access denied');
     }
 
@@ -41,14 +41,14 @@ export class TenantService {
       )
       .eq('id', tenantId)
       .is('deleted_at', null)
-      .single();
+      .single() as any;
 
     if (error || !data) {
       throw new NotFoundException('Tenant not found');
     }
 
     // Verify ownership
-    if (data.unit.property.user_id !== userId) {
+    if ((data.unit as any)?.property?.user_id !== userId) {
       throw new ForbiddenException('Access denied');
     }
 
@@ -64,9 +64,9 @@ export class TenantService {
         property:properties(id, user_id)`,
       )
       .eq('id', unitId)
-      .single();
+      .single() as any;
 
-    if (!unit || unit.property.user_id !== userId) {
+    if (!unit || (unit.property as any)?.user_id !== userId) {
       throw new ForbiddenException('Access denied');
     }
 

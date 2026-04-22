@@ -72,9 +72,9 @@ export class ReminderService {
       .from('reminders')
       .select('property:properties(user_id)')
       .eq('id', reminderId)
-      .single();
+      .single() as any;
 
-    if (!reminder || reminder.property.user_id !== userId) {
+    if (!reminder || (reminder.property as any)?.user_id !== userId) {
       throw new ForbiddenException('Access denied');
     }
 
@@ -94,9 +94,9 @@ export class ReminderService {
       .from('reminders')
       .select('property:properties(user_id)')
       .eq('id', reminderId)
-      .single();
+      .single() as any;
 
-    if (!reminder || reminder.property.user_id !== userId) {
+    if (!reminder || (reminder.property as any)?.user_id !== userId) {
       throw new ForbiddenException('Access denied');
     }
 

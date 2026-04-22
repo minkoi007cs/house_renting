@@ -11,9 +11,9 @@ export class ContractService {
       .from('units')
       .select('id, property:properties(id, user_id)')
       .eq('id', unitId)
-      .single();
+      .single() as any;
 
-    if (!unit || unit.property.user_id !== userId) {
+    if (!unit || (unit.property as any)?.user_id !== userId) {
       throw new ForbiddenException('Access denied');
     }
 
@@ -42,13 +42,13 @@ export class ContractService {
       `)
       .eq('id', contractId)
       .is('deleted_at', null)
-      .single();
+      .single() as any;
 
     if (error || !data) {
       throw new NotFoundException('Contract not found');
     }
 
-    if (data.unit.property.user_id !== userId) {
+    if ((data.unit as any)?.property?.user_id !== userId) {
       throw new ForbiddenException('Access denied');
     }
 
@@ -60,9 +60,9 @@ export class ContractService {
       .from('units')
       .select('id, property:properties(id, user_id)')
       .eq('id', unitId)
-      .single();
+      .single() as any;
 
-    if (!unit || unit.property.user_id !== userId) {
+    if (!unit || (unit.property as any)?.user_id !== userId) {
       throw new ForbiddenException('Access denied');
     }
 
