@@ -79,9 +79,9 @@ export class TransactionService {
       .from('transactions')
       .select('property:properties(user_id)')
       .eq('id', transactionId)
-      .single();
+      .single() as any;
 
-    if (!tx || tx.property.user_id !== userId) {
+    if (!tx || (tx.property as any)?.user_id !== userId) {
       throw new ForbiddenException('Access denied');
     }
 
@@ -101,9 +101,9 @@ export class TransactionService {
       .from('transactions')
       .select('property:properties(user_id)')
       .eq('id', transactionId)
-      .single();
+      .single() as any;
 
-    if (!tx || tx.property.user_id !== userId) {
+    if (!tx || (tx.property as any)?.user_id !== userId) {
       throw new ForbiddenException('Access denied');
     }
 
@@ -145,16 +145,16 @@ export class TransactionService {
     const summary = {
       total_income: 0,
       total_expense: 0,
-      by_category: {},
+      by_category: {} as Record<string, number>,
     };
 
-    data.forEach(tx => {
+    (data || []).forEach((tx: any) => {
       if (tx.type === 'income') {
         summary.total_income += tx.amount;
       } else {
         summary.total_expense += tx.amount;
       }
-      
+
       if (!summary.by_category[tx.category]) {
         summary.by_category[tx.category] = 0;
       }
