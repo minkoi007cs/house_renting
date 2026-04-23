@@ -13,7 +13,7 @@ export class AnalyticsService {
       .eq('user_id', userId)
       .is('deleted_at', null);
 
-    const propertyIds = properties.map(p => p.id);
+    const propertyIds = (properties || []).map(p => p.id);
 
     // Get units count
     const { count: totalUnits } = await this.supabase
@@ -36,8 +36,8 @@ export class AnalyticsService {
       .in('property_id', propertyIds)
       .is('deleted_at', null);
 
-    const userUnitIds = new Set(userUnits?.map(u => u.id) || []);
-    const occupiedUnitSet = new Set(activeContracts?.map(c => c.unit_id) || []);
+    const userUnitIds = new Set((userUnits || []).map(u => u.id));
+    const occupiedUnitSet = new Set((activeContracts || []).map(c => c.unit_id));
     const occupiedUnits = Array.from(occupiedUnitSet).filter(id => userUnitIds.has(id)).length;
 
     // Get transactions summary
@@ -58,9 +58,9 @@ export class AnalyticsService {
 
     let totalIncome = 0;
     let totalExpense = 0;
-    const byCategory = {};
+    const byCategory: Record<string, any> = {};
 
-    transactions.forEach(tx => {
+    (transactions || []).forEach(tx => {
       if (tx.type === 'income') {
         totalIncome += tx.amount;
       } else {
@@ -116,10 +116,10 @@ export class AnalyticsService {
 
     let totalIncome = 0;
     let totalExpense = 0;
-    const byCategory = {};
-    const byUnit = {};
+    const byCategory: Record<string, any> = {};
+    const byUnit: Record<string, any> = {};
 
-    transactions.forEach(tx => {
+    (transactions || []).forEach(tx => {
       const amount = tx.amount;
       if (tx.type === 'income') {
         totalIncome += amount;
@@ -152,7 +152,7 @@ export class AnalyticsService {
       },
       by_category: byCategory,
       by_unit: byUnit,
-      units_breakdown: units.map(u => ({
+      units_breakdown: (units || []).map(u => ({
         ...u,
         ...byUnit[u.id],
       })),

@@ -65,7 +65,7 @@ export class AuthService {
   }
 
   generateJWT(userId: string): string {
-    const secret = this.configService.get<string>('JWT_SECRET');
+    const secret = this.configService.get<string>('JWT_SECRET') || 'default-secret';
     const expiresIn = this.configService.get<number>('JWT_EXPIRATION') || 86400;
 
     return jwt.sign(
@@ -82,7 +82,7 @@ export class AuthService {
 
   verifyJWT(token: string) {
     try {
-      const secret = this.configService.get<string>('JWT_SECRET');
+      const secret = this.configService.get<string>('JWT_SECRET') || 'default-secret';
       return jwt.verify(token, secret);
     } catch (error) {
       throw new UnauthorizedException('Invalid JWT token');

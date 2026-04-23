@@ -8,7 +8,7 @@ export class MediaService {
   async uploadMedia(
     userId: string,
     propertyId: string,
-    file: Express.Multer.File,
+    file: any,
     type: 'image' | 'contract' | 'document',
   ) {
     const { data: property } = await this.supabase
@@ -86,7 +86,7 @@ export class MediaService {
       .eq('id', mediaId)
       .single();
 
-    if (!media || media.property.user_id !== userId) {
+    if (!media || (media.property as any).user_id !== userId) {
       throw new ForbiddenException('Access denied');
     }
 

@@ -36,7 +36,7 @@ export class MediaController {
   async uploadMedia(
     @CurrentUser('sub') userId: string,
     @Param('propertyId') propertyId: string,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() file: any,
     @Body('type') type: 'image' | 'contract' | 'document',
   ) {
     const media = await this.mediaService.uploadMedia(
