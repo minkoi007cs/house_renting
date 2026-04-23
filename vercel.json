@@ -1,15 +1,18 @@
 {
   "version": 2,
-  "experimentalServices": {
-    "frontend": {
-      "entrypoint": "frontend",
-      "routePrefix": "/",
+  "projects": [
+    {
+      "name": "frontend",
+      "rootDirectory": "frontend",
+      "buildCommand": "npm run build",
+      "outputDirectory": "dist",
       "framework": "vite"
     },
-    "backend": {
-      "entrypoint": "backend",
-      "routePrefix": "/api",
-      "framework": "nodejs"
+    {
+      "name": "backend",
+      "rootDirectory": "backend",
+      "buildCommand": "npm run build",
+      "outputDirectory": "dist"
     }
-  }
+  ]
 }
