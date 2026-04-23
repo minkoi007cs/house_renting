@@ -22,12 +22,23 @@ export class AnalyticsService {
       .in('property_id', propertyIds)
       .is('deleted_at', null);
 
-    // Get occupied units
-    const { count: occupiedUnits } = await this.supabase
+    // Get occupied units (count distinct units with active contracts)
+    const { data: activeContracts } = await this.supabase
       .from('rental_contracts')
-      .select('*', { count: 'exact', head: true })
+      .select('unit_id')
       .eq('status', 'active')
       .is('deleted_at', null);
+
+    // Get units for user's properties
+    const { data: userUnits } = await this.supabase
+      .from('units')
+      .select('id')
+      .in('property_id', propertyIds)
+      .is('deleted_at', null);
+
+    const userUnitIds = new Set(userUnits?.map(u => u.id) || []);
+    const occupiedUnitSet = new Set(activeContracts?.map(c => c.unit_id) || []);
+    const occupiedUnits = Array.from(occupiedUnitSet).filter(id => userUnitIds.has(id)).length;
 
     // Get transactions summary
     let txQuery = this.supabase
@@ -60,8 +71,8 @@ export class AnalyticsService {
     return {
       summary: {
         total_properties: propertyIds.length,
-        occupied_units: occupiedUnits || 0,
-        vacant_units: (totalUnits || 0) - (occupiedUnits || 0),
+        occupied_units: occupiedUnits,
+        vacant_units: (totalUnits || 0) - occupiedUnits,
         total_income: totalIncome,
         total_expense: totalExpense,
         net_profit: totalIncome - totalExpense,
