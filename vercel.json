@@ -1,0 +1,12 @@
+{
+  "projects": [
+    {
+      "name": "house-renting-frontend",
+      "rootDirectory": "frontend"
+    },
+    {
+      "name": "house-renting-backend",
+      "rootDirectory": "backend"
+    }
+  ]
+}
