@@ -120,11 +120,15 @@ export class AuthService {
 
   async createOrUpdateGoogleUser(googleUser: {
     id: string;
-    email: string;
-    name: string;
+    email?: string;
+    name?: string;
     picture?: string;
   }) {
     try {
+      if (!googleUser.email) {
+        throw new UnauthorizedException('Google account must have email');
+      }
+
       const { data: existingUser } = await this.supabase
         .from('users')
         .select('*')
@@ -138,7 +142,7 @@ export class AuthService {
             {
               id: googleUser.id,
               email: googleUser.email,
-              name: googleUser.name,
+              name: googleUser.name || '',
               avatar_url: googleUser.picture || null,
             },
           ])
