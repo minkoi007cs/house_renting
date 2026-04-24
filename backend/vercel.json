@@ -3,5 +3,12 @@
   "outputDirectory": "dist",
   "env": {
     "NODE_ENV": "production"
+  },
+  "public": false,
+  "functions": {
+    "dist/main.js": {
+      "runtime": "nodejs18.x",
+      "memory": 1024
+    }
   }
 }
