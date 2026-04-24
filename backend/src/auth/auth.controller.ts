@@ -39,6 +39,30 @@ export class AuthController {
     };
   }
 
+  @Post('google')
+  @HttpCode(200)
+  async googleAuth(@Body() body: { idToken: string }) {
+    if (!body.idToken) {
+      throw new Error('Missing Google ID token');
+    }
+
+    const googleUser = await this.authService.verifyGoogleIdToken(
+      body.idToken,
+    );
+    const user = await this.authService.createOrUpdateGoogleUser(googleUser);
+    const jwtToken = this.authService.generateJWT(user.id);
+
+    return {
+      status: 'success',
+      data: {
+        userId: user.id,
+        email: user.email,
+        name: user.name,
+        token: jwtToken,
+      },
+    };
+  }
+
   @Get('profile')
   @UseGuards(JwtGuard)
   async getProfile(@CurrentUser('sub') userId: string) {
