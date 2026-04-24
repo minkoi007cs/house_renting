@@ -6,7 +6,7 @@ import api from '@/services/api';
 
 export const LoginPage = () => {
   const navigate = useNavigate();
-  const { token, setUser, setToken } = useAuthStore();
+  const { setUser, setToken } = useAuthStore();
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -19,22 +19,22 @@ export const LoginPage = () => {
             headers: { Authorization: `Bearer ${session.access_token}` },
           });
 
-          setUser(response.data.data);
-          setToken(response.data.data.token);
-          navigate('/dashboard');
+          if (response.data.status === 'success') {
+            setUser(response.data.data);
+            setToken(response.data.data.token);
+            navigate('/dashboard');
+          }
         }
       } catch (error) {
         console.error('Callback error:', error);
       }
     };
 
-    // Check if we're on callback page
+    // Handle callback on mount
     if (window.location.pathname === '/auth/callback') {
       handleCallback();
-    } else if (token) {
-      navigate('/dashboard');
     }
-  }, [token, navigate, setUser, setToken]);
+  }, [navigate, setUser, setToken]);
 
   const handleGoogleLogin = async () => {
     try {
