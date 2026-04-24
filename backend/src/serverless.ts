@@ -1,13 +1,22 @@
 import { NestFactory } from '@nestjs/core';
+import { ExpressAdapter } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import express, { Request, Response } from 'express';
 import { AppModule } from './app.module';
 
+const server = express();
+let initialized = false;
+
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  if (initialized) return server;
+
+  const app = await NestFactory.create(AppModule, new ExpressAdapter(server), {
+    logger: ['error', 'warn'],
+  });
 
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: process.env.FRONTEND_URL || true,
     credentials: true,
   });
 
@@ -16,9 +25,7 @@ async function bootstrap() {
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
-      transformOptions: {
-        enableImplicitConversion: true,
-      },
+      transformOptions: { enableImplicitConversion: true },
     }),
   );
 
@@ -39,9 +46,12 @@ async function bootstrap() {
     ],
   });
 
-  const port = process.env.PORT || 3001;
-  await app.listen(port);
-  console.log(`🚀 Application is running on: http://localhost:${port}`);
-  console.log(`📚 API Documentation: http://localhost:${port}/api/docs`);
+  await app.init();
+  initialized = true;
+  return server;
 }
-bootstrap();
+
+export default async function handler(req: Request, res: Response) {
+  const srv = await bootstrap();
+  return srv(req, res);
+}
