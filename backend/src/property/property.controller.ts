@@ -12,8 +12,8 @@ import {
 } from '@nestjs/common';
 import { PropertyService } from './property.service';
 import { CreatePropertyDto, UpdatePropertyDto } from './dto';
-import { JwtGuard } from 'src/common/guards/jwt.guard';
-import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { JwtGuard } from '../common/guards/jwt.guard';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 
 @Controller('api/properties')
 @UseGuards(JwtGuard)

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ReminderService } from './reminder.service';
 import { ReminderController } from './reminder.controller';
-import { SupabaseModule } from 'src/config/supabase.module';
+import { SupabaseModule } from '../config/supabase.module';
 
 @Module({
   imports: [SupabaseModule],

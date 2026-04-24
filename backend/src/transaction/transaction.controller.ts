@@ -12,8 +12,8 @@ import {
 } from '@nestjs/common';
 import { TransactionService } from './transaction.service';
 import { CreateTransactionDto, UpdateTransactionDto } from './dto/create-transaction.dto';
-import { JwtGuard } from 'src/common/guards/jwt.guard';
-import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { JwtGuard } from '../common/guards/jwt.guard';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 
 @Controller('api/properties/:propertyId/transactions')
 @UseGuards(JwtGuard)

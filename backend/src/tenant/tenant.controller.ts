@@ -11,8 +11,8 @@ import {
 } from '@nestjs/common';
 import { TenantService } from './tenant.service';
 import { CreateTenantDto, UpdateTenantDto } from './dto/create-tenant.dto';
-import { JwtGuard } from 'src/common/guards/jwt.guard';
-import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { JwtGuard } from '../common/guards/jwt.guard';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 
 @Controller('api/units/:unitId/tenants')
 @UseGuards(JwtGuard)
