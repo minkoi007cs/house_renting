@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AnalyticsService } from './analytics.service';
 import { AnalyticsController } from './analytics.controller';
-import { SupabaseModule } from 'src/config/supabase.module';
+import { SupabaseModule } from '../config/supabase.module';
 
 @Module({
   imports: [SupabaseModule],
