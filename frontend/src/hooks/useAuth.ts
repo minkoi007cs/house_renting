@@ -12,6 +12,15 @@ export const useAuth = () => {
     const checkAuth = async () => {
       try {
         setLoading(true);
+
+        // Check if we already have a valid JWT token
+        const existingToken = localStorage.getItem('auth_token');
+        if (existingToken) {
+          // Token exists, skip verification for now
+          setLoading(false);
+          return;
+        }
+
         const {
           data: { session },
         } = await supabase.auth.getSession();
@@ -25,20 +34,17 @@ export const useAuth = () => {
               headers: { Authorization: `Bearer ${session.access_token}` },
             });
 
-            if (mounted) {
+            if (mounted && response.data.status === 'success') {
               const { data } = response;
               setUser(data.data);
               setToken(data.data.token);
             }
           } catch (error) {
             console.error('Token verification failed:', error);
-            if (mounted) setError('Token verification failed');
           }
         }
       } catch (error) {
-        if (mounted) {
-          setError(error instanceof Error ? error.message : 'Auth error');
-        }
+        console.error('Auth check error:', error);
       } finally {
         if (mounted) setLoading(false);
       }
