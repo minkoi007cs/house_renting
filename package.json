@@ -21,9 +21,5 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
-  },
-  "dependencies": {
-    "@nestjs/swagger": "^11.4.1",
-    "swagger-ui-express": "^5.0.1"
   }
 }
