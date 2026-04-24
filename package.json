@@ -13,7 +13,11 @@
     "build:frontend": "npm run build --prefix frontend",
     "start:prod": "npm start --prefix backend",
     "lint": "npm run lint --prefix backend && npm run lint --prefix frontend",
-    "format": "npm run format --prefix backend && npm run format --prefix frontend"
+    "format": "npm run format --prefix backend && npm run format --prefix frontend",
+    "clean": "npm run clean:backend && npm run clean:frontend",
+    "clean:backend": "rm -rf backend/dist backend/node_modules",
+    "clean:frontend": "rm -rf frontend/dist frontend/node_modules",
+    "clean:all": "npm run clean && rm -rf node_modules package-lock.json"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
