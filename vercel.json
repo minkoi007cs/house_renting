@@ -6,7 +6,9 @@
     },
     {
       "name": "house-renting-backend",
-      "rootDirectory": "backend"
+      "rootDirectory": "backend",
+      "buildCommand": "npm run build",
+      "outputDirectory": "dist"
     }
   ]
 }
