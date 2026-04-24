@@ -7,6 +7,8 @@ export const useAuth = () => {
   const { user, token, setUser, setToken, setLoading, setError } = useAuthStore();
 
   useEffect(() => {
+    let mounted = true;
+
     const checkAuth = async () => {
       try {
         setLoading(true);
@@ -14,20 +16,31 @@ export const useAuth = () => {
           data: { session },
         } = await supabase.auth.getSession();
 
-        if (session?.access_token) {
-          // Verify token with backend and get JWT
-          const response = await api.post('/auth/verify', {}, {
-            headers: { Authorization: `Bearer ${session.access_token}` },
-          });
+        if (!mounted) return;
 
-          const { data } = response;
-          setUser(data.data);
-          setToken(data.data.token);
+        if (session?.access_token) {
+          try {
+            // Verify token with backend and get JWT
+            const response = await api.post('/auth/verify', {}, {
+              headers: { Authorization: `Bearer ${session.access_token}` },
+            });
+
+            if (mounted) {
+              const { data } = response;
+              setUser(data.data);
+              setToken(data.data.token);
+            }
+          } catch (error) {
+            console.error('Token verification failed:', error);
+            if (mounted) setError('Token verification failed');
+          }
         }
       } catch (error) {
-        setError(error instanceof Error ? error.message : 'Auth error');
+        if (mounted) {
+          setError(error instanceof Error ? error.message : 'Auth error');
+        }
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     };
 
@@ -35,6 +48,8 @@ export const useAuth = () => {
 
     // Listen for auth changes
     const { data } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return;
+
       if (event === 'SIGNED_OUT') {
         setUser(null);
         setToken(null);
@@ -42,6 +57,7 @@ export const useAuth = () => {
     });
 
     return () => {
+      mounted = false;
       data?.subscription.unsubscribe();
     };
   }, []);

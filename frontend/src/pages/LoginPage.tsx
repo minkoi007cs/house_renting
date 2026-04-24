@@ -2,16 +2,39 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import { supabase } from '@/services/supabase';
+import api from '@/services/api';
 
 export const LoginPage = () => {
   const navigate = useNavigate();
-  const { token } = useAuthStore();
+  const { token, setUser, setToken } = useAuthStore();
 
   useEffect(() => {
-    if (token) {
+    const handleCallback = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (session?.access_token) {
+          // Verify token with backend
+          const response = await api.post('/auth/verify', {}, {
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          });
+
+          setUser(response.data.data);
+          setToken(response.data.data.token);
+          navigate('/dashboard');
+        }
+      } catch (error) {
+        console.error('Callback error:', error);
+      }
+    };
+
+    // Check if we're on callback page
+    if (window.location.pathname === '/auth/callback') {
+      handleCallback();
+    } else if (token) {
       navigate('/dashboard');
     }
-  }, [token, navigate]);
+  }, [token, navigate, setUser, setToken]);
 
   const handleGoogleLogin = async () => {
     try {
