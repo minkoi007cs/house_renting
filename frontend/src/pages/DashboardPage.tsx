@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthStore } from '@/store/authStore';
 import { useProperties } from '@/hooks/useProperties';
 import { Navbar } from '@/components/common/Navbar';
 import { CreatePropertyForm } from '@/components/forms/CreatePropertyForm';
@@ -9,7 +9,7 @@ import { Home, Users, DollarSign, TrendingUp } from 'lucide-react';
 export const DashboardPage = () => {
   const navigate = useNavigate();
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const { user } = useAuth();
+  const { user } = useAuthStore();
   const { properties, isLoading, fetchProperties } = useProperties();
 
   const occupiedUnits = 0; // TODO: Calculate

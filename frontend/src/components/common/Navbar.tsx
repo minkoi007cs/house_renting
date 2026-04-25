@@ -1,12 +1,10 @@
 import { useAuthStore } from '@/store/authStore';
-import { supabase } from '@/services/supabase';
 import { LogOut } from 'lucide-react';
 
 export const Navbar = () => {
   const { user, logout } = useAuthStore();
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
+  const handleLogout = () => {
     logout();
     window.location.href = '/login';
   };

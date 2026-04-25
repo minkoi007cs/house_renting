@@ -11,46 +11,69 @@ declare global {
 
 export const LoginPage = () => {
   const navigate = useNavigate();
-  const { setUser, setToken, setError } = useAuthStore();
+  const { token, setUser, setToken, setError, error } = useAuthStore();
   const googleButtonRef = useRef<HTMLDivElement>(null);
 
+  // Already logged in → go to dashboard
   useEffect(() => {
-    // Initialize Google Sign-In button
-    if (window.google && googleButtonRef.current) {
-      window.google.accounts.id.initialize({
-        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-        callback: handleGoogleResponse,
-      });
+    if (token) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [token, navigate]);
 
-      window.google.accounts.id.renderButton(googleButtonRef.current, {
-        theme: 'outline',
-        size: 'large',
-        width: '100%',
-      });
+  useEffect(() => {
+    const initGoogle = () => {
+      if (window.google && googleButtonRef.current) {
+        window.google.accounts.id.initialize({
+          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+          callback: handleGoogleResponse,
+        });
+        window.google.accounts.id.renderButton(googleButtonRef.current, {
+          theme: 'outline',
+          size: 'large',
+          width: '100%',
+        });
+      }
+    };
+
+    // GSI script might not be ready yet
+    if (window.google) {
+      initGoogle();
+    } else {
+      const script = document.getElementById('google-gsi');
+      if (script) {
+        script.addEventListener('load', initGoogle);
+        return () => script.removeEventListener('load', initGoogle);
+      }
     }
   }, []);
 
   const handleGoogleResponse = async (response: any) => {
     try {
+      setError(null);
+
       if (!response.credential) {
-        throw new Error('No credential received');
+        throw new Error('Không nhận được credential từ Google');
       }
 
-      // Send ID token to backend
       const result = await api.post('/auth/google', {
         idToken: response.credential,
       });
 
-      if (result.data.status === 'success') {
-        setUser(result.data.data);
-        setToken(result.data.data.token);
-        navigate('/dashboard');
+      if (result.data?.status === 'success') {
+        const { userId, email, name, token: jwt } = result.data.data;
+        setUser({ id: userId, email, name });
+        setToken(jwt);
+        navigate('/dashboard', { replace: true });
+      } else {
+        throw new Error('Backend trả về lỗi không xác định');
       }
-    } catch (error) {
-      console.error('Login error:', error);
-      setError(
-        error instanceof Error ? error.message : 'Google login failed',
-      );
+    } catch (err: any) {
+      console.error('Login error:', err);
+      const msg =
+        err?.response?.data?.message ||
+        (err instanceof Error ? err.message : 'Đăng nhập thất bại');
+      setError(msg);
     }
   };
 
@@ -62,6 +85,12 @@ export const LoginPage = () => {
           <h2 className="text-2xl font-bold text-gray-900">Quản lý Cho Thuê Nhà</h2>
           <p className="text-gray-600 mt-2">Quản lý bất động sản của bạn một cách dễ dàng</p>
         </div>
+
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+            {error}
+          </div>
+        )}
 
         <div ref={googleButtonRef} className="w-full"></div>
 

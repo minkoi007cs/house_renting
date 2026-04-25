@@ -1,6 +1,4 @@
-import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
 import { useAuthStore } from '@/store/authStore';
 import { LoginPage } from '@/pages/LoginPage';
 import { DashboardPage } from '@/pages/DashboardPage';
@@ -17,20 +15,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 export function App() {
-  useAuth();
-  const { token, isLoading } = useAuthStore();
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-gray-600">Đang tải...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <Router>
       <Routes>
