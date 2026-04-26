@@ -6,6 +6,29 @@ import { CreateContractDto, UpdateContractDto } from './dto/create-contract.dto'
 export class ContractService {
   constructor(@Inject('SUPABASE_CLIENT') private supabase: SupabaseClient) {}
 
+  async getAllContracts(userId: string, status?: string) {
+    let query = this.supabase
+      .from('rental_contracts')
+      .select(
+        `*,
+        unit:units!inner(
+          id, name,
+          property:properties!inner(id, name, user_id)
+        ),
+        contract_tenants(tenant:tenants(*))`,
+      )
+      .eq('unit.property.user_id', userId)
+      .is('deleted_at', null);
+
+    if (status) {
+      query = query.eq('status', status);
+    }
+
+    const { data, error } = await query.order('start_date', { ascending: false });
+    if (error) throw error;
+    return data;
+  }
+
   async getContractsByUnit(userId: string, unitId: string, status?: string) {
     const { data: unit } = await this.supabase
       .from('units')

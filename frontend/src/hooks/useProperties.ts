@@ -1,68 +1,61 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Property } from '@/types';
 import api from '@/services/api';
 
 export const useProperties = () => {
   const [properties, setProperties] = useState<Property[]>([]);
+  const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchProperties = async (page = 1, limit = 10) => {
+  const fetchProperties = useCallback(async (page = 1, limit = 50) => {
     try {
       setIsLoading(true);
-      const response = await api.get('/properties', {
-        params: { page, limit },
-      });
-      setProperties(response.data.data.items);
+      setError(null);
+      const res = await api.get('/properties', { params: { page, limit } });
+      setProperties(res.data.data.items || []);
+      setTotal(res.data.data.pagination?.total || 0);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch properties');
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const createProperty = async (data: Partial<Property>) => {
-    try {
-      const response = await api.post('/properties', data);
-      setProperties([response.data.data, ...properties]);
-      return response.data.data;
-    } catch (err) {
-      throw err;
-    }
-  };
-
-  const updateProperty = async (id: string, data: Partial<Property>) => {
-    try {
-      const response = await api.patch(`/properties/${id}`, data);
-      setProperties(
-        properties.map((p) => (p.id === id ? response.data.data : p)),
-      );
-      return response.data.data;
-    } catch (err) {
-      throw err;
-    }
-  };
+  }, []);
 
   const deleteProperty = async (id: string) => {
-    try {
-      await api.delete(`/properties/${id}`);
-      setProperties(properties.filter((p) => p.id !== id));
-    } catch (err) {
-      throw err;
-    }
+    await api.delete(`/properties/${id}`);
+    setProperties((list) => list.filter((p) => p.id !== id));
   };
 
   useEffect(() => {
     fetchProperties();
-  }, []);
+  }, [fetchProperties]);
 
-  return {
-    properties,
-    isLoading,
-    error,
-    fetchProperties,
-    createProperty,
-    updateProperty,
-    deleteProperty,
-  };
+  return { properties, total, isLoading, error, fetchProperties, deleteProperty };
+};
+
+export const useProperty = (id: string | undefined) => {
+  const [property, setProperty] = useState<Property | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchProperty = useCallback(async () => {
+    if (!id) return;
+    try {
+      setIsLoading(true);
+      setError(null);
+      const res = await api.get(`/properties/${id}`);
+      setProperty(res.data.data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load property');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [id]);
+
+  useEffect(() => {
+    fetchProperty();
+  }, [fetchProperty]);
+
+  return { property, isLoading, error, fetchProperty };
 };

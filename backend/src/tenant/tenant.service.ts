@@ -6,6 +6,30 @@ import { CreateTenantDto, UpdateTenantDto } from './dto/create-tenant.dto';
 export class TenantService {
   constructor(@Inject('SUPABASE_CLIENT') private supabase: SupabaseClient) {}
 
+  async getAllTenants(userId: string, search?: string) {
+    let query = this.supabase
+      .from('tenants')
+      .select(
+        `*,
+        unit:units!inner(
+          id, name,
+          property:properties!inner(id, name, user_id)
+        )`,
+      )
+      .eq('unit.property.user_id', userId)
+      .is('deleted_at', null);
+
+    if (search) {
+      query = query.or(
+        `name.ilike.%${search}%,phone.ilike.%${search}%,email.ilike.%${search}%`,
+      );
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
+    if (error) throw error;
+    return data;
+  }
+
   async getTenantsByUnit(userId: string, unitId: string) {
     // Verify unit ownership via property
     const { data: unit } = await this.supabase

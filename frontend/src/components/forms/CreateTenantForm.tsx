@@ -2,155 +2,137 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { X } from 'lucide-react';
-import { Unit } from '@/types';
+import api from '@/services/api';
+import { Modal } from '@/components/common/Modal';
 
-const tenantSchema = z.object({
-  unit_id: z.string().min(1, 'Vui lòng chọn phòng'),
-  name: z.string().min(1, 'Tên người thuê không được để trống').max(255),
-  email: z.string().email('Email không hợp lệ').optional().or(z.literal('')),
+const schema = z.object({
+  name: z.string().min(1, 'Name is required').max(255),
+  email: z.string().email('Invalid email').optional().or(z.literal('')),
   phone: z.string().optional(),
   address: z.string().optional(),
   notes: z.string().max(1000).optional(),
 });
 
-type TenantFormData = z.infer<typeof tenantSchema>;
+type FormData = z.infer<typeof schema>;
 
-interface CreateTenantFormProps {
-  units?: Unit[];
-  onClose: () => void;
-  onSubmit: (data: TenantFormData) => Promise<void>;
-  isSubmitting?: boolean;
+interface UnitOption {
+  id: string;
+  name: string;
 }
 
-export const CreateTenantForm = ({ units = [], onClose, onSubmit, isSubmitting = false }: CreateTenantFormProps) => {
+interface Props {
+  unitId?: string;
+  unitOptions?: UnitOption[];
+  onUnitChange?: (id: string) => void;
+  tenantId?: string;
+  onClose: () => void;
+  onSuccess: () => void;
+  initialData?: Partial<FormData>;
+}
+
+export const CreateTenantForm = ({
+  unitId,
+  unitOptions,
+  onUnitChange,
+  tenantId,
+  onClose,
+  onSuccess,
+  initialData,
+}: Props) => {
+  const isEdit = !!tenantId;
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { register, handleSubmit, formState: { errors } } = useForm<TenantFormData>({
-    resolver: zodResolver(tenantSchema),
+  const [selectedUnit, setSelectedUnit] = useState(unitId || '');
+
+  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: { ...initialData },
   });
 
-  const handleSubmitForm = async (data: TenantFormData) => {
+  const onSubmit = async (data: FormData) => {
     try {
+      setIsSubmitting(true);
       setError(null);
-      await onSubmit(data);
+      if (isEdit) {
+        await api.patch(`/tenants/${tenantId}`, data);
+      } else {
+        const targetUnit = selectedUnit || unitId;
+        if (!targetUnit) {
+          setError('Please select a unit');
+          return;
+        }
+        await api.post(`/units/${targetUnit}/tenants`, data);
+      }
+      onSuccess();
       onClose();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Lỗi khi tạo người thuê');
+    } catch (err: any) {
+      setError(err?.response?.data?.message || 'Failed to save tenant');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center p-6 border-b border-gray-200 sticky top-0 bg-white">
-          <h2 className="text-xl font-bold text-gray-900">Thêm người thuê</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-            <X size={24} />
-          </button>
-        </div>
+    <Modal title={isEdit ? 'Edit Tenant' : 'Add Tenant'} onClose={onClose}>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {error && (
+          <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">{error}</div>
+        )}
 
-        <form onSubmit={handleSubmit(handleSubmitForm)} className="p-6 space-y-4">
-          {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded text-red-600 text-sm">
-              {error}
-            </div>
-          )}
-
+        {!isEdit && unitOptions && unitOptions.length > 0 && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Phòng *
-            </label>
+            <label className="label">Unit *</label>
             <select
-              {...register('unit_id')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              value={selectedUnit}
+              onChange={(e) => {
+                setSelectedUnit(e.target.value);
+                onUnitChange?.(e.target.value);
+              }}
+              className="input"
             >
-              <option value="">Chọn phòng</option>
-              {units.map((unit) => (
-                <option key={unit.id} value={unit.id}>
-                  {unit.name}
-                </option>
+              <option value="">Select unit</option>
+              {unitOptions.map((u) => (
+                <option key={u.id} value={u.id}>{u.name}</option>
               ))}
             </select>
-            {errors.unit_id && <p className="mt-1 text-sm text-red-600">{errors.unit_id.message}</p>}
           </div>
+        )}
 
+        <div>
+          <label className="label">Full name *</label>
+          <input {...register('name')} className="input" placeholder="John Doe" />
+          {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name.message}</p>}
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Tên *
-            </label>
-            <input
-              {...register('name')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Nguyễn Văn A"
-            />
-            {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
+            <label className="label">Phone</label>
+            <input {...register('phone')} className="input" placeholder="+84 901 234 567" />
           </div>
-
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email
-            </label>
-            <input
-              {...register('email')}
-              type="email"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="email@example.com"
-            />
-            {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
+            <label className="label">Email</label>
+            <input {...register('email')} type="email" className="input" placeholder="email@example.com" />
+            {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
           </div>
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Số điện thoại
-            </label>
-            <input
-              {...register('phone')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="0901234567"
-            />
-          </div>
+        <div>
+          <label className="label">Address</label>
+          <input {...register('address')} className="input" placeholder="Home address" />
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Địa chỉ
-            </label>
-            <input
-              {...register('address')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Địa chỉ..."
-            />
-          </div>
+        <div>
+          <label className="label">Notes</label>
+          <textarea {...register('notes')} rows={2} className="input" placeholder="Internal notes…" />
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Ghi chú
-            </label>
-            <textarea
-              {...register('notes')}
-              rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Ghi chú..."
-            />
-          </div>
-
-          <div className="flex gap-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium"
-            >
-              Hủy
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg transition font-medium"
-            >
-              {isSubmitting ? 'Đang lưu...' : 'Thêm'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <div className="flex gap-3 pt-2">
+          <button type="button" onClick={onClose} className="btn-secondary flex-1">Cancel</button>
+          <button type="submit" disabled={isSubmitting} className="btn-primary flex-1">
+            {isSubmitting ? 'Saving…' : isEdit ? 'Save changes' : 'Add tenant'}
+          </button>
+        </div>
+      </form>
+    </Modal>
   );
 };

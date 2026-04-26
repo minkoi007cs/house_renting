@@ -5,6 +5,26 @@ import { SupabaseClient } from '@supabase/supabase-js';
 export class ReminderService {
   constructor(@Inject('SUPABASE_CLIENT') private supabase: SupabaseClient) {}
 
+  async getAllReminders(userId: string, status?: string) {
+    let query = this.supabase
+      .from('reminders')
+      .select(
+        `*,
+        property:properties!inner(id, name, user_id),
+        unit:units(id, name)`,
+      )
+      .eq('property.user_id', userId)
+      .is('deleted_at', null);
+
+    if (status) {
+      query = query.eq('status', status);
+    }
+
+    const { data, error } = await query.order('due_date', { ascending: true });
+    if (error) throw error;
+    return data;
+  }
+
   async getRemindersByProperty(userId: string, propertyId: string) {
     const { data: property } = await this.supabase
       .from('properties')

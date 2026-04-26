@@ -8,6 +8,7 @@ export interface PropertyAnalytics {
     net_profit: number;
   };
   by_category: Record<string, number>;
+  by_month: { month: string; income: number; expense: number }[];
   by_unit: Record<string, { income: number; expense: number }>;
   units_breakdown: any[];
 }
@@ -21,14 +22,11 @@ export const useAnalytics = (propertyId: string) => {
     try {
       setIsLoading(true);
       setError(null);
-      const params = new URLSearchParams();
-      if (startDate) params.append('startDate', startDate);
-      if (endDate) params.append('endDate', endDate);
-
-      const response = await api.get(
-        `/analytics/properties/${propertyId}${params.toString() ? '?' + params.toString() : ''}`,
-      );
-      setAnalytics(response.data.data);
+      const params: Record<string, string> = {};
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
+      const res = await api.get(`/analytics/property/${propertyId}`, { params });
+      setAnalytics(res.data.data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch analytics');
     } finally {
@@ -37,15 +35,8 @@ export const useAnalytics = (propertyId: string) => {
   };
 
   useEffect(() => {
-    if (propertyId) {
-      fetchAnalytics();
-    }
+    if (propertyId) fetchAnalytics();
   }, [propertyId]);
 
-  return {
-    analytics,
-    isLoading,
-    error,
-    fetchAnalytics,
-  };
+  return { analytics, isLoading, error, fetchAnalytics };
 };

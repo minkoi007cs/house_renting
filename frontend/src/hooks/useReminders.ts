@@ -1,59 +1,50 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Reminder } from '@/types';
 import api from '@/services/api';
 
-export const useReminders = (propertyId: string) => {
+export const useReminders = (status?: string) => {
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchReminders = async () => {
+  const fetchReminders = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await api.get(`/properties/${propertyId}/reminders`);
-      setReminders(response.data.data);
+      const res = await api.get('/reminders', { params: status ? { status } : {} });
+      setReminders(res.data.data || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch reminders');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [status]);
 
-  const createReminder = async (data: Partial<Reminder>) => {
-    try {
-      const response = await api.post(`/properties/${propertyId}/reminders`, data);
-      setReminders([response.data.data, ...reminders]);
-      return response.data.data;
-    } catch (err) {
-      throw err;
-    }
+  const createReminder = async (propertyId: string, data: Partial<Reminder>) => {
+    const res = await api.post(`/properties/${propertyId}/reminders`, data);
+    await fetchReminders();
+    return res.data.data;
   };
 
   const updateReminder = async (id: string, data: Partial<Reminder>) => {
-    try {
-      const response = await api.patch(`/properties/${propertyId}/reminders/${id}`, data);
-      setReminders(reminders.map((r) => (r.id === id ? response.data.data : r)));
-      return response.data.data;
-    } catch (err) {
-      throw err;
-    }
+    const res = await api.patch(`/reminders/${id}`, data);
+    setReminders((list) => list.map((r) => (r.id === id ? { ...r, ...res.data.data } : r)));
+    return res.data.data;
+  };
+
+  const toggleReminder = async (r: Reminder) => {
+    const newStatus = r.status === 'pending' ? 'done' : 'pending';
+    await updateReminder(r.id, { status: newStatus });
   };
 
   const deleteReminder = async (id: string) => {
-    try {
-      await api.delete(`/properties/${propertyId}/reminders/${id}`);
-      setReminders(reminders.filter((r) => r.id !== id));
-    } catch (err) {
-      throw err;
-    }
+    await api.delete(`/reminders/${id}`);
+    setReminders((list) => list.filter((r) => r.id !== id));
   };
 
   useEffect(() => {
-    if (propertyId) {
-      fetchReminders();
-    }
-  }, [propertyId]);
+    fetchReminders();
+  }, [fetchReminders]);
 
   return {
     reminders,
@@ -62,6 +53,7 @@ export const useReminders = (propertyId: string) => {
     fetchReminders,
     createReminder,
     updateReminder,
+    toggleReminder,
     deleteReminder,
   };
 };
