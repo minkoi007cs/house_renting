@@ -1,81 +1,67 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { RentalContract } from '@/types';
 import api from '@/services/api';
 
-export const useContracts = (propertyId: string) => {
+export const useContracts = (status?: string) => {
   const [contracts, setContracts] = useState<RentalContract[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchContracts = async () => {
+  const fetchContracts = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
-      // Fetch all units first, then their contracts
-      const unitsResponse = await api.get(`/properties/${propertyId}/units`);
-      const units = unitsResponse.data.data;
-
-      const allContracts: RentalContract[] = [];
-      for (const unit of units) {
-        try {
-          const contractsResponse = await api.get(`/units/${unit.id}/contracts`);
-          allContracts.push(...contractsResponse.data.data);
-        } catch (err) {
-          // Continue if unit has no contracts
-        }
-      }
-      setContracts(allContracts);
+      const res = await api.get('/contracts', { params: status ? { status } : {} });
+      setContracts(res.data.data || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch contracts');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [status]);
 
-  const createContract = async (data: Partial<RentalContract>) => {
-    try {
-      // Need unit_id to create contract
-      if (!data.unit_id) throw new Error('unit_id is required');
-      const response = await api.post(`/units/${data.unit_id}/contracts`, data);
-      setContracts([response.data.data, ...contracts]);
-      return response.data.data;
-    } catch (err) {
-      throw err;
-    }
+  const createContract = async (unitId: string, data: Partial<RentalContract>) => {
+    const res = await api.post(`/units/${unitId}/contracts`, data);
+    await fetchContracts();
+    return res.data.data;
   };
 
   const updateContract = async (id: string, data: Partial<RentalContract>) => {
-    try {
-      const response = await api.patch(`/contracts/${id}`, data);
-      setContracts(contracts.map((c) => (c.id === id ? response.data.data : c)));
-      return response.data.data;
-    } catch (err) {
-      throw err;
-    }
+    const res = await api.patch(`/contracts/${id}`, data);
+    setContracts((list) => list.map((c) => (c.id === id ? { ...c, ...res.data.data } : c)));
+    return res.data.data;
   };
 
   const deleteContract = async (id: string) => {
-    try {
-      await api.delete(`/contracts/${id}`);
-      setContracts(contracts.filter((c) => c.id !== id));
-    } catch (err) {
-      throw err;
-    }
+    await api.delete(`/contracts/${id}`);
+    setContracts((list) => list.filter((c) => c.id !== id));
   };
 
   useEffect(() => {
-    if (propertyId) {
-      fetchContracts();
-    }
-  }, [propertyId]);
+    fetchContracts();
+  }, [fetchContracts]);
 
-  return {
-    contracts,
-    isLoading,
-    error,
-    fetchContracts,
-    createContract,
-    updateContract,
-    deleteContract,
-  };
+  return { contracts, isLoading, error, fetchContracts, createContract, updateContract, deleteContract };
+};
+
+export const useContractsByUnit = (unitId: string | undefined) => {
+  const [contracts, setContracts] = useState<RentalContract[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchContracts = useCallback(async () => {
+    if (!unitId) return;
+    try {
+      setIsLoading(true);
+      const res = await api.get(`/units/${unitId}/contracts`);
+      setContracts(res.data.data || []);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [unitId]);
+
+  useEffect(() => {
+    fetchContracts();
+  }, [fetchContracts]);
+
+  return { contracts, isLoading, fetchContracts };
 };

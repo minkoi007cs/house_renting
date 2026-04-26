@@ -1,19 +1,9 @@
 import { useState, useEffect } from 'react';
 import api from '@/services/api';
-
-export interface DashboardStats {
-  summary: {
-    total_properties: number;
-    occupied_units: number;
-    vacant_units: number;
-    total_income: number;
-    total_expense: number;
-    net_profit: number;
-  };
-}
+import { DashboardData } from '@/types';
 
 export const useDashboardStats = () => {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [stats, setStats] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,14 +11,11 @@ export const useDashboardStats = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const params = new URLSearchParams();
-      if (startDate) params.append('startDate', startDate);
-      if (endDate) params.append('endDate', endDate);
-
-      const response = await api.get(
-        `/analytics/dashboard${params.toString() ? '?' + params.toString() : ''}`,
-      );
-      setStats(response.data.data);
+      const params: Record<string, string> = {};
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
+      const res = await api.get('/analytics/dashboard', { params });
+      setStats(res.data.data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch stats');
     } finally {
@@ -40,10 +27,5 @@ export const useDashboardStats = () => {
     fetchStats();
   }, []);
 
-  return {
-    stats,
-    isLoading,
-    error,
-    fetchStats,
-  };
+  return { stats, isLoading, error, fetchStats };
 };

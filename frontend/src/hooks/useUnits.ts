@@ -1,67 +1,47 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Unit } from '@/types';
 import api from '@/services/api';
 
-export const useUnits = (propertyId: string) => {
+export const useUnits = (propertyId: string | undefined) => {
   const [units, setUnits] = useState<Unit[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchUnits = async () => {
+  const fetchUnits = useCallback(async () => {
+    if (!propertyId) return;
     try {
       setIsLoading(true);
       setError(null);
-      const response = await api.get(`/properties/${propertyId}/units`);
-      setUnits(response.data.data);
+      const res = await api.get(`/properties/${propertyId}/units`);
+      setUnits(res.data.data || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch units');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [propertyId]);
 
   const createUnit = async (data: Partial<Unit>) => {
-    try {
-      const response = await api.post(`/properties/${propertyId}/units`, data);
-      setUnits([response.data.data, ...units]);
-      return response.data.data;
-    } catch (err) {
-      throw err;
-    }
+    if (!propertyId) throw new Error('Missing property');
+    const res = await api.post(`/properties/${propertyId}/units`, data);
+    setUnits((list) => [res.data.data, ...list]);
+    return res.data.data;
   };
 
   const updateUnit = async (id: string, data: Partial<Unit>) => {
-    try {
-      const response = await api.patch(`/properties/${propertyId}/units/${id}`, data);
-      setUnits(units.map((u) => (u.id === id ? response.data.data : u)));
-      return response.data.data;
-    } catch (err) {
-      throw err;
-    }
+    const res = await api.patch(`/properties/${propertyId}/units/${id}`, data);
+    setUnits((list) => list.map((u) => (u.id === id ? { ...u, ...res.data.data } : u)));
+    return res.data.data;
   };
 
   const deleteUnit = async (id: string) => {
-    try {
-      await api.delete(`/properties/${propertyId}/units/${id}`);
-      setUnits(units.filter((u) => u.id !== id));
-    } catch (err) {
-      throw err;
-    }
+    await api.delete(`/properties/${propertyId}/units/${id}`);
+    setUnits((list) => list.filter((u) => u.id !== id));
   };
 
   useEffect(() => {
-    if (propertyId) {
-      fetchUnits();
-    }
-  }, [propertyId]);
+    fetchUnits();
+  }, [fetchUnits]);
 
-  return {
-    units,
-    isLoading,
-    error,
-    fetchUnits,
-    createUnit,
-    updateUnit,
-    deleteUnit,
-  };
+  return { units, isLoading, error, fetchUnits, createUnit, updateUnit, deleteUnit };
 };

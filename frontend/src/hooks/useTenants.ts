@@ -1,81 +1,67 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Tenant } from '@/types';
 import api from '@/services/api';
 
-export const useTenants = (propertyId: string) => {
+export const useTenants = (search?: string) => {
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchTenants = async () => {
+  const fetchTenants = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
-      // Fetch all units first, then their tenants
-      const unitsResponse = await api.get(`/properties/${propertyId}/units`);
-      const units = unitsResponse.data.data;
-
-      const allTenants: Tenant[] = [];
-      for (const unit of units) {
-        try {
-          const tenantsResponse = await api.get(`/units/${unit.id}/tenants`);
-          allTenants.push(...tenantsResponse.data.data);
-        } catch (err) {
-          // Continue if unit has no tenants
-        }
-      }
-      setTenants(allTenants);
+      const res = await api.get('/tenants', { params: search ? { search } : {} });
+      setTenants(res.data.data || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch tenants');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [search]);
 
-  const createTenant = async (data: Partial<Tenant>) => {
-    try {
-      // Need unit_id to create tenant
-      if (!data.unit_id) throw new Error('unit_id is required');
-      const response = await api.post(`/units/${data.unit_id}/tenants`, data);
-      setTenants([response.data.data, ...tenants]);
-      return response.data.data;
-    } catch (err) {
-      throw err;
-    }
+  const createTenant = async (unitId: string, data: Partial<Tenant>) => {
+    const res = await api.post(`/units/${unitId}/tenants`, data);
+    await fetchTenants();
+    return res.data.data;
   };
 
   const updateTenant = async (id: string, data: Partial<Tenant>) => {
-    try {
-      const response = await api.patch(`/tenants/${id}`, data);
-      setTenants(tenants.map((t) => (t.id === id ? response.data.data : t)));
-      return response.data.data;
-    } catch (err) {
-      throw err;
-    }
+    const res = await api.patch(`/tenants/${id}`, data);
+    setTenants((list) => list.map((t) => (t.id === id ? { ...t, ...res.data.data } : t)));
+    return res.data.data;
   };
 
   const deleteTenant = async (id: string) => {
-    try {
-      await api.delete(`/tenants/${id}`);
-      setTenants(tenants.filter((t) => t.id !== id));
-    } catch (err) {
-      throw err;
-    }
+    await api.delete(`/tenants/${id}`);
+    setTenants((list) => list.filter((t) => t.id !== id));
   };
 
   useEffect(() => {
-    if (propertyId) {
-      fetchTenants();
-    }
-  }, [propertyId]);
+    fetchTenants();
+  }, [fetchTenants]);
 
-  return {
-    tenants,
-    isLoading,
-    error,
-    fetchTenants,
-    createTenant,
-    updateTenant,
-    deleteTenant,
-  };
+  return { tenants, isLoading, error, fetchTenants, createTenant, updateTenant, deleteTenant };
+};
+
+export const useTenantsByUnit = (unitId: string | undefined) => {
+  const [tenants, setTenants] = useState<Tenant[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchTenants = useCallback(async () => {
+    if (!unitId) return;
+    try {
+      setIsLoading(true);
+      const res = await api.get(`/units/${unitId}/tenants`);
+      setTenants(res.data.data || []);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [unitId]);
+
+  useEffect(() => {
+    fetchTenants();
+  }, [fetchTenants]);
+
+  return { tenants, isLoading, fetchTenants };
 };
