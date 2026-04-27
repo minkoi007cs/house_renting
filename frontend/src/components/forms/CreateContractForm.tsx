@@ -59,7 +59,7 @@ export const CreateContractForm = ({
       for (const file of files) {
         const form = new FormData();
         form.append('file', file);
-        const res = await api.post('/upload', form, { headers: { 'Content-Type': 'multipart/form-data' } });
+        const res = await api.post('/upload', form);
         urls.push(res.data.data.url);
       }
       setImages((prev) => [...prev, ...urls]);

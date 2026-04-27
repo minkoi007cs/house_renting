@@ -1,4 +1,4 @@
-import { IsDate, IsNumber, IsString, IsOptional, IsEnum, IsArray, IsUUID, IsUrl } from 'class-validator';
+import { IsDate, IsNumber, IsString, IsOptional, IsEnum, IsArray, IsUUID } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateContractDto {
