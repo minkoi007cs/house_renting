@@ -15,14 +15,19 @@ export class TransactionService {
     skip = 0,
     take = 20,
   ) {
+    const { data: userProperties } = await this.supabase
+      .from('properties')
+      .select('id')
+      .eq('user_id', userId)
+      .is('deleted_at', null);
+
+    const propertyIds = (userProperties || []).map((p: any) => p.id);
+    if (propertyIds.length === 0) return { data: [], count: 0, skip, take };
+
     let query = this.supabase
       .from('transactions')
-      .select(
-        `*,
-        property:properties!inner(id, name, user_id)`,
-        { count: 'exact' },
-      )
-      .eq('property.user_id', userId)
+      .select('*, property:properties(id, name)', { count: 'exact' })
+      .in('property_id', propertyIds)
       .is('deleted_at', null);
 
     if (startDate) {
@@ -43,13 +48,27 @@ export class TransactionService {
   }
 
   async getGlobalSummary(userId: string, startDate?: Date, endDate?: Date) {
+    const { data: userProperties } = await this.supabase
+      .from('properties')
+      .select('id')
+      .eq('user_id', userId)
+      .is('deleted_at', null);
+
+    const propertyIds = (userProperties || []).map((p: any) => p.id);
+    if (propertyIds.length === 0) {
+      return {
+        total_income: 0,
+        total_expense: 0,
+        net_profit: 0,
+        by_category: {},
+        by_month: {},
+      };
+    }
+
     let query = this.supabase
       .from('transactions')
-      .select(
-        `type, category, amount, transaction_date,
-        property:properties!inner(id, user_id)`,
-      )
-      .eq('property.user_id', userId)
+      .select('type, category, amount, transaction_date')
+      .in('property_id', propertyIds)
       .is('deleted_at', null);
 
     if (startDate) {

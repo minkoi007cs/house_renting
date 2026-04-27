@@ -1,4 +1,14 @@
-import { Controller, Get, Patch, Delete, Query, Param, Body, UseGuards, HttpCode } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Patch,
+  Delete,
+  Query,
+  Param,
+  Body,
+  UseGuards,
+  HttpCode,
+} from '@nestjs/common';
 import { TenantService } from './tenant.service';
 import { UpdateTenantDto } from './dto/create-tenant.dto';
 import { JwtGuard } from '../common/guards/jwt.guard';

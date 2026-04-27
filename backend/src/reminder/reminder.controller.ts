@@ -7,7 +7,6 @@ import {
   Param,
   Body,
   UseGuards,
-  Query,
   HttpCode,
 } from '@nestjs/common';
 import { ReminderService } from './reminder.service';
@@ -36,10 +35,7 @@ export class ReminderController {
   }
 
   @Get(':id')
-  async getReminderDetail(
-    @CurrentUser('sub') userId: string,
-    @Param('id') reminderId: string,
-  ) {
+  async getReminderDetail(@CurrentUser('sub') userId: string, @Param('id') reminderId: string) {
     const reminder = await this.reminderService.getReminderById(userId, reminderId);
     return { status: 'success', data: reminder };
   }

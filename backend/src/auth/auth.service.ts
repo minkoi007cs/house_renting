@@ -67,7 +67,7 @@ export class AuthService {
 
   generateJWT(userId: string): string {
     const secret = this.configService.get<string>('JWT_SECRET') || 'default-secret';
-    const expiresIn = this.configService.get<number>('JWT_EXPIRATION') || 86400;
+    const expiresIn = this.configService.get<number>('JWT_EXPIRATION') || 2592000;
 
     return jwt.sign(
       {
