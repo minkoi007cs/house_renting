@@ -18,6 +18,9 @@ export interface Property {
   status: PropertyStatus;
   description?: string;
   notes?: string;
+  monthly_rent?: number;
+  cover_image_url?: string;
+  image_urls?: string[];
   units?: Unit[] | { count: number }[];
   transactions?: Transaction[];
   reminders?: Reminder[];
@@ -51,6 +54,7 @@ export interface Tenant {
   email?: string;
   address?: string;
   notes?: string;
+  emergency_contact?: string;
   unit?: Unit;
   created_at: string;
   updated_at: string;
@@ -74,11 +78,13 @@ export interface RentalContract {
   rent_amount: number;
   deposit_amount: number;
   payment_cycle: string;
+  rent_due_day?: number;
   terms?: string;
   status: ContractStatus;
   notes?: string;
+  image_urls?: string[];
   unit?: Unit;
-  contract_tenants?: { tenant: Tenant }[];
+  contract_tenants?: { tenant: Tenant; role?: string }[];
   created_at: string;
   updated_at: string;
   deleted_at?: string;

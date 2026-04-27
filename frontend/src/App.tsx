@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import { PageLoader } from '@/components/common/Spinner';
+import { useAuthBootstrap } from '@/hooks/useAuthBootstrap';
 
 const LoginPage = lazy(() => import('@/pages/LoginPage').then((m) => ({ default: m.LoginPage })));
 const DashboardPage = lazy(() => import('@/pages/DashboardPage').then((m) => ({ default: m.DashboardPage })));
@@ -15,7 +16,17 @@ const ReportsPage = lazy(() => import('@/pages/ReportsPage').then((m) => ({ defa
 const SettingsPage = lazy(() => import('@/pages/SettingsPage').then((m) => ({ default: m.SettingsPage })));
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { token } = useAuthStore();
+  const { token, isLoading, isAuthChecked } = useAuthStore();
+  useAuthBootstrap();
+
+  if (!isAuthChecked || isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <PageLoader />
+      </div>
+    );
+  }
+
   if (!token) return <Navigate to="/login" replace />;
   return <>{children}</>;
 };

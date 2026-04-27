@@ -31,6 +31,7 @@ export const CONTRACT_STATUS_LABELS: Record<string, string> = {
 export const TX_CATEGORY_LABELS: Record<string, string> = {
   rent: 'Rent',
   service_fee: 'Service fee',
+  deposit_received: 'Deposit received',
   deposit_refund: 'Deposit refund',
   other_income: 'Other income',
   repair: 'Repair',
@@ -38,6 +39,8 @@ export const TX_CATEGORY_LABELS: Record<string, string> = {
   utilities: 'Utilities',
   brokerage: 'Brokerage',
   cleaning: 'Cleaning',
+  tax: 'Tax',
+  insurance: 'Insurance',
   other_expense: 'Other expense',
 };
 

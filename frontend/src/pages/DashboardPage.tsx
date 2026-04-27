@@ -37,12 +37,14 @@ const StatCard = ({
   sub,
   icon: Icon,
   accent = 'indigo',
+  onClick,
 }: {
   label: string;
   value: string | number;
   sub?: string;
   icon: React.ElementType;
   accent?: string;
+  onClick?: () => void;
 }) => {
   const accentMap: Record<string, string> = {
     indigo: 'bg-brand-50 text-brand-600',
@@ -52,7 +54,10 @@ const StatCard = ({
     blue: 'bg-blue-50 text-blue-600',
   };
   return (
-    <div className="card p-5 flex items-start gap-4">
+    <div
+      className={`card p-5 flex items-start gap-4 ${onClick ? 'cursor-pointer hover:shadow-md transition-shadow' : ''}`}
+      onClick={onClick}
+    >
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${accentMap[accent] || accentMap.indigo}`}>
         <Icon className="w-5 h-5" />
       </div>
@@ -97,6 +102,7 @@ export const DashboardPage = () => {
             sub={`${s?.total_units ?? 0} total units`}
             icon={Building2}
             accent="indigo"
+            onClick={() => navigate('/properties')}
           />
           <StatCard
             label="Occupancy"
@@ -104,6 +110,7 @@ export const DashboardPage = () => {
             sub={`${s?.occupied_units ?? 0} occupied · ${s?.vacant_units ?? 0} vacant`}
             icon={Layers}
             accent="green"
+            onClick={() => navigate('/properties')}
           />
           <StatCard
             label="Tenants"
@@ -111,6 +118,7 @@ export const DashboardPage = () => {
             sub={`${s?.active_contracts ?? 0} active contracts`}
             icon={Users}
             accent="blue"
+            onClick={() => navigate('/tenants')}
           />
           <StatCard
             label="Net Profit"
@@ -118,6 +126,7 @@ export const DashboardPage = () => {
             sub={`Income ${formatCurrency(s?.total_income)}`}
             icon={s?.net_profit && s.net_profit >= 0 ? TrendingUp : TrendingDown}
             accent={s?.net_profit && s.net_profit >= 0 ? 'green' : 'red'}
+            onClick={() => navigate('/transactions')}
           />
         </div>
 

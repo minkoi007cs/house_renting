@@ -370,3 +370,27 @@ FROM public.properties p
 LEFT JOIN public.transactions t ON p.id = t.property_id
 WHERE t.deleted_at IS NULL
 GROUP BY p.id, p.user_id, DATE_TRUNC('month', t.transaction_date);
+
+-- ============================================================
+-- Phase 1 migration — run in Supabase SQL Editor
+-- ============================================================
+
+-- New columns on properties
+ALTER TABLE public.properties
+  ADD COLUMN IF NOT EXISTS monthly_rent    NUMERIC(12,2),
+  ADD COLUMN IF NOT EXISTS cover_image_url TEXT,
+  ADD COLUMN IF NOT EXISTS image_urls      TEXT[] DEFAULT '{}';
+
+-- New columns on rental_contracts
+ALTER TABLE public.rental_contracts
+  ADD COLUMN IF NOT EXISTS image_urls    TEXT[]  DEFAULT '{}',
+  ADD COLUMN IF NOT EXISTS rent_due_day  INTEGER CHECK (rent_due_day BETWEEN 1 AND 31);
+
+-- New transaction categories
+ALTER TYPE transaction_category ADD VALUE IF NOT EXISTS 'deposit_received';
+ALTER TYPE transaction_category ADD VALUE IF NOT EXISTS 'tax';
+ALTER TYPE transaction_category ADD VALUE IF NOT EXISTS 'insurance';
+
+-- New column on tenants
+ALTER TABLE public.tenants
+  ADD COLUMN IF NOT EXISTS emergency_contact TEXT;
