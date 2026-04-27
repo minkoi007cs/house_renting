@@ -30,11 +30,11 @@ export class ContractService {
   }
 
   async getContractsByUnit(userId: string, unitId: string, status?: string) {
-    const { data: unit } = await this.supabase
+    const { data: unit } = (await this.supabase
       .from('units')
       .select('id, property:properties(id, user_id)')
       .eq('id', unitId)
-      .single() as any;
+      .single()) as any;
 
     if (!unit || (unit.property as any)?.user_id !== userId) {
       throw new ForbiddenException('Access denied');
@@ -56,16 +56,18 @@ export class ContractService {
   }
 
   async getContractDetail(userId: string, contractId: string) {
-    const { data, error } = await this.supabase
+    const { data, error } = (await this.supabase
       .from('rental_contracts')
-      .select(`
+      .select(
+        `
         *,
         unit:units(id, name, property:properties(id, user_id)),
         contract_tenants(tenant:tenants(*))
-      `)
+      `,
+      )
       .eq('id', contractId)
       .is('deleted_at', null)
-      .single() as any;
+      .single()) as any;
 
     if (error || !data) {
       throw new NotFoundException('Contract not found');
@@ -79,11 +81,11 @@ export class ContractService {
   }
 
   async createContract(userId: string, unitId: string, dto: CreateContractDto) {
-    const { data: unit } = await this.supabase
+    const { data: unit } = (await this.supabase
       .from('units')
       .select('id, property:properties(id, user_id)')
       .eq('id', unitId)
-      .single() as any;
+      .single()) as any;
 
     if (!unit || (unit.property as any)?.user_id !== userId) {
       throw new ForbiddenException('Access denied');
@@ -101,7 +103,7 @@ export class ContractService {
 
     // Link tenants if provided
     if (tenant_ids && tenant_ids.length > 0) {
-      const tenantLinks = tenant_ids.map(tenantId => ({
+      const tenantLinks = tenant_ids.map((tenantId) => ({
         contract_id: contract.id,
         tenant_id: tenantId,
       }));

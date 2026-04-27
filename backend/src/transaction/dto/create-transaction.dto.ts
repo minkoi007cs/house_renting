@@ -6,8 +6,16 @@ export class CreateTransactionDto {
   type: string;
 
   @IsEnum([
-    'rent', 'service_fee', 'deposit_refund', 'other_income',
-    'repair', 'maintenance', 'utilities', 'brokerage', 'cleaning', 'other_expense'
+    'rent',
+    'service_fee',
+    'deposit_refund',
+    'other_income',
+    'repair',
+    'maintenance',
+    'utilities',
+    'brokerage',
+    'cleaning',
+    'other_expense',
   ])
   category: string;
 
@@ -33,8 +41,16 @@ export class UpdateTransactionDto {
   type?: string;
 
   @IsEnum([
-    'rent', 'service_fee', 'deposit_refund', 'other_income',
-    'repair', 'maintenance', 'utilities', 'brokerage', 'cleaning', 'other_expense'
+    'rent',
+    'service_fee',
+    'deposit_refund',
+    'other_income',
+    'repair',
+    'maintenance',
+    'utilities',
+    'brokerage',
+    'cleaning',
+    'other_expense',
   ])
   @IsOptional()
   category?: string;

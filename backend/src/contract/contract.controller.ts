@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, UseGuards, HttpCode } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Param,
+  Body,
+  UseGuards,
+  HttpCode,
+} from '@nestjs/common';
 import { ContractService } from './contract.service';
 import { CreateContractDto, UpdateContractDto } from './dto/create-contract.dto';
 import { JwtGuard } from '../common/guards/jwt.guard';
@@ -10,10 +20,7 @@ export class ContractController {
   constructor(private contractService: ContractService) {}
 
   @Get()
-  async getContracts(
-    @CurrentUser('sub') userId: string,
-    @Param('unitId') unitId: string,
-  ) {
+  async getContracts(@CurrentUser('sub') userId: string, @Param('unitId') unitId: string) {
     const contracts = await this.contractService.getContractsByUnit(userId, unitId);
     return { status: 'success', data: contracts };
   }
@@ -29,10 +36,7 @@ export class ContractController {
   }
 
   @Get(':id')
-  async getContractDetail(
-    @CurrentUser('sub') userId: string,
-    @Param('id') contractId: string,
-  ) {
+  async getContractDetail(@CurrentUser('sub') userId: string, @Param('id') contractId: string) {
     const contract = await this.contractService.getContractDetail(userId, contractId);
     return { status: 'success', data: contract };
   }
@@ -49,10 +53,7 @@ export class ContractController {
 
   @Delete(':id')
   @HttpCode(204)
-  async deleteContract(
-    @CurrentUser('sub') userId: string,
-    @Param('id') contractId: string,
-  ) {
+  async deleteContract(@CurrentUser('sub') userId: string, @Param('id') contractId: string) {
     await this.contractService.deleteContract(userId, contractId);
   }
 }

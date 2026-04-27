@@ -18,7 +18,7 @@ export const SettingsPage = () => {
     try {
       setSaving(true);
       setError(null);
-      const res = await api.patch('/users/me', { name });
+      const res = await api.patch('/users/profile', { name });
       setUser(res.data.data);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);

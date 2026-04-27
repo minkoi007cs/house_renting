@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Get,
-  UseGuards,
-  Query,
-  Param,
-} from '@nestjs/common';
+import { Controller, Get, UseGuards, Query, Param } from '@nestjs/common';
 import { AnalyticsService } from './analytics.service';
 import { JwtGuard } from '../common/guards/jwt.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';

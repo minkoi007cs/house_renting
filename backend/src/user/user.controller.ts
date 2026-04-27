@@ -18,10 +18,7 @@ export class UserController {
   }
 
   @Patch('profile')
-  async updateProfile(
-    @CurrentUser('sub') userId: string,
-    @Body() data: any,
-  ) {
+  async updateProfile(@CurrentUser('sub') userId: string, @Body() data: any) {
     const updated = await this.userService.updateUserProfile(userId, data);
     return {
       status: 'success',

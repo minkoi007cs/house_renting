@@ -19,20 +19,13 @@ export class ReminderGlobalController {
   constructor(private reminderService: ReminderService) {}
 
   @Get()
-  async list(
-    @CurrentUser('sub') userId: string,
-    @Query('status') status?: string,
-  ) {
+  async list(@CurrentUser('sub') userId: string, @Query('status') status?: string) {
     const data = await this.reminderService.getAllReminders(userId, status);
     return { status: 'success', data };
   }
 
   @Patch(':id')
-  async update(
-    @CurrentUser('sub') userId: string,
-    @Param('id') id: string,
-    @Body() dto: any,
-  ) {
+  async update(@CurrentUser('sub') userId: string, @Param('id') id: string, @Body() dto: any) {
     const reminder = await this.reminderService.updateReminder(userId, id, dto);
     return { status: 'success', data: reminder };
   }

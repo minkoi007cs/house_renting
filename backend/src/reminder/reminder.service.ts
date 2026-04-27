@@ -1,4 +1,4 @@
-import { Injectable, Inject, ForbiddenException } from '@nestjs/common';
+import { Injectable, Inject, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { SupabaseClient } from '@supabase/supabase-js';
 
 @Injectable()
@@ -87,12 +87,24 @@ export class ReminderService {
     return data;
   }
 
+  async getReminderById(userId: string, reminderId: string) {
+    const { data, error } = (await this.supabase
+      .from('reminders')
+      .select('*, property:properties(id, name, user_id)')
+      .eq('id', reminderId)
+      .single()) as any;
+
+    if (error || !data) throw new NotFoundException('Reminder not found');
+    if ((data.property as any)?.user_id !== userId) throw new ForbiddenException('Access denied');
+    return data;
+  }
+
   async updateReminder(userId: string, reminderId: string, dto: any) {
-    const { data: reminder } = await this.supabase
+    const { data: reminder } = (await this.supabase
       .from('reminders')
       .select('property:properties(user_id)')
       .eq('id', reminderId)
-      .single() as any;
+      .single()) as any;
 
     if (!reminder || (reminder.property as any)?.user_id !== userId) {
       throw new ForbiddenException('Access denied');
@@ -110,11 +122,11 @@ export class ReminderService {
   }
 
   async deleteReminder(userId: string, reminderId: string) {
-    const { data: reminder } = await this.supabase
+    const { data: reminder } = (await this.supabase
       .from('reminders')
       .select('property:properties(user_id)')
       .eq('id', reminderId)
-      .single() as any;
+      .single()) as any;
 
     if (!reminder || (reminder.property as any)?.user_id !== userId) {
       throw new ForbiddenException('Access denied');

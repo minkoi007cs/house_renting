@@ -39,12 +39,7 @@ export class MediaController {
     @UploadedFile() file: any,
     @Body('type') type: 'image' | 'contract' | 'document',
   ) {
-    const media = await this.mediaService.uploadMedia(
-      userId,
-      propertyId,
-      file,
-      type,
-    );
+    const media = await this.mediaService.uploadMedia(userId, propertyId, file, type);
     return { status: 'success', data: media };
   }
 
@@ -61,10 +56,7 @@ export class MediaController {
 
   @Delete(':id')
   @HttpCode(204)
-  async deleteMedia(
-    @CurrentUser('sub') userId: string,
-    @Param('id') mediaId: string,
-  ) {
+  async deleteMedia(@CurrentUser('sub') userId: string, @Param('id') mediaId: string) {
     await this.mediaService.deleteMedia(userId, mediaId);
   }
 }

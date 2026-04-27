@@ -20,10 +20,7 @@ export class TenantController {
   constructor(private tenantService: TenantService) {}
 
   @Get()
-  async getTenantsByUnit(
-    @CurrentUser('sub') userId: string,
-    @Param('unitId') unitId: string,
-  ) {
+  async getTenantsByUnit(@CurrentUser('sub') userId: string, @Param('unitId') unitId: string) {
     const tenants = await this.tenantService.getTenantsByUnit(userId, unitId);
     return { status: 'success', data: tenants };
   }
@@ -39,10 +36,7 @@ export class TenantController {
   }
 
   @Get(':id')
-  async getTenantDetail(
-    @CurrentUser('sub') userId: string,
-    @Param('id') tenantId: string,
-  ) {
+  async getTenantDetail(@CurrentUser('sub') userId: string, @Param('id') tenantId: string) {
     const tenant = await this.tenantService.getTenantDetail(userId, tenantId);
     return { status: 'success', data: tenant };
   }
@@ -59,10 +53,7 @@ export class TenantController {
 
   @Delete(':id')
   @HttpCode(204)
-  async deleteTenant(
-    @CurrentUser('sub') userId: string,
-    @Param('id') tenantId: string,
-  ) {
+  async deleteTenant(@CurrentUser('sub') userId: string, @Param('id') tenantId: string) {
     await this.tenantService.deleteTenant(userId, tenantId);
   }
 }

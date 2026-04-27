@@ -20,9 +20,7 @@ export class TenantService {
       .is('deleted_at', null);
 
     if (search) {
-      query = query.or(
-        `name.ilike.%${search}%,phone.ilike.%${search}%,email.ilike.%${search}%`,
-      );
+      query = query.or(`name.ilike.%${search}%,phone.ilike.%${search}%,email.ilike.%${search}%`);
     }
 
     const { data, error } = await query.order('created_at', { ascending: false });
@@ -32,14 +30,14 @@ export class TenantService {
 
   async getTenantsByUnit(userId: string, unitId: string) {
     // Verify unit ownership via property
-    const { data: unit } = await this.supabase
+    const { data: unit } = (await this.supabase
       .from('units')
       .select(
         `id,
         property:properties(id, user_id)`,
       )
       .eq('id', unitId)
-      .single() as any;
+      .single()) as any;
 
     if (!unit || (unit.property as any)?.user_id !== userId) {
       throw new ForbiddenException('Access denied');
@@ -57,7 +55,7 @@ export class TenantService {
   }
 
   async getTenantDetail(userId: string, tenantId: string) {
-    const { data, error } = await this.supabase
+    const { data, error } = (await this.supabase
       .from('tenants')
       .select(
         `*,
@@ -65,7 +63,7 @@ export class TenantService {
       )
       .eq('id', tenantId)
       .is('deleted_at', null)
-      .single() as any;
+      .single()) as any;
 
     if (error || !data) {
       throw new NotFoundException('Tenant not found');
@@ -81,14 +79,14 @@ export class TenantService {
 
   async createTenant(userId: string, unitId: string, dto: CreateTenantDto) {
     // Verify unit ownership
-    const { data: unit } = await this.supabase
+    const { data: unit } = (await this.supabase
       .from('units')
       .select(
         `id,
         property:properties(id, user_id)`,
       )
       .eq('id', unitId)
-      .single() as any;
+      .single()) as any;
 
     if (!unit || (unit.property as any)?.user_id !== userId) {
       throw new ForbiddenException('Access denied');

@@ -32,20 +32,20 @@ export class MediaService {
 
     if (uploadError) throw uploadError;
 
-    const { data: publicUrl } = this.supabase.storage
-      .from('rental-files')
-      .getPublicUrl(filePath);
+    const { data: publicUrl } = this.supabase.storage.from('rental-files').getPublicUrl(filePath);
 
     const { data, error } = await this.supabase
       .from('media')
-      .insert([{
-        property_id: propertyId,
-        type,
-        file_url: publicUrl.publicUrl,
-        file_name: file.originalname,
-        file_size: file.size,
-        mime_type: file.mimetype,
-      }])
+      .insert([
+        {
+          property_id: propertyId,
+          type,
+          file_url: publicUrl.publicUrl,
+          file_name: file.originalname,
+          file_size: file.size,
+          mime_type: file.mimetype,
+        },
+      ])
       .select()
       .single();
 
