@@ -7,7 +7,7 @@ import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 import { CreateTransactionForm } from '@/components/forms/CreateTransactionForm';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useProperties } from '@/hooks/useProperties';
-import { TX_CATEGORY_LABELS, statusBadgeClass } from '@/utils/labels';
+import { TX_CATEGORY_LABELS } from '@/utils/labels';
 import { formatCurrency, formatDate } from '@/utils/format';
 import { Transaction } from '@/types';
 
@@ -21,7 +21,7 @@ export const TransactionsPage = () => {
   const [endDate, setEndDate] = useState('');
   const [search, setSearch] = useState('');
 
-  const { transactions, total, isLoading, fetchTransactions, deleteTransaction } = useTransactions({
+  const { transactions, total, isLoading, error, fetchTransactions, deleteTransaction } = useTransactions({
     type: typeFilter || undefined,
     category: categoryFilter || undefined,
     startDate: startDate || undefined,
@@ -119,6 +119,12 @@ export const TransactionsPage = () => {
 
         {isLoading ? (
           <PageLoader />
+        ) : error ? (
+          <div className="card p-6 text-center">
+            <p className="text-rose-600 font-medium mb-1">Failed to load transactions</p>
+            <p className="text-sm text-ink-500 mb-4">{error}</p>
+            <button onClick={fetchTransactions} className="btn-secondary">Retry</button>
+          </div>
         ) : filtered.length === 0 ? (
           <div className="card">
             <EmptyState

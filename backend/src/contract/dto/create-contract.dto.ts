@@ -1,4 +1,4 @@
-import { IsDate, IsNumber, IsString, IsOptional, IsEnum, IsArray, IsUUID } from 'class-validator';
+import { IsDate, IsNumber, IsString, IsOptional, IsEnum, IsArray, IsUUID, IsUrl } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateContractDto {
@@ -42,6 +42,11 @@ export class CreateContractDto {
   @IsUUID('4', { each: true })
   @IsOptional()
   tenant_ids?: string[];
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  image_urls?: string[];
 }
 
 export class UpdateContractDto {
@@ -83,4 +88,9 @@ export class UpdateContractDto {
   @IsString()
   @IsOptional()
   notes?: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  image_urls?: string[];
 }
