@@ -50,4 +50,5 @@ export default {
     },
   },
   plugins: [],
+  safelist: ['bg-white/8'],
 };
