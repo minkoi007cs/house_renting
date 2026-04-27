@@ -23,7 +23,14 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const skipRedirect = error.config?.headers?.['X-Skip-Auth-Redirect'] === 'true';
+    const shouldForceLogout =
+      error.response?.status === 401 &&
+      !skipRedirect &&
+      typeof error.config?.url === 'string' &&
+      error.config.url.includes('/auth/profile');
+
+    if (shouldForceLogout) {
       useAuthStore.getState().logout();
       window.location.href = '/login';
     }

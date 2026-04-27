@@ -23,6 +23,11 @@ export class CreateTenantDto {
   @IsOptional()
   @MaxLength(1000)
   notes?: string;
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(500)
+  emergency_contact?: string;
 }
 
 export class UpdateTenantDto {
@@ -49,4 +54,9 @@ export class UpdateTenantDto {
   @IsOptional()
   @MaxLength(1000)
   notes?: string;
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(500)
+  emergency_contact?: string;
 }

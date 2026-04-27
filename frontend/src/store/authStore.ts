@@ -5,11 +5,13 @@ interface AuthState {
   user: User | null;
   token: string | null;
   isLoading: boolean;
+  isAuthChecked: boolean;
   error: string | null;
 
   setUser: (user: User | null) => void;
   setToken: (token: string | null) => void;
   setLoading: (isLoading: boolean) => void;
+  setAuthChecked: (isAuthChecked: boolean) => void;
   setError: (error: string | null) => void;
   logout: () => void;
 }
@@ -23,10 +25,19 @@ const getInitialUser = () => {
   }
 };
 
+const getInitialToken = () => {
+  try {
+    return localStorage.getItem('auth_token');
+  } catch {
+    return null;
+  }
+};
+
 export const useAuthStore = create<AuthState>((set) => ({
   user: getInitialUser(),
-  token: localStorage.getItem('auth_token'),
+  token: getInitialToken(),
   isLoading: false,
+  isAuthChecked: false,
   error: null,
 
   setUser: (user) => {
@@ -43,13 +54,14 @@ export const useAuthStore = create<AuthState>((set) => ({
     } else {
       localStorage.removeItem('auth_token');
     }
-    set({ token });
+    set({ token, isAuthChecked: false });
   },
   setLoading: (isLoading) => set({ isLoading }),
+  setAuthChecked: (isAuthChecked) => set({ isAuthChecked }),
   setError: (error) => set({ error }),
   logout: () => {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('auth_user');
-    set({ user: null, token: null });
+    set({ user: null, token: null, isAuthChecked: true });
   },
 }));

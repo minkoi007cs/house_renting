@@ -1,4 +1,4 @@
-import { IsDate, IsNumber, IsString, IsOptional, IsEnum, IsArray, IsUUID } from 'class-validator';
+import { IsDate, IsNumber, IsString, IsOptional, IsEnum, IsArray, IsUUID, IsInt, Min, Max } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateContractDto {
@@ -37,6 +37,12 @@ export class CreateContractDto {
   @IsString()
   @IsOptional()
   notes?: string;
+
+  @IsInt()
+  @Min(1)
+  @Max(31)
+  @IsOptional()
+  rent_due_day?: number;
 
   @IsArray()
   @IsUUID('4', { each: true })
@@ -88,6 +94,12 @@ export class UpdateContractDto {
   @IsString()
   @IsOptional()
   notes?: string;
+
+  @IsInt()
+  @Min(1)
+  @Max(31)
+  @IsOptional()
+  rent_due_day?: number;
 
   @IsArray()
   @IsString({ each: true })

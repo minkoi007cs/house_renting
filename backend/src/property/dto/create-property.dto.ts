@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsEnum, Length, MaxLength } from 'class-validator';
+import { IsString, IsOptional, IsEnum, IsNumber, IsArray, Length, MaxLength, Min } from 'class-validator';
 
 export class CreatePropertyDto {
   @IsString()
@@ -25,4 +25,17 @@ export class CreatePropertyDto {
   @IsOptional()
   @MaxLength(1000)
   notes?: string;
+
+  @IsNumber()
+  @IsOptional()
+  @Min(0)
+  monthly_rent?: number;
+
+  @IsString()
+  @IsOptional()
+  cover_image_url?: string;
+
+  @IsArray()
+  @IsOptional()
+  image_urls?: string[];
 }
