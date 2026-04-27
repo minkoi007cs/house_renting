@@ -3,9 +3,7 @@ import { SupabaseClient } from '@supabase/supabase-js';
 
 @Injectable()
 export class SupabaseService {
-  constructor(
-    @Inject('SUPABASE_CLIENT') private supabase: SupabaseClient,
-  ) {}
+  constructor(@Inject('SUPABASE_CLIENT') private supabase: SupabaseClient) {}
 
   getClient(): SupabaseClient {
     return this.supabase;
@@ -20,11 +18,7 @@ export class SupabaseService {
   }
 
   async update(table: string, id: string, data: any) {
-    return this.supabase
-      .from(table)
-      .update(data)
-      .eq('id', id)
-      .select();
+    return this.supabase.from(table).update(data).eq('id', id).select();
   }
 
   async delete(table: string, id: string) {

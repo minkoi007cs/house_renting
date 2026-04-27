@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  Inject,
-  ForbiddenException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Inject, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { CreatePropertyDto } from './dto/create-property.dto';
 import { UpdatePropertyDto } from './dto/update-property.dto';
@@ -28,11 +23,7 @@ export class PropertyService {
     return data;
   }
 
-  async getProperties(
-    userId: string,
-    skip: number = 0,
-    take: number = 10,
-  ) {
+  async getProperties(userId: string, skip: number = 0, take: number = 10) {
     const { data: items, error: itemsError } = await this.supabase
       .from('properties')
       .select('*, units(count)', {
@@ -91,11 +82,7 @@ export class PropertyService {
     return data;
   }
 
-  async updateProperty(
-    userId: string,
-    propertyId: string,
-    dto: UpdatePropertyDto,
-  ) {
+  async updateProperty(userId: string, propertyId: string, dto: UpdatePropertyDto) {
     // Verify ownership
     const { data: property } = await this.supabase
       .from('properties')

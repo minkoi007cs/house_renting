@@ -1,90 +1,71 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { BadRequestException } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { JwtGuard } from '../common/guards/jwt.guard';
 
 describe('AuthController', () => {
   let controller: AuthController;
-  let service: AuthService;
 
   const mockAuthService = {
     verifySupabaseToken: jest.fn(),
     createOrUpdateUser: jest.fn(),
+    verifyGoogleIdToken: jest.fn(),
+    createOrUpdateGoogleUser: jest.fn(),
     generateJWT: jest.fn(),
+    getUserById: jest.fn(),
   };
+
+  const mockJwtGuard = { canActivate: jest.fn(() => true) };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
-      providers: [
-        {
-          provide: AuthService,
-          useValue: mockAuthService,
-        },
-      ],
-    }).compile();
+      providers: [{ provide: AuthService, useValue: mockAuthService }],
+    })
+      .overrideGuard(JwtGuard)
+      .useValue(mockJwtGuard)
+      .compile();
 
     controller = module.get<AuthController>(AuthController);
-    service = module.get<AuthService>(AuthService);
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('verifyToken', () => {
-    it('should verify token and return user with JWT', async () => {
-      const mockSupabaseUser = {
-        id: '123',
-        email: 'test@example.com',
-        user_metadata: { full_name: 'Test User' },
-      };
+  describe('googleAuth', () => {
+    it('should verify Google token and return JWT', async () => {
+      const mockGoogleUser = { id: 'g-123', email: 'test@gmail.com', name: 'Test User' };
+      const mockUser = { id: 'g-123', email: 'test@gmail.com', name: 'Test User' };
 
-      const mockUser = {
-        id: '123',
-        email: 'test@example.com',
-        name: 'Test User',
-      };
+      mockAuthService.verifyGoogleIdToken.mockResolvedValue(mockGoogleUser);
+      mockAuthService.createOrUpdateGoogleUser.mockResolvedValue(mockUser);
+      mockAuthService.generateJWT.mockReturnValue('jwt-token');
 
-      const mockJWT = 'jwt-token-here';
-
-      mockAuthService.verifySupabaseToken.mockResolvedValue(mockSupabaseUser);
-      mockAuthService.createOrUpdateUser.mockResolvedValue(mockUser);
-      mockAuthService.generateJWT.mockReturnValue(mockJWT);
-
-      const result = await controller.verifyToken('Bearer valid-token');
+      const result = await controller.googleAuth({ idToken: 'google-id-token' });
 
       expect(result.status).toBe('success');
-      expect(result.data.userId).toBe('123');
-      expect(result.data.email).toBe('test@example.com');
-      expect(result.data.token).toBe(mockJWT);
-      expect(mockAuthService.verifySupabaseToken).toHaveBeenCalledWith(
-        'valid-token',
-      );
+      expect(result.data.userId).toBe('g-123');
+      expect(result.data.token).toBe('jwt-token');
+      expect(mockAuthService.verifyGoogleIdToken).toHaveBeenCalledWith('google-id-token');
     });
 
-    it('should throw error if authorization header is missing', async () => {
-      expect(() => {
-        controller.verifyToken(undefined);
-      }).toThrow();
-    });
-
-    it('should throw error if token is invalid', async () => {
-      mockAuthService.verifySupabaseToken.mockRejectedValue(
-        new Error('Invalid token'),
-      );
-
-      await expect(
-        controller.verifyToken('Bearer invalid-token'),
-      ).rejects.toThrow();
+    it('should throw BadRequestException if idToken is missing', async () => {
+      await expect(controller.googleAuth({ idToken: '' })).rejects.toThrow(BadRequestException);
     });
   });
 
   describe('getProfile', () => {
     it('should return user profile', async () => {
+      const mockUser = { id: 'user-123', email: 'test@gmail.com', name: 'Test User' };
+      mockAuthService.getUserById.mockResolvedValue(mockUser);
+
       const result = await controller.getProfile('user-123');
 
       expect(result.status).toBe('success');
-      expect(result.data.userId).toBe('user-123');
+      expect(result.data.id).toBe('user-123');
+      expect(mockAuthService.getUserById).toHaveBeenCalledWith('user-123');
     });
   });
 });

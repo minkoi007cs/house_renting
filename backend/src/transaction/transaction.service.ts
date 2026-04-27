@@ -155,12 +155,24 @@ export class TransactionService {
     return data;
   }
 
+  async getTransactionById(userId: string, transactionId: string) {
+    const { data, error } = (await this.supabase
+      .from('transactions')
+      .select('*, property:properties(id, name, user_id)')
+      .eq('id', transactionId)
+      .single()) as any;
+
+    if (error || !data) throw new NotFoundException('Transaction not found');
+    if ((data.property as any)?.user_id !== userId) throw new ForbiddenException('Access denied');
+    return data;
+  }
+
   async updateTransaction(userId: string, transactionId: string, dto: UpdateTransactionDto) {
-    const { data: tx } = await this.supabase
+    const { data: tx } = (await this.supabase
       .from('transactions')
       .select('property:properties(user_id)')
       .eq('id', transactionId)
-      .single() as any;
+      .single()) as any;
 
     if (!tx || (tx.property as any)?.user_id !== userId) {
       throw new ForbiddenException('Access denied');
@@ -178,11 +190,11 @@ export class TransactionService {
   }
 
   async deleteTransaction(userId: string, transactionId: string) {
-    const { data: tx } = await this.supabase
+    const { data: tx } = (await this.supabase
       .from('transactions')
       .select('property:properties(user_id)')
       .eq('id', transactionId)
-      .single() as any;
+      .single()) as any;
 
     if (!tx || (tx.property as any)?.user_id !== userId) {
       throw new ForbiddenException('Access denied');

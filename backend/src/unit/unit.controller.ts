@@ -39,10 +39,7 @@ export class UnitController {
   }
 
   @Get(':id')
-  async getUnitDetail(
-    @CurrentUser('sub') userId: string,
-    @Param('id') unitId: string,
-  ) {
+  async getUnitDetail(@CurrentUser('sub') userId: string, @Param('id') unitId: string) {
     const unit = await this.unitService.getUnitDetail(userId, unitId);
     return { status: 'success', data: unit };
   }
@@ -59,10 +56,7 @@ export class UnitController {
 
   @Delete(':id')
   @HttpCode(204)
-  async deleteUnit(
-    @CurrentUser('sub') userId: string,
-    @Param('id') unitId: string,
-  ) {
+  async deleteUnit(@CurrentUser('sub') userId: string, @Param('id') unitId: string) {
     await this.unitService.deleteUnit(userId, unitId);
   }
 }

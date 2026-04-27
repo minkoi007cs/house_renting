@@ -135,9 +135,7 @@ export class AnalyticsService {
       }
     });
 
-    const byMonth = Object.values(byMonthMap).sort((a, b) =>
-      a.month.localeCompare(b.month),
-    );
+    const byMonth = Object.values(byMonthMap).sort((a, b) => a.month.localeCompare(b.month));
 
     return {
       summary: {
@@ -146,9 +144,8 @@ export class AnalyticsService {
         occupied_units: occupiedUnits,
         vacant_units: Math.max(0, totalU - occupiedUnits),
         total_tenants: (tenantsCount || []).length,
-        active_contracts: (activeContracts || []).filter((c: any) =>
-          userUnitIds.has(c.unit_id),
-        ).length,
+        active_contracts: (activeContracts || []).filter((c: any) => userUnitIds.has(c.unit_id))
+          .length,
         total_income: totalIncome,
         total_expense: totalExpense,
         net_profit: totalIncome - totalExpense,
@@ -162,12 +159,7 @@ export class AnalyticsService {
     };
   }
 
-  async getPropertyAnalytics(
-    userId: string,
-    propertyId: string,
-    startDate?: Date,
-    endDate?: Date,
-  ) {
+  async getPropertyAnalytics(userId: string, propertyId: string, startDate?: Date, endDate?: Date) {
     const { data: property } = await this.supabase
       .from('properties')
       .select('id, user_id')

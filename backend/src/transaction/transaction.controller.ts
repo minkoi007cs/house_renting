@@ -51,26 +51,17 @@ export class TransactionController {
     @Param('propertyId') propertyId: string,
     @Body() dto: CreateTransactionDto,
   ) {
-    const transaction = await this.transactionService.createTransaction(
-      userId,
-      propertyId,
-      dto,
-    );
+    const transaction = await this.transactionService.createTransaction(userId, propertyId, dto);
     return { status: 'success', data: transaction };
   }
 
   @Get(':id')
   async getTransactionDetail(
     @CurrentUser('sub') userId: string,
-    @Param('propertyId') propertyId: string,
     @Param('id') transactionId: string,
   ) {
-    const transaction = await this.transactionService.getTransactions(
-      userId,
-      propertyId,
-    );
-    const detail = transaction.data.find((t: any) => t.id === transactionId);
-    return { status: 'success', data: detail };
+    const transaction = await this.transactionService.getTransactionById(userId, transactionId);
+    return { status: 'success', data: transaction };
   }
 
   @Patch(':id')
@@ -79,20 +70,13 @@ export class TransactionController {
     @Param('id') transactionId: string,
     @Body() dto: UpdateTransactionDto,
   ) {
-    const transaction = await this.transactionService.updateTransaction(
-      userId,
-      transactionId,
-      dto,
-    );
+    const transaction = await this.transactionService.updateTransaction(userId, transactionId, dto);
     return { status: 'success', data: transaction };
   }
 
   @Delete(':id')
   @HttpCode(204)
-  async deleteTransaction(
-    @CurrentUser('sub') userId: string,
-    @Param('id') transactionId: string,
-  ) {
+  async deleteTransaction(@CurrentUser('sub') userId: string, @Param('id') transactionId: string) {
     await this.transactionService.deleteTransaction(userId, transactionId);
   }
 }

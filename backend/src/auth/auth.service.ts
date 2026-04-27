@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  UnauthorizedException,
-  ConflictException,
-  Inject,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException, ConflictException, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SupabaseClient } from '@supabase/supabase-js';
 import * as jwt from 'jsonwebtoken';
@@ -157,5 +152,15 @@ export class AuthService {
     } catch (error) {
       throw new ConflictException('Failed to create or update user');
     }
+  }
+
+  async getUserById(userId: string) {
+    const { data, error } = await this.supabase
+      .from('users')
+      .select('id, email, name, avatar_url, created_at')
+      .eq('id', userId)
+      .single();
+    if (error || !data) throw new UnauthorizedException('User not found');
+    return data;
   }
 }

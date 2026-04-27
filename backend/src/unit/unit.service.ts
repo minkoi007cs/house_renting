@@ -35,7 +35,7 @@ export class UnitService {
   }
 
   async getUnitDetail(userId: string, unitId: string) {
-    const { data, error } = await this.supabase
+    const { data, error } = (await this.supabase
       .from('units')
       .select(
         `*,
@@ -45,7 +45,7 @@ export class UnitService {
       )
       .eq('id', unitId)
       .is('deleted_at', null)
-      .single() as any;
+      .single()) as any;
 
     if (error || !data) {
       throw new NotFoundException('Unit not found');
