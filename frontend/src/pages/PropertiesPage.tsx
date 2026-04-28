@@ -63,7 +63,7 @@ const PropertyCard = ({
         >
           <button
             onClick={() => setMenuOpen((v) => !v)}
-            className="p-1.5 rounded-lg bg-white/80 hover:bg-white text-ink-500 hover:text-ink-800 shadow-sm transition"
+            className="p-2 rounded-lg bg-white/80 hover:bg-white text-ink-500 hover:text-ink-800 shadow-sm transition"
           >
             <MoreVertical className="w-4 h-4" />
           </button>

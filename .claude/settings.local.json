@@ -5,7 +5,12 @@
       "WebFetch(domain:github.com)",
       "Bash(git clone *)",
       "Bash(mv \"/d/Minh Khoi/house_renting/repo/\"* \"/d/Minh Khoi/house_renting/\")",
-      "Bash(mv \"/d/Minh Khoi/house_renting/repo/\".* \"/d/Minh Khoi/house_renting/\")"
+      "Bash(mv \"/d/Minh Khoi/house_renting/repo/\".* \"/d/Minh Khoi/house_renting/\")",
+      "Bash(psql postgresql://postgres.lnuijfoohwvunatwuqjx:minhkhoi190@aws-1-us-east-2.pooler.supabase.com:5432/postgres -c ' *)",
+      "Bash(node -e ' *)",
+      "Bash(grep -E \"^pg$|^postgres$|^@supabase\")",
+      "Bash(npm install *)",
+      "Bash(node -e \"console.log\\(require\\('crypto'\\).randomBytes\\(32\\).toString\\('hex'\\)\\)\")"
     ]
   }
 }

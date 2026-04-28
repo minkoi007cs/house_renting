@@ -108,7 +108,7 @@ export const CreatePropertyForm = ({ onClose, onSuccess, initialData, propertyId
           )}
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="label">Monthly rent (USD)</label>
             <input

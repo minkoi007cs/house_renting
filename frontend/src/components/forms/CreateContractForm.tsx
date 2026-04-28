@@ -96,7 +96,7 @@ export const CreateContractForm = ({
           </div>
         )}
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
             <label className="label">Start date *</label>
             <input {...register('start_date')} type="date" className="input" />
@@ -112,7 +112,7 @@ export const CreateContractForm = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="label">Rent (USD) *</label>
             <input {...register('rent_amount')} type="number" className="input" placeholder="1500" />
@@ -124,7 +124,7 @@ export const CreateContractForm = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
             <label className="label">Payment cycle</label>
             <select {...register('payment_cycle')} className="input">

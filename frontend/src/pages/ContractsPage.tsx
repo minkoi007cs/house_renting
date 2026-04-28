@@ -145,13 +145,13 @@ export const ContractsPage = () => {
                           <div className="flex items-center justify-end gap-1">
                             <button
                               onClick={() => setEditing(c)}
-                              className="p-1.5 hover:bg-ink-100 rounded text-ink-400"
+                              className="p-2 hover:bg-ink-100 rounded text-ink-400"
                             >
                               <Pencil className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => setDeleting(c)}
-                              className="p-1.5 hover:bg-rose-50 rounded text-ink-400 hover:text-rose-600"
+                              className="p-2 hover:bg-rose-50 rounded text-ink-400 hover:text-rose-600"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>

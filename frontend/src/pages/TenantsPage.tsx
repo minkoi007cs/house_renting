@@ -113,10 +113,10 @@ export const TenantsPage = () => {
                     </div>
                   </div>
                   <div className="flex gap-1">
-                    <button onClick={() => setEditing(t)} className="p-1.5 hover:bg-ink-100 rounded text-ink-400">
+                    <button onClick={() => setEditing(t)} className="p-2 hover:bg-ink-100 rounded text-ink-400">
                       <Pencil className="w-4 h-4" />
                     </button>
-                    <button onClick={() => setDeleting(t)} className="p-1.5 hover:bg-rose-50 rounded text-ink-400 hover:text-rose-600">
+                    <button onClick={() => setDeleting(t)} className="p-2 hover:bg-rose-50 rounded text-ink-400 hover:text-rose-600">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>

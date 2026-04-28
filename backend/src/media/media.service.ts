@@ -1,4 +1,4 @@
-import { Injectable, Inject, ForbiddenException } from '@nestjs/common';
+import { Injectable, Inject, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { SupabaseClient } from '@supabase/supabase-js';
 
 @Injectable()
@@ -16,6 +16,7 @@ export class MediaService {
 
     if (!file) {
       console.error('[Media] uploadMedia: file is undefined/null');
+      throw new BadRequestException('No file provided');
     }
 
     const { data: property, error: propError } = await this.supabase
