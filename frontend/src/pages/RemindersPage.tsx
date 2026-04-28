@@ -146,12 +146,12 @@ export const RemindersPage = () => {
                   </div>
 
                   <div className="flex items-center gap-1 flex-shrink-0">
-                    <button onClick={() => setEditing(r)} className="p-1.5 hover:bg-ink-100 rounded text-ink-400">
+                    <button onClick={() => setEditing(r)} className="p-2 hover:bg-ink-100 rounded text-ink-400">
                       <Pencil className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => setDeleting(r)}
-                      className="p-1.5 hover:bg-rose-50 rounded text-ink-400 hover:text-rose-600"
+                      className="p-2 hover:bg-rose-50 rounded text-ink-400 hover:text-rose-600"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

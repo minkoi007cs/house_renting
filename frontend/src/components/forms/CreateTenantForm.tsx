@@ -105,7 +105,7 @@ export const CreateTenantForm = ({
           {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name.message}</p>}
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="label">Phone</label>
             <input {...register('phone')} className="input" placeholder="(614) 555-0123" />

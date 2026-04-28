@@ -136,7 +136,8 @@ export const DashboardPage = () => {
           <div className="card p-5 lg:col-span-2">
             <h2 className="text-sm font-semibold text-ink-700 mb-4">Income vs Expense</h2>
             {byMonth.length > 0 ? (
-              <ResponsiveContainer width="100%" height={220}>
+              <div className="h-48 sm:h-56 md:h-64">
+              <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={byMonth} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="incomeGrad" x1="0" y1="0" x2="0" y2="1">
@@ -172,8 +173,9 @@ export const DashboardPage = () => {
                   <Area type="monotone" dataKey="expense" stroke="#ef4444" fill="url(#expenseGrad)" strokeWidth={2} name="Expense" />
                 </AreaChart>
               </ResponsiveContainer>
+              </div>
             ) : (
-              <div className="h-[220px] flex items-center justify-center text-ink-400 text-sm">
+              <div className="h-48 sm:h-56 md:h-64 flex items-center justify-center text-ink-400 text-sm">
                 No transaction data yet
               </div>
             )}
@@ -183,7 +185,8 @@ export const DashboardPage = () => {
           <div className="card p-5">
             <h2 className="text-sm font-semibold text-ink-700 mb-4">Income breakdown</h2>
             {incomeCategories.length > 0 ? (
-              <ResponsiveContainer width="100%" height={220}>
+              <div className="h-48 sm:h-56 md:h-64">
+              <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={incomeCategories}
@@ -209,8 +212,9 @@ export const DashboardPage = () => {
                   />
                 </PieChart>
               </ResponsiveContainer>
+              </div>
             ) : (
-              <div className="h-[220px] flex items-center justify-center text-ink-400 text-sm">
+              <div className="h-48 sm:h-56 md:h-64 flex items-center justify-center text-ink-400 text-sm">
                 No data
               </div>
             )}

@@ -133,6 +133,19 @@ export class AuthService {
       }
 
       console.log('[Auth] createOrUpdateGoogleUser: checking existing user...');
+
+      // Look up by google_sub first (most reliable), then fall back to email
+      const { data: bySubUser } = await this.supabase
+        .from('users')
+        .select('*')
+        .eq('google_sub', googleUser.id)
+        .single();
+
+      if (bySubUser) {
+        console.log('[Auth] createOrUpdateGoogleUser: found by google_sub, id =', bySubUser.id);
+        return bySubUser;
+      }
+
       const { data: existingUser, error: selectError } = await this.supabase
         .from('users')
         .select('*')
@@ -141,6 +154,16 @@ export class AuthService {
 
       if (selectError) {
         console.log('[Auth] createOrUpdateGoogleUser: select error (likely no row) -', selectError.code, selectError.message);
+      }
+
+      // Existing user found by email but missing google_sub — backfill it
+      if (existingUser && !existingUser.google_sub) {
+        console.log('[Auth] createOrUpdateGoogleUser: backfilling google_sub for existing user, id =', existingUser.id);
+        await this.supabase
+          .from('users')
+          .update({ google_sub: googleUser.id })
+          .eq('id', existingUser.id);
+        return { ...existingUser, google_sub: googleUser.id };
       }
 
       if (!existingUser) {
@@ -152,6 +175,7 @@ export class AuthService {
               email: googleUser.email,
               name: googleUser.name || '',
               avatar_url: googleUser.picture || null,
+              google_sub: googleUser.id,
             },
           ])
           .select()

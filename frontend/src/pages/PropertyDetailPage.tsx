@@ -230,10 +230,10 @@ const ContractTab = ({ primaryUnitId }: { primaryUnitId: string }) => {
                   )}
                 </div>
                 <div className="flex items-center gap-1 flex-shrink-0">
-                  <button onClick={() => setEditing(c)} className="p-1.5 hover:bg-ink-100 rounded-lg text-ink-400 hover:text-ink-700">
+                  <button onClick={() => setEditing(c)} className="p-2 hover:bg-ink-100 rounded-lg text-ink-400 hover:text-ink-700">
                     <Pencil className="w-4 h-4" />
                   </button>
-                  <button onClick={() => setDeleting(c)} className="p-1.5 hover:bg-rose-50 rounded-lg text-ink-400 hover:text-rose-600">
+                  <button onClick={() => setDeleting(c)} className="p-2 hover:bg-rose-50 rounded-lg text-ink-400 hover:text-rose-600">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -324,11 +324,11 @@ const TenantsTab = ({ primaryUnitId }: { primaryUnitId: string }) => {
                 </div>
               </div>
               <div className="flex items-center gap-1 flex-shrink-0">
-                <button onClick={() => setEditing(t)} className="p-1.5 hover:bg-ink-100 rounded-lg text-ink-400 hover:text-ink-700">
-                  <Pencil className="w-3.5 h-3.5" />
+                <button onClick={() => setEditing(t)} className="p-2 hover:bg-ink-100 rounded-lg text-ink-400 hover:text-ink-700">
+                  <Pencil className="w-4 h-4" />
                 </button>
-                <button onClick={() => setDeleting(t)} className="p-1.5 hover:bg-rose-50 rounded-lg text-ink-400 hover:text-rose-600">
-                  <Trash2 className="w-3.5 h-3.5" />
+                <button onClick={() => setDeleting(t)} className="p-2 hover:bg-rose-50 rounded-lg text-ink-400 hover:text-rose-600">
+                  <Trash2 className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -449,8 +449,8 @@ const FinanceTab = ({ propertyId }: { propertyId: string }) => {
                   </td>
                   <td>
                     <div className="flex items-center justify-end gap-1">
-                      <button onClick={() => setEditing(t)} className="p-1.5 hover:bg-ink-100 rounded text-ink-400"><Pencil className="w-4 h-4" /></button>
-                      <button onClick={() => setDeleting(t)} className="p-1.5 hover:bg-rose-50 rounded text-ink-400 hover:text-rose-600"><Trash2 className="w-4 h-4" /></button>
+                      <button onClick={() => setEditing(t)} className="p-2 hover:bg-ink-100 rounded text-ink-400"><Pencil className="w-4 h-4" /></button>
+                      <button onClick={() => setDeleting(t)} className="p-2 hover:bg-rose-50 rounded text-ink-400 hover:text-rose-600"><Trash2 className="w-4 h-4" /></button>
                     </div>
                   </td>
                 </tr>
@@ -543,8 +543,8 @@ const ReminderTab = ({ propertyId }: { propertyId: string }) => {
                   </div>
                 </div>
                 <div className="flex items-center gap-1 flex-shrink-0">
-                  <button onClick={() => setEditing(r)} className="p-1.5 hover:bg-ink-100 rounded text-ink-400"><Pencil className="w-4 h-4" /></button>
-                  <button onClick={() => setDeleting(r)} className="p-1.5 hover:bg-rose-50 rounded text-ink-400 hover:text-rose-600"><Trash2 className="w-4 h-4" /></button>
+                  <button onClick={() => setEditing(r)} className="p-2 hover:bg-ink-100 rounded text-ink-400"><Pencil className="w-4 h-4" /></button>
+                  <button onClick={() => setDeleting(r)} className="p-2 hover:bg-rose-50 rounded text-ink-400 hover:text-rose-600"><Trash2 className="w-4 h-4" /></button>
                 </div>
               </div>
             );

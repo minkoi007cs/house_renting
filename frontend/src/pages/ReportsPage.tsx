@@ -86,7 +86,7 @@ export const ReportsPage = () => {
         ) : (
           <>
             {/* Summary KPIs */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
               <KPI icon={Home} label="Properties" value={stats.summary.total_properties} tone="brand" />
               <KPI icon={Layers} label="Units" value={stats.summary.total_units} tone="blue" />
               <KPI icon={Users} label="Tenants" value={stats.summary.total_tenants} tone="purple" />

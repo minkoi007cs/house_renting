@@ -18,7 +18,7 @@ export const TopBar = ({ onMenuClick, title }: Props) => {
     <header className="h-14 bg-white border-b border-ink-100 flex items-center px-4 gap-3 flex-shrink-0">
       <button
         onClick={onMenuClick}
-        className="lg:hidden p-1.5 rounded-lg text-ink-500 hover:bg-ink-100 transition"
+        className="lg:hidden p-2 sm:p-2.5 rounded-lg text-ink-500 hover:bg-ink-100 transition"
       >
         <Menu className="w-5 h-5" />
       </button>
@@ -28,10 +28,10 @@ export const TopBar = ({ onMenuClick, title }: Props) => {
       <div className="flex items-center gap-2">
         <Link
           to="/settings"
-          className="p-1.5 rounded-lg text-ink-400 hover:text-ink-700 hover:bg-ink-100 transition"
+          className="p-2 sm:p-2.5 rounded-lg text-ink-400 hover:text-ink-700 hover:bg-ink-100 transition"
           title="Settings"
         >
-          <Settings className="w-4 h-4" />
+          <Settings className="w-5 h-5" />
         </Link>
 
         <Link to="/settings" className="flex items-center gap-2 pl-2 border-l border-ink-100">

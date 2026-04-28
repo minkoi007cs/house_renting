@@ -12,7 +12,7 @@ import { formatCurrency, formatDate } from '@/utils/format';
 import { Transaction } from '@/types';
 
 const INCOME_CATS = ['rent', 'service_fee', 'deposit_received', 'deposit_refund', 'other_income'];
-const EXPENSE_CATS = ['repair', 'maintenance', 'utilities', 'brokerage', 'cleaning', 'tax', 'insurance', 'other_expense'];
+const EXPENSE_CATS = ['repair', 'maintenance', 'utilities', 'electricity', 'water_sewage', 'gas', 'lawn_care', 'snow_removal', 'hoa_fee', 'pest_control', 'hvac_maintenance', 'painting', 'appliance_repair', 'brokerage', 'cleaning', 'tax', 'insurance', 'other_expense'];
 
 export const TransactionsPage = () => {
   const [typeFilter, setTypeFilter] = useState('');
@@ -177,13 +177,13 @@ export const TransactionsPage = () => {
                         <div className="flex items-center justify-end gap-1">
                           <button
                             onClick={() => setEditing(t)}
-                            className="p-1.5 hover:bg-ink-100 rounded text-ink-400"
+                            className="p-2 hover:bg-ink-100 rounded text-ink-400"
                           >
                             <Pencil className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => setDeleting(t)}
-                            className="p-1.5 hover:bg-rose-50 rounded text-ink-400 hover:text-rose-600"
+                            className="p-2 hover:bg-rose-50 rounded text-ink-400 hover:text-rose-600"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
