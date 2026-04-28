@@ -114,13 +114,13 @@ export const CreateContractForm = ({
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="label">Rent (VND) *</label>
-            <input {...register('rent_amount')} type="number" className="input" placeholder="5000000" />
+            <label className="label">Rent (USD) *</label>
+            <input {...register('rent_amount')} type="number" className="input" placeholder="1500" />
             {errors.rent_amount && <p className="mt-1 text-xs text-rose-500">{errors.rent_amount.message}</p>}
           </div>
           <div>
-            <label className="label">Deposit (VND)</label>
-            <input {...register('deposit_amount')} type="number" className="input" placeholder="0" />
+            <label className="label">Security Deposit (USD)</label>
+            <input {...register('deposit_amount')} type="number" className="input" placeholder="1500" />
           </div>
         </div>
 
@@ -129,8 +129,9 @@ export const CreateContractForm = ({
             <label className="label">Payment cycle</label>
             <select {...register('payment_cycle')} className="input">
               <option value="monthly">Monthly</option>
+              <option value="bi-weekly">Bi-Weekly</option>
               <option value="quarterly">Quarterly</option>
-              <option value="yearly">Yearly</option>
+              <option value="yearly">Annually</option>
             </select>
           </div>
           <div>

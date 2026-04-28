@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { useAuthStore } from '@/store/authStore';
 import { PageLoader } from '@/components/common/Spinner';
 import { useAuthBootstrap } from '@/hooks/useAuthBootstrap';
+import { ToastContainer } from '@/components/common/Toast';
 
 const LoginPage = lazy(() => import('@/pages/LoginPage').then((m) => ({ default: m.LoginPage })));
 const DashboardPage = lazy(() => import('@/pages/DashboardPage').then((m) => ({ default: m.DashboardPage })));
@@ -36,6 +37,7 @@ const wrap = (el: React.ReactNode) => <ProtectedRoute>{el}</ProtectedRoute>;
 export function App() {
   return (
     <Router>
+      <ToastContainer />
       <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><PageLoader /></div>}>
         <Routes>
           <Route path="/login" element={<LoginPage />} />

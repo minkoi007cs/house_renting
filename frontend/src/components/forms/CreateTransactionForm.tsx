@@ -112,7 +112,7 @@ export const CreateTransactionForm = ({
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="label">Amount (VND) *</label>
+            <label className="label">Amount (USD) *</label>
             <input {...register('amount')} type="number" min="0" className="input" placeholder="0" />
             {errors.amount && <p className="mt-1 text-xs text-red-500">{errors.amount.message}</p>}
           </div>

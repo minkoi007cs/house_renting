@@ -20,18 +20,26 @@ export class UploadController {
   @Post()
   @UseInterceptors(FileInterceptor('file'))
   async upload(@CurrentUser('sub') userId: string, @UploadedFile() file: any) {
+    console.log('[Upload] POST /api/upload: userId =', userId);
+    console.log('[Upload] file =', file ? { name: file.originalname, size: file.size, mime: file.mimetype } : 'MISSING');
+
     if (!file) throw new BadRequestException('No file provided');
 
     const ext = file.originalname.split('.').pop();
     const fileName = `users/${userId}/${Date.now()}.${ext}`;
+    console.log('[Upload] uploading to storage path =', fileName);
 
     const { error } = await this.supabase.storage
       .from('rental-files')
       .upload(fileName, file.buffer, { contentType: file.mimetype, upsert: false });
 
-    if (error) throw new BadRequestException(error.message);
+    if (error) {
+      console.error('[Upload] STORAGE UPLOAD FAILED -', error);
+      throw new BadRequestException(error.message);
+    }
 
     const { data } = this.supabase.storage.from('rental-files').getPublicUrl(fileName);
+    console.log('[Upload] OK, url =', data.publicUrl);
     return { status: 'success', data: { url: data.publicUrl } };
   }
 }

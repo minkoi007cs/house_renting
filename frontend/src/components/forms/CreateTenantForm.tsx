@@ -108,7 +108,7 @@ export const CreateTenantForm = ({
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="label">Phone</label>
-            <input {...register('phone')} className="input" placeholder="+84 901 234 567" />
+            <input {...register('phone')} className="input" placeholder="(614) 555-0123" />
           </div>
           <div>
             <label className="label">Email</label>
@@ -119,7 +119,7 @@ export const CreateTenantForm = ({
 
         <div>
           <label className="label">Address</label>
-          <input {...register('address')} className="input" placeholder="Home address" />
+          <input {...register('address')} className="input" placeholder="123 Elm St, Columbus, OH 43215" />
         </div>
 
         <div>
@@ -127,7 +127,7 @@ export const CreateTenantForm = ({
           <input
             {...register('emergency_contact')}
             className="input"
-            placeholder="Name & phone of emergency contact"
+            placeholder="e.g. Jane Doe — (614) 555-0199"
           />
         </div>
 
