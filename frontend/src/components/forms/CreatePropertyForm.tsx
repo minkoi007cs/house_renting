@@ -9,7 +9,7 @@ import { ImageUploader } from '@/components/common/ImageUploader';
 const schema = z.object({
   name: z.string().min(1, 'Name is required').max(255),
   address: z.string().min(5, 'Address must be at least 5 characters').max(500),
-  type: z.enum(['house', 'apartment', 'townhouse', 'land', 'other']).default('house'),
+  type: z.enum(['house', 'apartment', 'condo', 'townhouse', 'duplex', 'multi_family', 'mobile_home', 'land', 'other']).default('house'),
   status: z.enum(['active', 'inactive', 'sold']).default('active'),
   monthly_rent: z
     .union([z.coerce.number().min(0), z.literal('').transform(() => undefined)])
@@ -91,7 +91,7 @@ export const CreatePropertyForm = ({ onClose, onSuccess, initialData, propertyId
           <input
             {...register('name')}
             className="input"
-            placeholder="e.g. District 1 Townhouse"
+            placeholder="e.g. Westerville Single-Family Home"
           />
           {errors.name && <p className="mt-1 text-xs text-rose-500">{errors.name.message}</p>}
         </div>
@@ -101,7 +101,7 @@ export const CreatePropertyForm = ({ onClose, onSuccess, initialData, propertyId
           <input
             {...register('address')}
             className="input"
-            placeholder="123 Main Street, District 1"
+            placeholder="123 Main St, Columbus, OH 43215"
           />
           {errors.address && (
             <p className="mt-1 text-xs text-rose-500">{errors.address.message}</p>
@@ -110,12 +110,12 @@ export const CreatePropertyForm = ({ onClose, onSuccess, initialData, propertyId
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="label">Monthly rent (VND)</label>
+            <label className="label">Monthly rent (USD)</label>
             <input
               {...register('monthly_rent')}
               type="number"
               className="input"
-              placeholder="5000000"
+              placeholder="1500"
             />
             <p className="mt-1 text-xs text-ink-400">Reference rent — contracts can override.</p>
           </div>
@@ -152,10 +152,14 @@ export const CreatePropertyForm = ({ onClose, onSuccess, initialData, propertyId
             <div>
               <label className="label">Property type</label>
               <select {...register('type')} className="input">
-                <option value="house">House</option>
+                <option value="house">Single-Family Home</option>
                 <option value="apartment">Apartment</option>
+                <option value="condo">Condo</option>
                 <option value="townhouse">Townhouse</option>
-                <option value="land">Land</option>
+                <option value="duplex">Duplex</option>
+                <option value="multi_family">Multi-Family (3–4 units)</option>
+                <option value="mobile_home">Mobile / Manufactured Home</option>
+                <option value="land">Land / Lot</option>
                 <option value="other">Other</option>
               </select>
             </div>

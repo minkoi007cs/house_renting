@@ -13,6 +13,8 @@ export class AuthService {
     @Inject('SUPABASE_CLIENT') private supabase: SupabaseClient,
   ) {
     const clientId = this.configService.get<string>('GOOGLE_CLIENT_ID');
+    console.log('[Auth] GOOGLE_CLIENT_ID loaded:', clientId ? clientId.slice(0, 20) + '...' : 'MISSING');
+    console.log('[Auth] SUPABASE_URL:', this.configService.get<string>('SUPABASE_URL') || 'MISSING');
     this.googleClient = new OAuth2Client(clientId);
   }
 
@@ -26,7 +28,7 @@ export class AuthService {
       if (error || !user) {
         throw new UnauthorizedException('Invalid Supabase token');
       }
-
+      
       return user;
     } catch (error) {
       throw new UnauthorizedException('Token verification failed');
@@ -67,7 +69,7 @@ export class AuthService {
 
   generateJWT(userId: string): string {
     const secret = this.configService.get<string>('JWT_SECRET') || 'default-secret';
-    const expiresIn = this.configService.get<number>('JWT_EXPIRATION') || 2592000;
+    const expiresIn = parseInt(this.configService.get<string>('JWT_EXPIRATION') || '2592000', 10);
 
     return jwt.sign(
       {
@@ -91,6 +93,7 @@ export class AuthService {
   }
 
   async verifyGoogleIdToken(idToken: string) {
+    console.log('[Auth] verifyGoogleIdToken: start');
     try {
       const ticket = await this.googleClient.verifyIdToken({
         idToken,
@@ -99,9 +102,11 @@ export class AuthService {
 
       const payload = ticket.getPayload();
       if (!payload) {
+        console.error('[Auth] verifyGoogleIdToken: payload is null');
         throw new UnauthorizedException('Invalid Google token');
       }
 
+      console.log('[Auth] verifyGoogleIdToken: success, email =', payload.email, '| sub =', payload.sub);
       return {
         id: payload.sub,
         email: payload.email,
@@ -109,6 +114,7 @@ export class AuthService {
         picture: payload.picture,
       };
     } catch (error) {
+      console.error('[Auth] verifyGoogleIdToken: FAILED -', error);
       throw new UnauthorizedException('Google token verification failed');
     }
   }
@@ -119,23 +125,30 @@ export class AuthService {
     name?: string;
     picture?: string;
   }) {
+    console.log('[Auth] createOrUpdateGoogleUser: start, email =', googleUser.email);
     try {
       if (!googleUser.email) {
+        console.error('[Auth] createOrUpdateGoogleUser: no email');
         throw new UnauthorizedException('Google account must have email');
       }
 
-      const { data: existingUser } = await this.supabase
+      console.log('[Auth] createOrUpdateGoogleUser: checking existing user...');
+      const { data: existingUser, error: selectError } = await this.supabase
         .from('users')
         .select('*')
         .eq('email', googleUser.email)
         .single();
 
+      if (selectError) {
+        console.log('[Auth] createOrUpdateGoogleUser: select error (likely no row) -', selectError.code, selectError.message);
+      }
+
       if (!existingUser) {
-        const { data: newUser, error } = await this.supabase
+        console.log('[Auth] createOrUpdateGoogleUser: user not found, inserting new user...');
+        const { data: newUser, error: insertError } = await this.supabase
           .from('users')
           .insert([
             {
-              id: googleUser.id,
               email: googleUser.email,
               name: googleUser.name || '',
               avatar_url: googleUser.picture || null,
@@ -144,12 +157,19 @@ export class AuthService {
           .select()
           .single();
 
-        if (error) throw error;
+        if (insertError) {
+          console.error('[Auth] createOrUpdateGoogleUser: INSERT FAILED -', insertError);
+          throw insertError;
+        }
+
+        console.log('[Auth] createOrUpdateGoogleUser: new user created, id =', newUser?.id);
         return newUser;
       }
 
+      console.log('[Auth] createOrUpdateGoogleUser: existing user found, id =', existingUser.id);
       return existingUser;
     } catch (error) {
+      console.error('[Auth] createOrUpdateGoogleUser: CAUGHT ERROR -', error);
       throw new ConflictException('Failed to create or update user');
     }
   }

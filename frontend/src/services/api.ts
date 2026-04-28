@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useAuthStore } from '@/store/authStore';
+import { toast } from '@/store/toastStore';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
@@ -19,14 +20,15 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle errors — any 401 means expired/invalid token → force re-login
+// Handle errors — any 401 means expired/invalid token → notify user then redirect
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     const skip = error.config?.headers?.['X-Skip-Auth-Redirect'] === 'true';
     if (error.response?.status === 401 && !skip && window.location.pathname !== '/login') {
+      toast.warning('Your session has expired. Please sign in again.', 0);
       useAuthStore.getState().logout();
-      window.location.href = '/login';
+      setTimeout(() => { window.location.href = '/login'; }, 2000);
     }
     return Promise.reject(error);
   },

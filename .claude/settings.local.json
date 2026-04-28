@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh repo *)",
+      "WebFetch(domain:github.com)",
+      "Bash(git clone *)",
+      "Bash(mv \"/d/Minh Khoi/house_renting/repo/\"* \"/d/Minh Khoi/house_renting/\")",
+      "Bash(mv \"/d/Minh Khoi/house_renting/repo/\".* \"/d/Minh Khoi/house_renting/\")"
+    ]
+  }
+}

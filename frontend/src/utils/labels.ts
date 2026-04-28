@@ -1,8 +1,12 @@
 export const PROPERTY_TYPE_LABELS: Record<string, string> = {
-  house: 'House',
+  house: 'Single-Family Home',
   apartment: 'Apartment',
+  condo: 'Condo',
   townhouse: 'Townhouse',
-  land: 'Land',
+  duplex: 'Duplex',
+  multi_family: 'Multi-Family (3–4 units)',
+  mobile_home: 'Mobile / Manufactured Home',
+  land: 'Land / Lot',
   other: 'Other',
 };
 
@@ -30,18 +34,18 @@ export const CONTRACT_STATUS_LABELS: Record<string, string> = {
 
 export const TX_CATEGORY_LABELS: Record<string, string> = {
   rent: 'Rent',
-  service_fee: 'Service fee',
-  deposit_received: 'Deposit received',
-  deposit_refund: 'Deposit refund',
-  other_income: 'Other income',
-  repair: 'Repair',
+  service_fee: 'Late Fee',
+  deposit_received: 'Security Deposit',
+  deposit_refund: 'Deposit Refund',
+  other_income: 'Other Income',
+  repair: 'Repairs',
   maintenance: 'Maintenance',
   utilities: 'Utilities',
-  brokerage: 'Brokerage',
+  brokerage: 'Leasing Commission',
   cleaning: 'Cleaning',
-  tax: 'Tax',
+  tax: 'Property Tax',
   insurance: 'Insurance',
-  other_expense: 'Other expense',
+  other_expense: 'Other Expense',
 };
 
 export const REMINDER_TYPE_LABELS: Record<string, string> = {
@@ -53,8 +57,9 @@ export const REMINDER_TYPE_LABELS: Record<string, string> = {
 
 export const PAYMENT_CYCLE_LABELS: Record<string, string> = {
   monthly: 'Monthly',
+  'bi-weekly': 'Bi-Weekly',
   quarterly: 'Quarterly',
-  yearly: 'Yearly',
+  yearly: 'Annually',
 };
 
 export const statusBadgeClass = (status: string): string => {
