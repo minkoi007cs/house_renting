@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, Pencil, Trash2, Plus, Building2, MapPin, FileText, DollarSign,
   Bell, Phone, Mail, AlertCircle, CheckCircle2, Circle, TrendingUp, TrendingDown,
-  Wallet, Calendar, ChevronLeft, ChevronRight,
+  Wallet, Calendar, ChevronLeft, ChevronRight, Sparkles,
 } from 'lucide-react';
 import { Layout } from '@/components/common/Layout';
 import { PageLoader, Spinner } from '@/components/common/Spinner';
@@ -490,6 +490,7 @@ const FinanceTab = ({ propertyId }: { propertyId: string }) => {
 const ReminderTab = ({ propertyId }: { propertyId: string }) => {
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [loading, setLoading] = useState(false);
+  const [generatingDefaults, setGeneratingDefaults] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
   const [editing, setEditing] = useState<Reminder | null>(null);
   const [deleting, setDeleting] = useState<Reminder | null>(null);
@@ -506,6 +507,16 @@ const ReminderTab = ({ propertyId }: { propertyId: string }) => {
     }
   };
 
+  const generateDefaults = async () => {
+    setGeneratingDefaults(true);
+    try {
+      await api.post(`/properties/${propertyId}/reminders/defaults`);
+      await fetchAll();
+    } finally {
+      setGeneratingDefaults(false);
+    }
+  };
+
   const toggle = async (r: Reminder) => {
     const newStatus = r.status === 'pending' ? 'done' : 'pending';
     await api.patch(`/reminders/${r.id}`, { status: newStatus });
@@ -516,11 +527,22 @@ const ReminderTab = ({ propertyId }: { propertyId: string }) => {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <h3 className="font-semibold text-ink-900">{reminders.length} reminder{reminders.length !== 1 ? 's' : ''}</h3>
-        <button onClick={() => setShowAdd(true)} className="btn-primary">
-          <Plus className="w-4 h-4" /> Add reminder
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={generateDefaults}
+            disabled={generatingDefaults}
+            className="btn-secondary text-sm"
+            title="Auto-generate monthly rent, HVAC cleaning, and lawn mowing reminders"
+          >
+            {generatingDefaults ? <Spinner size="sm" /> : <Sparkles className="w-4 h-4" />}
+            Generate defaults
+          </button>
+          <button onClick={() => setShowAdd(true)} className="btn-primary">
+            <Plus className="w-4 h-4" /> Add reminder
+          </button>
+        </div>
       </div>
 
       {loading ? (
