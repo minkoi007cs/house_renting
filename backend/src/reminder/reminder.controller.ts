@@ -24,6 +24,15 @@ export class ReminderController {
     return { status: 'success', data: reminders };
   }
 
+  @Post('defaults')
+  async createDefaultReminders(
+    @CurrentUser('sub') userId: string,
+    @Param('propertyId') propertyId: string,
+  ) {
+    const reminders = await this.reminderService.createDefaultReminders(userId, propertyId);
+    return { status: 'success', data: reminders };
+  }
+
   @Post()
   async createReminder(
     @CurrentUser('sub') userId: string,

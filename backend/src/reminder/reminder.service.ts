@@ -121,6 +121,69 @@ export class ReminderService {
     return data;
   }
 
+  async createDefaultReminders(userId: string, propertyId: string) {
+    const { data: property } = await this.supabase
+      .from('properties')
+      .select('id, user_id, name')
+      .eq('id', propertyId)
+      .single();
+
+    if (!property || property.user_id !== userId) {
+      throw new ForbiddenException('Access denied');
+    }
+
+    const today = new Date();
+    const reminders: any[] = [];
+
+    // Next 3 months of rent payment reminders (1st of each month)
+    for (let i = 1; i <= 3; i++) {
+      const d = new Date(today.getFullYear(), today.getMonth() + i, 1);
+      reminders.push({
+        property_id: propertyId,
+        type: 'rent_payment_due',
+        title: 'Rent payment due',
+        description: 'Monthly rent collection reminder',
+        due_date: d.toISOString().split('T')[0],
+        status: 'pending',
+      });
+    }
+
+    // Next 3 months of HVAC/AC cleaning (15th of each month)
+    for (let i = 1; i <= 3; i++) {
+      const d = new Date(today.getFullYear(), today.getMonth() + i, 15);
+      reminders.push({
+        property_id: propertyId,
+        type: 'maintenance_needed',
+        title: 'AC / HVAC cleaning',
+        description: 'Monthly air conditioner and HVAC filter cleaning',
+        due_date: d.toISOString().split('T')[0],
+        status: 'pending',
+      });
+    }
+
+    // Next 4 bi-weekly lawn mowing occurrences
+    for (let i = 1; i <= 4; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() + i * 14);
+      reminders.push({
+        property_id: propertyId,
+        type: 'maintenance_needed',
+        title: 'Lawn mowing',
+        description: 'Bi-weekly lawn mowing and landscaping',
+        due_date: d.toISOString().split('T')[0],
+        status: 'pending',
+      });
+    }
+
+    const { data, error } = await this.supabase
+      .from('reminders')
+      .insert(reminders)
+      .select();
+
+    if (error) throw error;
+    return data;
+  }
+
   async deleteReminder(userId: string, reminderId: string) {
     const { data: reminder } = (await this.supabase
       .from('reminders')
