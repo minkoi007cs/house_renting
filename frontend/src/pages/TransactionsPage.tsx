@@ -11,8 +11,8 @@ import { TX_CATEGORY_LABELS } from '@/utils/labels';
 import { formatCurrency, formatDate } from '@/utils/format';
 import { Transaction } from '@/types';
 
-const INCOME_CATS = ['rent', 'service_fee', 'deposit_refund', 'other_income'];
-const EXPENSE_CATS = ['repair', 'maintenance', 'utilities', 'brokerage', 'cleaning', 'other_expense'];
+const INCOME_CATS = ['rent', 'service_fee', 'deposit_received', 'deposit_refund', 'other_income'];
+const EXPENSE_CATS = ['repair', 'maintenance', 'utilities', 'brokerage', 'cleaning', 'tax', 'insurance', 'other_expense'];
 
 export const TransactionsPage = () => {
   const [typeFilter, setTypeFilter] = useState('');

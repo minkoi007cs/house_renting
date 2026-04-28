@@ -1,10 +1,10 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ImagePlus, X, Loader2 } from 'lucide-react';
 import api from '@/services/api';
 import { Modal } from '@/components/common/Modal';
+import { ImageUploader } from '@/components/common/ImageUploader';
 
 const schema = z.object({
   start_date: z.string().min(1, 'Start date is required'),
@@ -13,6 +13,10 @@ const schema = z.object({
   rent_amount: z.coerce.number().min(1, 'Rent amount must be > 0'),
   deposit_amount: z.coerce.number().min(0).default(0),
   payment_cycle: z.string().default('monthly'),
+  rent_due_day: z.preprocess(
+    (v) => (v === '' || v === null || v === undefined ? undefined : Number(v)),
+    z.number().int().min(1).max(31).optional(),
+  ),
   status: z
     .enum(['draft', 'signed', 'active', 'expired', 'terminated', 'renewed'])
     .default('active'),
@@ -22,7 +26,7 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-interface UnitOption { id: string; name: string; }
+interface UnitOption { id: string; name: string }
 
 interface Props {
   unitId?: string;
@@ -42,36 +46,11 @@ export const CreateContractForm = ({
   const [error, setError] = useState<string | null>(null);
   const [selectedUnit, setSelectedUnit] = useState(unitId || '');
   const [images, setImages] = useState<string[]>(initialData?.image_urls || []);
-  const [uploading, setUploading] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { payment_cycle: 'monthly', status: 'active', deposit_amount: 0, ...initialData },
   });
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (!files.length) return;
-    setUploading(true);
-    try {
-      const urls: string[] = [];
-      for (const file of files) {
-        const form = new FormData();
-        form.append('file', file);
-        const res = await api.post('/upload', form);
-        urls.push(res.data.data.url);
-      }
-      setImages((prev) => [...prev, ...urls]);
-    } catch {
-      setError('Failed to upload image. Please try again.');
-    } finally {
-      setUploading(false);
-      if (fileRef.current) fileRef.current.value = '';
-    }
-  };
-
-  const removeImage = (url: string) => setImages((prev) => prev.filter((u) => u !== url));
 
   const onSubmit = async (data: FormData) => {
     try {
@@ -145,7 +124,7 @@ export const CreateContractForm = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           <div>
             <label className="label">Payment cycle</label>
             <select {...register('payment_cycle')} className="input">
@@ -153,6 +132,18 @@ export const CreateContractForm = ({
               <option value="quarterly">Quarterly</option>
               <option value="yearly">Yearly</option>
             </select>
+          </div>
+          <div>
+            <label className="label">Rent due (day)</label>
+            <input
+              {...register('rent_due_day')}
+              type="number"
+              min={1}
+              max={31}
+              className="input"
+              placeholder="e.g. 5"
+            />
+            <p className="mt-0.5 text-xs text-ink-400">Day of month 1–31</p>
           </div>
           <div>
             <label className="label">Status</label>
@@ -177,60 +168,17 @@ export const CreateContractForm = ({
           <textarea {...register('notes')} rows={2} className="input" placeholder="Internal notes…" />
         </div>
 
-        {/* Image upload */}
-        <div>
-          <label className="label">Contract images / documents</label>
-          <div className="space-y-3">
-            {images.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {images.map((url) => (
-                  <div key={url} className="relative group w-20 h-20">
-                    <img
-                      src={url}
-                      alt="contract"
-                      className="w-20 h-20 object-cover rounded-lg border border-ink-200"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = '';
-                        (e.target as HTMLImageElement).className = 'hidden';
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => removeImage(url)}
-                      className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-rose-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-            <button
-              type="button"
-              onClick={() => fileRef.current?.click()}
-              disabled={uploading}
-              className="flex items-center gap-2 px-3 py-2 border border-dashed border-ink-300 rounded-lg text-sm text-ink-500 hover:border-brand-400 hover:text-brand-600 hover:bg-brand-50 transition w-full justify-center"
-            >
-              {uploading ? (
-                <><Loader2 className="w-4 h-4 animate-spin" /> Uploading…</>
-              ) : (
-                <><ImagePlus className="w-4 h-4" /> Add images</>
-              )}
-            </button>
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/*,.pdf"
-              multiple
-              className="hidden"
-              onChange={handleFileChange}
-            />
-          </div>
-        </div>
+        <ImageUploader
+          label="Contract images / documents"
+          accept="image/*,.pdf"
+          images={images}
+          showCoverPicker={false}
+          onChange={({ images: next }) => setImages(next)}
+        />
 
         <div className="flex gap-3 pt-2">
           <button type="button" onClick={onClose} className="btn-secondary flex-1">Cancel</button>
-          <button type="submit" disabled={isSubmitting || uploading} className="btn-primary flex-1">
+          <button type="submit" disabled={isSubmitting} className="btn-primary flex-1">
             {isSubmitting ? 'Saving…' : isEdit ? 'Save changes' : 'Create contract'}
           </button>
         </div>
