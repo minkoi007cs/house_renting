@@ -376,7 +376,7 @@ const FinanceTab = ({ propertyId }: { propertyId: string }) => {
   const fetchAll = async () => {
     setLoading(true);
     try {
-      const params: any = {};
+      const params: any = { limit: 200 };
       if (type) params.type = type;
       const res = await api.get(`/properties/${propertyId}/transactions`, { params });
       const raw = res.data.data;

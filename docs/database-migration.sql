@@ -390,6 +390,16 @@ ALTER TABLE public.rental_contracts
 ALTER TYPE transaction_category ADD VALUE IF NOT EXISTS 'deposit_received';
 ALTER TYPE transaction_category ADD VALUE IF NOT EXISTS 'tax';
 ALTER TYPE transaction_category ADD VALUE IF NOT EXISTS 'insurance';
+ALTER TYPE transaction_category ADD VALUE IF NOT EXISTS 'electricity';
+ALTER TYPE transaction_category ADD VALUE IF NOT EXISTS 'water_sewage';
+ALTER TYPE transaction_category ADD VALUE IF NOT EXISTS 'gas';
+ALTER TYPE transaction_category ADD VALUE IF NOT EXISTS 'lawn_care';
+ALTER TYPE transaction_category ADD VALUE IF NOT EXISTS 'snow_removal';
+ALTER TYPE transaction_category ADD VALUE IF NOT EXISTS 'hoa_fee';
+ALTER TYPE transaction_category ADD VALUE IF NOT EXISTS 'pest_control';
+ALTER TYPE transaction_category ADD VALUE IF NOT EXISTS 'hvac_maintenance';
+ALTER TYPE transaction_category ADD VALUE IF NOT EXISTS 'painting';
+ALTER TYPE transaction_category ADD VALUE IF NOT EXISTS 'appliance_repair';
 
 -- New column on tenants
 ALTER TABLE public.tenants
