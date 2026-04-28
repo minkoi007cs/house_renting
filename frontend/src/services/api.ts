@@ -19,18 +19,12 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle errors
+// Handle errors — any 401 means expired/invalid token → force re-login
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    const skipRedirect = error.config?.headers?.['X-Skip-Auth-Redirect'] === 'true';
-    const shouldForceLogout =
-      error.response?.status === 401 &&
-      !skipRedirect &&
-      typeof error.config?.url === 'string' &&
-      error.config.url.includes('/auth/profile');
-
-    if (shouldForceLogout) {
+    const skip = error.config?.headers?.['X-Skip-Auth-Redirect'] === 'true';
+    if (error.response?.status === 401 && !skip && window.location.pathname !== '/login') {
       useAuthStore.getState().logout();
       window.location.href = '/login';
     }
