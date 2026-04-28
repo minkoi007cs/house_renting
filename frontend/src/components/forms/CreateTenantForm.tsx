@@ -11,6 +11,7 @@ const schema = z.object({
   phone: z.string().optional(),
   address: z.string().optional(),
   notes: z.string().max(1000).optional(),
+  emergency_contact: z.string().max(500).optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -119,6 +120,15 @@ export const CreateTenantForm = ({
         <div>
           <label className="label">Address</label>
           <input {...register('address')} className="input" placeholder="Home address" />
+        </div>
+
+        <div>
+          <label className="label">Emergency contact</label>
+          <input
+            {...register('emergency_contact')}
+            className="input"
+            placeholder="Name & phone of emergency contact"
+          />
         </div>
 
         <div>

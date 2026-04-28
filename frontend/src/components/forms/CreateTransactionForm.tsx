@@ -6,8 +6,8 @@ import api from '@/services/api';
 import { Modal } from '@/components/common/Modal';
 import { TX_CATEGORY_LABELS } from '@/utils/labels';
 
-const INCOME_CATS = ['rent', 'service_fee', 'deposit_refund', 'other_income'];
-const EXPENSE_CATS = ['repair', 'maintenance', 'utilities', 'brokerage', 'cleaning', 'other_expense'];
+const INCOME_CATS = ['rent', 'service_fee', 'deposit_received', 'deposit_refund', 'other_income'];
+const EXPENSE_CATS = ['repair', 'maintenance', 'utilities', 'brokerage', 'cleaning', 'tax', 'insurance', 'other_expense'];
 
 const schema = z.object({
   type: z.enum(['income', 'expense']),
