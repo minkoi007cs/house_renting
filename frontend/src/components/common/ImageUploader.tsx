@@ -44,7 +44,10 @@ export const ImageUploader = ({
       for (const file of arr) {
         const form = new FormData();
         form.append('file', file);
-        const res = await api.post('/upload', form);
+        // Let browser set Content-Type with boundary — don't override it
+        const res = await api.post('/upload', form, {
+          headers: { 'Content-Type': undefined },
+        });
         uploaded.push(res.data.data.url);
       }
       const nextImages = [...images, ...uploaded];
