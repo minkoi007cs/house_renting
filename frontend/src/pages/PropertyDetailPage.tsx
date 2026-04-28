@@ -33,11 +33,13 @@ import {
 type Tab = 'overview' | 'contract' | 'tenants' | 'finance' | 'reminder';
 
 /* ─── Image gallery ─────────────────────────────────────────────────── */
-const ImageGallery = ({ images, cover }: { images: string[]; cover?: string }) => {
+const ImageGallery = ({ images, cover }: { images?: string[] | null; cover?: string }) => {
+  // Guard against non-array values (e.g. null from DB rows before migration)
+  const imgs = Array.isArray(images) ? images : [];
   const sorted = useMemo(() => {
-    if (!images.length) return [];
-    return cover ? [cover, ...images.filter((u) => u !== cover)] : images;
-  }, [images, cover]);
+    if (!imgs.length) return [];
+    return cover ? [cover, ...imgs.filter((u) => u !== cover)] : imgs;
+  }, [imgs, cover]);
 
   const [idx, setIdx] = useState(0);
   if (!sorted.length) return null;
@@ -217,7 +219,7 @@ const ContractTab = ({ primaryUnitId }: { primaryUnitId: string }) => {
                       ))}
                     </div>
                   )}
-                  {c.image_urls && c.image_urls.length > 0 && (
+                  {Array.isArray(c.image_urls) && c.image_urls.length > 0 && (
                     <div className="mt-2 flex gap-2 overflow-x-auto">
                       {c.image_urls.map((url) => (
                         <a key={url} href={url} target="_blank" rel="noopener noreferrer">
@@ -601,7 +603,8 @@ export const PropertyDetailPage = () => {
     );
   }
 
-  const hasImages = (property.image_urls || []).length > 0;
+  const safeImages = Array.isArray(property.image_urls) ? property.image_urls : [];
+  const hasImages = safeImages.length > 0;
 
   return (
     <Layout title="Property">
@@ -617,7 +620,7 @@ export const PropertyDetailPage = () => {
         <div className="card overflow-hidden">
           {hasImages && (
             <div className="p-4 pb-0">
-              <ImageGallery images={property.image_urls || []} cover={property.cover_image_url} />
+              <ImageGallery images={safeImages} cover={property.cover_image_url} />
             </div>
           )}
 
