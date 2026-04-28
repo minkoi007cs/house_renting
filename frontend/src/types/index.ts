@@ -6,7 +6,7 @@ export interface User {
   created_at?: string;
 }
 
-export type PropertyType = 'house' | 'apartment' | 'townhouse' | 'land' | 'other';
+export type PropertyType = 'house' | 'apartment' | 'condo' | 'townhouse' | 'duplex' | 'multi_family' | 'mobile_home' | 'land' | 'other';
 export type PropertyStatus = 'active' | 'inactive' | 'sold';
 
 export interface Property {

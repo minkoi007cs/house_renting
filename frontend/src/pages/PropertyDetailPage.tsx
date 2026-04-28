@@ -141,7 +141,7 @@ const OverviewTab = ({ propertyId }: { propertyId: string }) => {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} />
-                <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={(v) => `${(v / 1_000_000).toFixed(0)}M`} />
+                <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={(v) => v >= 1000 ? `$${(v / 1000).toFixed(0)}k` : `$${v}`} />
                 <Tooltip
                   formatter={(v: any) => formatCurrency(v as number)}
                   contentStyle={{ borderRadius: 12, border: '1px solid #e2e8f0', fontSize: 12 }}
@@ -379,7 +379,8 @@ const FinanceTab = ({ propertyId }: { propertyId: string }) => {
       const params: any = {};
       if (type) params.type = type;
       const res = await api.get(`/properties/${propertyId}/transactions`, { params });
-      setTransactions(res.data.data || []);
+      const raw = res.data.data;
+      setTransactions(Array.isArray(raw) ? raw : (raw?.data ?? []));
     } finally {
       setLoading(false);
     }
