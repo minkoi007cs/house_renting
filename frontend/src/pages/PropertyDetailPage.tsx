@@ -368,6 +368,7 @@ const TenantsTab = ({ primaryUnitId }: { primaryUnitId: string }) => {
 const FinanceTab = ({ propertyId }: { propertyId: string }) => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [type, setType] = useState<'' | 'income' | 'expense'>('');
   const [showAdd, setShowAdd] = useState(false);
   const [editing, setEditing] = useState<Transaction | null>(null);
@@ -375,12 +376,17 @@ const FinanceTab = ({ propertyId }: { propertyId: string }) => {
 
   const fetchAll = async () => {
     setLoading(true);
+    setFetchError(null);
     try {
       const params: any = { limit: 200 };
       if (type) params.type = type;
       const res = await api.get(`/properties/${propertyId}/transactions`, { params });
       const raw = res.data.data;
-      setTransactions(Array.isArray(raw) ? raw : (raw?.data ?? []));
+      const list = Array.isArray(raw) ? raw : (raw?.data ?? []);
+      setTransactions(list);
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || err?.message || 'Failed to load transactions';
+      setFetchError(msg);
     } finally {
       setLoading(false);
     }
@@ -418,6 +424,12 @@ const FinanceTab = ({ propertyId }: { propertyId: string }) => {
 
       {loading ? (
         <div className="flex justify-center py-8"><Spinner /></div>
+      ) : fetchError ? (
+        <div className="card p-5 text-center">
+          <p className="text-rose-600 font-medium mb-1">Failed to load transactions</p>
+          <p className="text-sm text-ink-500 mb-3">{fetchError}</p>
+          <button onClick={fetchAll} className="btn-secondary">Retry</button>
+        </div>
       ) : transactions.length === 0 ? (
         <EmptyState icon={DollarSign} title="No transactions" description="Record income or expenses for this property." />
       ) : (

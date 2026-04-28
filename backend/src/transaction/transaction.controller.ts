@@ -31,7 +31,7 @@ export class TransactionController {
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 20,
   ) {
-    const skip = (page - 1) * limit;
+    const skip = (Number(page) - 1) * Number(limit);
     const result = await this.transactionService.getTransactions(
       userId,
       propertyId,
@@ -40,7 +40,7 @@ export class TransactionController {
       type,
       category,
       skip,
-      limit,
+      Number(limit),
     );
     return { status: 'success', data: result };
   }
