@@ -26,6 +26,7 @@ export const TransactionsPage = () => {
     category: categoryFilter || undefined,
     startDate: startDate || undefined,
     endDate: endDate || undefined,
+    limit: 200,
   });
 
   const { properties } = useProperties();
