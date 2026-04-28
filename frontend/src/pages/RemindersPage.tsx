@@ -96,7 +96,10 @@ export const RemindersPage = () => {
           <div className="space-y-2">
             {sorted.map((r) => {
               const due = new Date(r.due_date);
-              const overdue = r.status === 'pending' && due < new Date();
+              const now = new Date();
+              const daysUntil = Math.ceil((due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+              const overdue = r.status === 'pending' && due < now;
+              const soon = r.status === 'pending' && !overdue && daysUntil <= 7;
               return (
                 <div
                   key={r.id}
@@ -104,7 +107,9 @@ export const RemindersPage = () => {
                     r.status === 'done'
                       ? 'opacity-60'
                       : overdue
-                      ? 'border-rose-200 bg-rose-50/30'
+                      ? 'border-rose-200 bg-rose-50/40'
+                      : soon
+                      ? 'border-amber-200 bg-amber-50/40'
                       : ''
                   }`}
                 >
@@ -115,6 +120,10 @@ export const RemindersPage = () => {
                   >
                     {r.status === 'done' ? (
                       <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                    ) : overdue ? (
+                      <Circle className="w-5 h-5 text-rose-400" />
+                    ) : soon ? (
+                      <Circle className="w-5 h-5 text-amber-400" />
                     ) : (
                       <Circle className="w-5 h-5" />
                     )}
@@ -137,6 +146,11 @@ export const RemindersPage = () => {
                       {overdue && (
                         <span className="text-rose-600 font-medium flex items-center gap-0.5">
                           <AlertCircle className="w-3 h-3" /> Overdue
+                        </span>
+                      )}
+                      {soon && (
+                        <span className="text-amber-600 font-medium flex items-center gap-0.5">
+                          <AlertCircle className="w-3 h-3" /> Due in {daysUntil}d
                         </span>
                       )}
                     </div>

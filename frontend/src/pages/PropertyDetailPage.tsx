@@ -553,19 +553,32 @@ const ReminderTab = ({ propertyId }: { propertyId: string }) => {
         <div className="space-y-2">
           {reminders.map((r) => {
             const due = new Date(r.due_date);
-            const overdue = r.status === 'pending' && due < new Date();
+            const now = new Date();
+            const daysUntil = Math.ceil((due.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+            const overdue = r.status === 'pending' && due < now;
+            const soon = r.status === 'pending' && !overdue && daysUntil <= 7;
             return (
               <div
                 key={r.id}
                 className={`flex items-center gap-3 p-3 rounded-xl border transition ${
-                  r.status === 'done' ? 'bg-ink-50/60 border-ink-100' : overdue ? 'bg-rose-50/50 border-rose-200' : 'bg-white border-ink-100'
+                  r.status === 'done'
+                    ? 'bg-ink-50/60 border-ink-100'
+                    : overdue
+                    ? 'bg-rose-50/50 border-rose-200'
+                    : soon
+                    ? 'bg-amber-50/50 border-amber-200'
+                    : 'bg-white border-ink-100'
                 }`}
               >
                 <button onClick={() => toggle(r)} className="flex-shrink-0">
                   {r.status === 'done' ? (
                     <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                  ) : overdue ? (
+                    <Circle className="w-5 h-5 text-rose-400" />
+                  ) : soon ? (
+                    <Circle className="w-5 h-5 text-amber-400" />
                   ) : (
-                    <Circle className={`w-5 h-5 ${overdue ? 'text-rose-400' : 'text-ink-300'}`} />
+                    <Circle className="w-5 h-5 text-ink-300" />
                   )}
                 </button>
                 <div className="flex-1 min-w-0">
@@ -574,6 +587,7 @@ const ReminderTab = ({ propertyId }: { propertyId: string }) => {
                     <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {formatDate(r.due_date)}</span>
                     <span>{REMINDER_TYPE_LABELS[r.type] || r.type}</span>
                     {overdue && <span className="text-rose-600 font-medium">Overdue</span>}
+                    {soon && <span className="text-amber-600 font-medium">Due in {daysUntil}d</span>}
                   </div>
                 </div>
                 <div className="flex items-center gap-1 flex-shrink-0">
