@@ -23,7 +23,7 @@ type FormData = z.infer<typeof schema>;
 interface Props {
   propertyId: string;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: () => void | Promise<void>;
   initialData?: Partial<FormData>;
   transactionId?: string;
 }
@@ -59,7 +59,7 @@ export const CreateTransactionForm = ({
       } else {
         await api.post(`/properties/${propertyId}/transactions`, payload);
       }
-      onSuccess();
+      await onSuccess();
       onClose();
     } catch (err: any) {
       setError(err?.response?.data?.message || 'Failed to save transaction');

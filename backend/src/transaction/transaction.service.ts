@@ -128,7 +128,7 @@ export class TransactionService {
 
     let query = this.supabase
       .from('transactions')
-      .select('*')
+      .select('*', { count: 'exact' })
       .eq('property_id', propertyId)
       .is('deleted_at', null);
 

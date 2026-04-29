@@ -1,6 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Transaction } from '@/types';
 import api from '@/services/api';
+import {
+  normalizeTransactionListResponse,
+  TransactionListResponse,
+} from '@/utils/transactions';
 
 interface Filters {
   startDate?: string;
@@ -11,15 +15,13 @@ interface Filters {
   limit?: number;
 }
 
-interface ListResponse {
-  data: Transaction[];
-  count: number;
-  skip: number;
-  take: number;
-}
-
 export const useTransactions = (filters: Filters = {}) => {
-  const [data, setData] = useState<ListResponse>({ data: [], count: 0, skip: 0, take: 50 });
+  const [data, setData] = useState<TransactionListResponse>({
+    data: [],
+    count: 0,
+    skip: 0,
+    take: Number(filters.limit ?? 50),
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,7 +34,7 @@ export const useTransactions = (filters: Filters = {}) => {
         if (v !== undefined && v !== '') params[k] = v;
       });
       const res = await api.get('/transactions', { params });
-      setData(res.data.data);
+      setData(normalizeTransactionListResponse(res.data, Number(filters.limit ?? 50)));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch transactions');
     } finally {
