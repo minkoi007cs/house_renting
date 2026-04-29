@@ -15,6 +15,11 @@ import { CreateTransactionDto, UpdateTransactionDto } from './dto/create-transac
 import { JwtGuard } from '../common/guards/jwt.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
+const toPositiveInt = (value: unknown, fallback: number) => {
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : fallback;
+};
+
 @Controller('api/properties/:propertyId/transactions')
 @UseGuards(JwtGuard)
 export class TransactionController {
@@ -31,7 +36,9 @@ export class TransactionController {
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 20,
   ) {
-    const skip = (Number(page) - 1) * Number(limit);
+    const safePage = toPositiveInt(page, 1);
+    const safeLimit = Math.min(toPositiveInt(limit, 20), 500);
+    const skip = (safePage - 1) * safeLimit;
     const result = await this.transactionService.getTransactions(
       userId,
       propertyId,
@@ -40,7 +47,7 @@ export class TransactionController {
       type,
       category,
       skip,
-      Number(limit),
+      safeLimit,
     );
     return { status: 'success', data: result };
   }
