@@ -13,14 +13,6 @@ export class AuthService {
     @Inject('SUPABASE_CLIENT') private supabase: SupabaseClient,
   ) {
     const clientId = this.configService.get<string>('GOOGLE_CLIENT_ID');
-    console.log(
-      '[Auth] GOOGLE_CLIENT_ID loaded:',
-      clientId ? clientId.slice(0, 20) + '...' : 'MISSING',
-    );
-    console.log(
-      '[Auth] SUPABASE_URL:',
-      this.configService.get<string>('SUPABASE_URL') || 'MISSING',
-    );
     this.googleClient = new OAuth2Client(clientId);
   }
 
@@ -99,7 +91,6 @@ export class AuthService {
   }
 
   async verifyGoogleIdToken(idToken: string) {
-    console.log('[Auth] verifyGoogleIdToken: start');
     try {
       const ticket = await this.googleClient.verifyIdToken({
         idToken,
@@ -108,16 +99,9 @@ export class AuthService {
 
       const payload = ticket.getPayload();
       if (!payload) {
-        console.error('[Auth] verifyGoogleIdToken: payload is null');
         throw new UnauthorizedException('Invalid Google token');
       }
 
-      console.log(
-        '[Auth] verifyGoogleIdToken: success, email =',
-        payload.email,
-        '| sub =',
-        payload.sub,
-      );
       return {
         id: payload.sub,
         email: payload.email,
@@ -125,7 +109,6 @@ export class AuthService {
         picture: payload.picture,
       };
     } catch (error) {
-      console.error('[Auth] verifyGoogleIdToken: FAILED -', error);
       throw new UnauthorizedException('Google token verification failed');
     }
   }
@@ -136,14 +119,10 @@ export class AuthService {
     name?: string;
     picture?: string;
   }) {
-    console.log('[Auth] createOrUpdateGoogleUser: start, email =', googleUser.email);
     try {
       if (!googleUser.email) {
-        console.error('[Auth] createOrUpdateGoogleUser: no email');
         throw new UnauthorizedException('Google account must have email');
       }
-
-      console.log('[Auth] createOrUpdateGoogleUser: checking existing user...');
 
       // Look up by google_sub first (most reliable), then fall back to email
       const { data: bySubUser } = await this.supabase
@@ -152,31 +131,16 @@ export class AuthService {
         .eq('google_sub', googleUser.id)
         .single();
 
-      if (bySubUser) {
-        console.log('[Auth] createOrUpdateGoogleUser: found by google_sub, id =', bySubUser.id);
-        return bySubUser;
-      }
+      if (bySubUser) return bySubUser;
 
-      const { data: existingUser, error: selectError } = await this.supabase
+      const { data: existingUser } = await this.supabase
         .from('users')
         .select('*')
         .eq('email', googleUser.email)
         .single();
 
-      if (selectError) {
-        console.log(
-          '[Auth] createOrUpdateGoogleUser: select error (likely no row) -',
-          selectError.code,
-          selectError.message,
-        );
-      }
-
       // Existing user found by email but missing google_sub — backfill it
       if (existingUser && !existingUser.google_sub) {
-        console.log(
-          '[Auth] createOrUpdateGoogleUser: backfilling google_sub for existing user, id =',
-          existingUser.id,
-        );
         await this.supabase
           .from('users')
           .update({ google_sub: googleUser.id })
@@ -185,7 +149,6 @@ export class AuthService {
       }
 
       if (!existingUser) {
-        console.log('[Auth] createOrUpdateGoogleUser: user not found, inserting new user...');
         const { data: newUser, error: insertError } = await this.supabase
           .from('users')
           .insert([
@@ -199,19 +162,12 @@ export class AuthService {
           .select()
           .single();
 
-        if (insertError) {
-          console.error('[Auth] createOrUpdateGoogleUser: INSERT FAILED -', insertError);
-          throw insertError;
-        }
-
-        console.log('[Auth] createOrUpdateGoogleUser: new user created, id =', newUser?.id);
+        if (insertError) throw insertError;
         return newUser;
       }
 
-      console.log('[Auth] createOrUpdateGoogleUser: existing user found, id =', existingUser.id);
       return existingUser;
     } catch (error) {
-      console.error('[Auth] createOrUpdateGoogleUser: CAUGHT ERROR -', error);
       throw new ConflictException('Failed to create or update user');
     }
   }

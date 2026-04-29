@@ -489,18 +489,23 @@ const FinanceTab = ({ propertyId }: { propertyId: string }) => {
 const ReminderTab = ({ propertyId }: { propertyId: string }) => {
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [loading, setLoading] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [generatingDefaults, setGeneratingDefaults] = useState(false);
+  const [toggleError, setToggleError] = useState<string | null>(null);
   const [showAdd, setShowAdd] = useState(false);
   const [editing, setEditing] = useState<Reminder | null>(null);
   const [deleting, setDeleting] = useState<Reminder | null>(null);
 
   const fetchAll = async () => {
     setLoading(true);
+    setFetchError(null);
     try {
       const res = await api.get(`/properties/${propertyId}/reminders`);
       const list = (res.data.data || []) as Reminder[];
       list.sort((a, b) => new Date(a.due_date).getTime() - new Date(b.due_date).getTime());
       setReminders(list);
+    } catch {
+      setFetchError('Failed to load reminders.');
     } finally {
       setLoading(false);
     }
@@ -511,6 +516,8 @@ const ReminderTab = ({ propertyId }: { propertyId: string }) => {
     try {
       await api.post(`/properties/${propertyId}/reminders/defaults`);
       await fetchAll();
+    } catch {
+      setFetchError('Failed to generate default reminders.');
     } finally {
       setGeneratingDefaults(false);
     }
@@ -518,8 +525,16 @@ const ReminderTab = ({ propertyId }: { propertyId: string }) => {
 
   const toggle = async (r: Reminder) => {
     const newStatus = r.status === 'pending' ? 'done' : 'pending';
-    await api.patch(`/reminders/${r.id}`, { status: newStatus });
+    setToggleError(null);
+    // Optimistic update
     setReminders((list) => list.map((x) => (x.id === r.id ? { ...x, status: newStatus } : x)));
+    try {
+      await api.patch(`/reminders/${r.id}`, { status: newStatus });
+    } catch {
+      // Revert on failure
+      setReminders((list) => list.map((x) => (x.id === r.id ? { ...x, status: r.status } : x)));
+      setToggleError('Could not update reminder. Please try again.');
+    }
   };
 
   useEffect(() => { fetchAll(); }, [propertyId]);
@@ -544,8 +559,17 @@ const ReminderTab = ({ propertyId }: { propertyId: string }) => {
         </div>
       </div>
 
+      {toggleError && (
+        <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-sm">{toggleError}</div>
+      )}
+
       {loading ? (
         <div className="flex justify-center py-8"><Spinner /></div>
+      ) : fetchError ? (
+        <div className="card p-6 text-center">
+          <p className="text-rose-600 font-medium mb-3">{fetchError}</p>
+          <button onClick={fetchAll} className="btn-secondary">Retry</button>
+        </div>
       ) : reminders.length === 0 ? (
         <EmptyState icon={Bell} title="No reminders" description="Stay on top of rent payments, contract renewals, and maintenance tasks." />
       ) : (

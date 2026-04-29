@@ -20,15 +20,33 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle errors — any 401 means expired/invalid token → notify user then redirect
+// Single-flight logout: the first 401 triggers the session-expiry flow;
+// subsequent 401s from concurrent requests in the same batch are ignored.
+let logoutScheduled = false;
+
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     const skip = error.config?.headers?.['X-Skip-Auth-Redirect'] === 'true';
-    if (error.response?.status === 401 && !skip && window.location.pathname !== '/login') {
-      toast.warning('Your session has expired. Please sign in again.', 0);
-      useAuthStore.getState().logout();
-      setTimeout(() => { window.location.href = '/login'; }, 2000);
+    if (
+      error.response?.status === 401 &&
+      !skip &&
+      !logoutScheduled &&
+      window.location.pathname !== '/login'
+    ) {
+      // Verify the token is actually expired before logging out, so a single
+      // misbehaving endpoint does not collapse the whole session.
+      try {
+        await api.get('/auth/profile', { headers: { 'X-Skip-Auth-Redirect': 'true' } });
+        // Token is still valid — this was a permission issue, not an auth failure.
+      } catch (verifyErr: any) {
+        if (verifyErr.response?.status === 401) {
+          logoutScheduled = true;
+          toast.warning('Your session has expired. Please sign in again.', 0);
+          useAuthStore.getState().logout();
+          setTimeout(() => { window.location.href = '/login'; }, 2500);
+        }
+      }
     }
     return Promise.reject(error);
   },
