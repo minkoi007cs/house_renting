@@ -11,8 +11,18 @@ export class MediaService {
     file: any,
     type: 'image' | 'contract' | 'document',
   ) {
-    console.log('[Media] uploadMedia: userId =', userId, '| propertyId =', propertyId, '| type =', type);
-    console.log('[Media] uploadMedia: file =', file ? { name: file.originalname, size: file.size, mime: file.mimetype } : 'MISSING');
+    console.log(
+      '[Media] uploadMedia: userId =',
+      userId,
+      '| propertyId =',
+      propertyId,
+      '| type =',
+      type,
+    );
+    console.log(
+      '[Media] uploadMedia: file =',
+      file ? { name: file.originalname, size: file.size, mime: file.mimetype } : 'MISSING',
+    );
 
     if (!file) {
       console.error('[Media] uploadMedia: file is undefined/null');
@@ -28,7 +38,12 @@ export class MediaService {
     if (propError) console.error('[Media] uploadMedia: property lookup error -', propError);
 
     if (!property || property.user_id !== userId) {
-      console.error('[Media] uploadMedia: FORBIDDEN - property.user_id =', property?.user_id, '!= userId =', userId);
+      console.error(
+        '[Media] uploadMedia: FORBIDDEN - property.user_id =',
+        property?.user_id,
+        '!= userId =',
+        userId,
+      );
       throw new ForbiddenException('Access denied');
     }
 
@@ -51,14 +66,16 @@ export class MediaService {
 
     const { data, error } = await this.supabase
       .from('media')
-      .insert([{
-        property_id: propertyId,
-        type,
-        file_url: publicUrl.publicUrl,
-        file_name: file.originalname,
-        file_size: file.size,
-        mime_type: file.mimetype,
-      }])
+      .insert([
+        {
+          property_id: propertyId,
+          type,
+          file_url: publicUrl.publicUrl,
+          file_name: file.originalname,
+          file_size: file.size,
+          mime_type: file.mimetype,
+        },
+      ])
       .select()
       .single();
 
@@ -71,7 +88,14 @@ export class MediaService {
   }
 
   async getMedia(userId: string, propertyId: string, type?: string) {
-    console.log('[Media] getMedia: userId =', userId, '| propertyId =', propertyId, '| type =', type);
+    console.log(
+      '[Media] getMedia: userId =',
+      userId,
+      '| propertyId =',
+      propertyId,
+      '| type =',
+      type,
+    );
     const { data: property, error: propError } = await this.supabase
       .from('properties')
       .select('id, user_id')

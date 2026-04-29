@@ -57,7 +57,9 @@ export class PropertyService {
     console.log('[Property] getPropertyDetail: userId =', userId, '| propertyId =', propertyId);
     const { data, error } = await this.supabase
       .from('properties')
-      .select(`*, units(*, tenants(*), rental_contracts(*)), transactions(*), media(*), reminders(*)`)
+      .select(
+        `*, units(*, tenants(*), rental_contracts(*)), transactions(*), media(*), reminders(*)`,
+      )
       .eq('id', propertyId)
       .eq('user_id', userId)
       .is('deleted_at', null)
@@ -73,7 +75,14 @@ export class PropertyService {
   }
 
   async updateProperty(userId: string, propertyId: string, dto: UpdatePropertyDto) {
-    console.log('[Property] updateProperty: userId =', userId, '| propertyId =', propertyId, '| dto =', dto);
+    console.log(
+      '[Property] updateProperty: userId =',
+      userId,
+      '| propertyId =',
+      propertyId,
+      '| dto =',
+      dto,
+    );
     const { data: property } = await this.supabase
       .from('properties')
       .select('user_id')
@@ -81,7 +90,12 @@ export class PropertyService {
       .single();
 
     if (!property || property.user_id !== userId) {
-      console.error('[Property] updateProperty: FORBIDDEN - property.user_id =', property?.user_id, '!= userId =', userId);
+      console.error(
+        '[Property] updateProperty: FORBIDDEN - property.user_id =',
+        property?.user_id,
+        '!= userId =',
+        userId,
+      );
       throw new ForbiddenException('Access denied');
     }
 

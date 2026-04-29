@@ -175,10 +175,7 @@ export class ReminderService {
       });
     }
 
-    const { data, error } = await this.supabase
-      .from('reminders')
-      .insert(reminders)
-      .select();
+    const { data, error } = await this.supabase.from('reminders').insert(reminders).select();
 
     if (error) throw error;
     return data;
