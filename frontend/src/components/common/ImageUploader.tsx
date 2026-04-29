@@ -1,6 +1,8 @@
 import { useRef, useState } from 'react';
-import { ImagePlus, X, Loader2, Star, StarOff } from 'lucide-react';
+import { ImagePlus, X, Loader2, Star, StarOff, FileText } from 'lucide-react';
 import api from '@/services/api';
+
+const isPdf = (url: string) => url.toLowerCase().includes('.pdf') || url.toLowerCase().includes('pdf');
 
 interface Props {
   images: string[];
@@ -18,7 +20,7 @@ export const ImageUploader = ({
   cover,
   onChange,
   label = 'Images',
-  accept = 'image/*,.pdf',
+  accept = 'image/*',
   multiple = true,
   maxSizeMB = 8,
   showCoverPicker = true,
@@ -91,23 +93,35 @@ export const ImageUploader = ({
                   isCover ? 'border-brand-500 ring-2 ring-brand-100' : 'border-ink-200'
                 }`}
               >
-                <img
-                  src={url}
-                  alt=""
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
-                  }}
-                />
+                {isPdf(url) ? (
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full h-full flex flex-col items-center justify-center bg-ink-50 text-ink-500 hover:bg-ink-100 transition gap-1 p-2"
+                    title="Open PDF"
+                  >
+                    <FileText className="w-6 h-6 text-rose-500" />
+                    <span className="text-[10px] text-center leading-tight break-all line-clamp-2">
+                      {url.split('/').pop()}
+                    </span>
+                  </a>
+                ) : (
+                  <img
+                    src={url}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
+                )}
 
-                {isCover && (
+                {isCover && !isPdf(url) && (
                   <div className="absolute top-1 left-1 bg-brand-600 text-white text-[10px] font-medium px-1.5 py-0.5 rounded flex items-center gap-1">
                     <Star className="w-2.5 h-2.5 fill-current" /> Cover
                   </div>
                 )}
 
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100">
-                  {showCoverPicker && !isCover && (
+                  {showCoverPicker && !isCover && !isPdf(url) && (
                     <button
                       type="button"
                       onClick={() => setCover(url)}
@@ -145,7 +159,9 @@ export const ImageUploader = ({
         ) : (
           <>
             <ImagePlus className="w-4 h-4" />
-            {images.length === 0 ? 'Add images' : 'Add more'}
+            {images.length === 0
+              ? accept.includes('.pdf') ? 'Add files' : 'Add images'
+              : 'Add more'}
           </>
         )}
       </button>
