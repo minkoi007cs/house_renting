@@ -29,7 +29,9 @@ export class JwtGuard implements CanActivate {
       const secret = this.configService.get<string>('JWT_SECRET') || 'default-secret';
       const decoded = jwt.verify(token, secret) as any;
       request.user = decoded;
-      console.log(`[JwtGuard] OK - userId=${decoded.sub}, exp=${new Date(decoded.exp * 1000).toISOString()}`);
+      console.log(
+        `[JwtGuard] OK - userId=${decoded.sub}, exp=${new Date(decoded.exp * 1000).toISOString()}`,
+      );
       return true;
     } catch (error) {
       console.error('[JwtGuard] FAILED - Token error:', (error as Error).message);

@@ -18,7 +18,17 @@ export class CreatePropertyDto {
   @Length(5, 500)
   address: string;
 
-  @IsEnum(['house', 'apartment', 'condo', 'townhouse', 'duplex', 'multi_family', 'mobile_home', 'land', 'other'])
+  @IsEnum([
+    'house',
+    'apartment',
+    'condo',
+    'townhouse',
+    'duplex',
+    'multi_family',
+    'mobile_home',
+    'land',
+    'other',
+  ])
   type: string;
 
   @IsEnum(['active', 'inactive', 'sold'])

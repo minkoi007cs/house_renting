@@ -13,8 +13,14 @@ export class AuthService {
     @Inject('SUPABASE_CLIENT') private supabase: SupabaseClient,
   ) {
     const clientId = this.configService.get<string>('GOOGLE_CLIENT_ID');
-    console.log('[Auth] GOOGLE_CLIENT_ID loaded:', clientId ? clientId.slice(0, 20) + '...' : 'MISSING');
-    console.log('[Auth] SUPABASE_URL:', this.configService.get<string>('SUPABASE_URL') || 'MISSING');
+    console.log(
+      '[Auth] GOOGLE_CLIENT_ID loaded:',
+      clientId ? clientId.slice(0, 20) + '...' : 'MISSING',
+    );
+    console.log(
+      '[Auth] SUPABASE_URL:',
+      this.configService.get<string>('SUPABASE_URL') || 'MISSING',
+    );
     this.googleClient = new OAuth2Client(clientId);
   }
 
@@ -28,7 +34,7 @@ export class AuthService {
       if (error || !user) {
         throw new UnauthorizedException('Invalid Supabase token');
       }
-      
+
       return user;
     } catch (error) {
       throw new UnauthorizedException('Token verification failed');
@@ -106,7 +112,12 @@ export class AuthService {
         throw new UnauthorizedException('Invalid Google token');
       }
 
-      console.log('[Auth] verifyGoogleIdToken: success, email =', payload.email, '| sub =', payload.sub);
+      console.log(
+        '[Auth] verifyGoogleIdToken: success, email =',
+        payload.email,
+        '| sub =',
+        payload.sub,
+      );
       return {
         id: payload.sub,
         email: payload.email,
@@ -153,12 +164,19 @@ export class AuthService {
         .single();
 
       if (selectError) {
-        console.log('[Auth] createOrUpdateGoogleUser: select error (likely no row) -', selectError.code, selectError.message);
+        console.log(
+          '[Auth] createOrUpdateGoogleUser: select error (likely no row) -',
+          selectError.code,
+          selectError.message,
+        );
       }
 
       // Existing user found by email but missing google_sub — backfill it
       if (existingUser && !existingUser.google_sub) {
-        console.log('[Auth] createOrUpdateGoogleUser: backfilling google_sub for existing user, id =', existingUser.id);
+        console.log(
+          '[Auth] createOrUpdateGoogleUser: backfilling google_sub for existing user, id =',
+          existingUser.id,
+        );
         await this.supabase
           .from('users')
           .update({ google_sub: googleUser.id })

@@ -21,7 +21,10 @@ export class UploadController {
   @UseInterceptors(FileInterceptor('file'))
   async upload(@CurrentUser('sub') userId: string, @UploadedFile() file: any) {
     console.log('[Upload] POST /api/upload: userId =', userId);
-    console.log('[Upload] file =', file ? { name: file.originalname, size: file.size, mime: file.mimetype } : 'MISSING');
+    console.log(
+      '[Upload] file =',
+      file ? { name: file.originalname, size: file.size, mime: file.mimetype } : 'MISSING',
+    );
 
     if (!file) throw new BadRequestException('No file provided');
 
