@@ -61,6 +61,7 @@ export class AuthService {
 
       return existingUser;
     } catch (error) {
+      console.error('[AuthService] createOrUpdateUser FAILED:', error);
       throw new ConflictException('Failed to create or update user');
     }
   }
@@ -168,6 +169,7 @@ export class AuthService {
 
       return existingUser;
     } catch (error) {
+      console.error('[AuthService] createOrUpdateGoogleUser FAILED:', error);
       throw new ConflictException('Failed to create or update user');
     }
   }
