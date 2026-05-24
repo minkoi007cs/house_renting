@@ -30,7 +30,7 @@ export class MediaService {
     }
 
     const { data: property, error: propError } = await this.supabase
-      .from('properties')
+      .from('hr_properties')
       .select('id, user_id')
       .eq('id', propertyId)
       .single();
@@ -65,7 +65,7 @@ export class MediaService {
     console.log('[Media] uploadMedia: publicUrl =', publicUrl.publicUrl);
 
     const { data, error } = await this.supabase
-      .from('media')
+      .from('hr_media')
       .insert([
         {
           property_id: propertyId,
@@ -97,7 +97,7 @@ export class MediaService {
       type,
     );
     const { data: property, error: propError } = await this.supabase
-      .from('properties')
+      .from('hr_properties')
       .select('id, user_id')
       .eq('id', propertyId)
       .single();
@@ -110,7 +110,7 @@ export class MediaService {
     }
 
     let query = this.supabase
-      .from('media')
+      .from('hr_media')
       .select('*')
       .eq('property_id', propertyId)
       .is('deleted_at', null);
@@ -129,8 +129,8 @@ export class MediaService {
   async deleteMedia(userId: string, mediaId: string) {
     console.log('[Media] deleteMedia: userId =', userId, '| mediaId =', mediaId);
     const { data: media, error: mediaError } = await this.supabase
-      .from('media')
-      .select('property:properties(user_id), file_url')
+      .from('hr_media')
+      .select('property:hr_properties(user_id), file_url')
       .eq('id', mediaId)
       .single();
 
@@ -146,7 +146,7 @@ export class MediaService {
     await this.supabase.storage.from('rental-files').remove([filePath]);
 
     const { error } = await this.supabase
-      .from('media')
+      .from('hr_media')
       .update({ deleted_at: new Date().toISOString() })
       .eq('id', mediaId);
 

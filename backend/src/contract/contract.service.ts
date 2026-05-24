@@ -8,14 +8,14 @@ export class ContractService {
 
   async getAllContracts(userId: string, status?: string) {
     let query = this.supabase
-      .from('rental_contracts')
+      .from('hr_rental_contracts')
       .select(
         `*,
-        unit:units!inner(
+        unit:hr_units!inner(
           id, name,
-          property:properties!inner(id, name, user_id)
+          property:hr_properties!inner(id, name, user_id)
         ),
-        contract_tenants(tenant:tenants(*))`,
+        contract_tenants:hr_contract_tenants(tenant:hr_tenants(*))`,
       )
       .eq('unit.property.user_id', userId)
       .is('deleted_at', null);
@@ -31,8 +31,8 @@ export class ContractService {
 
   async getContractsByUnit(userId: string, unitId: string, status?: string) {
     const { data: unit } = (await this.supabase
-      .from('units')
-      .select('id, property:properties(id, user_id)')
+      .from('hr_units')
+      .select('id, property:hr_properties(id, user_id)')
       .eq('id', unitId)
       .single()) as any;
 
@@ -41,8 +41,8 @@ export class ContractService {
     }
 
     let query = this.supabase
-      .from('rental_contracts')
-      .select(`*, contract_tenants(tenant:tenants(*))`)
+      .from('hr_rental_contracts')
+      .select(`*, contract_tenants:hr_contract_tenants(tenant:hr_tenants(*))`)
       .eq('unit_id', unitId)
       .is('deleted_at', null);
 
@@ -57,12 +57,12 @@ export class ContractService {
 
   async getContractDetail(userId: string, contractId: string) {
     const { data, error } = (await this.supabase
-      .from('rental_contracts')
+      .from('hr_rental_contracts')
       .select(
         `
         *,
-        unit:units(id, name, property:properties(id, user_id)),
-        contract_tenants(tenant:tenants(*))
+        unit:hr_units(id, name, property:hr_properties(id, user_id)),
+        contract_tenants:hr_contract_tenants(tenant:hr_tenants(*))
       `,
       )
       .eq('id', contractId)
@@ -82,8 +82,8 @@ export class ContractService {
 
   async createContract(userId: string, unitId: string, dto: CreateContractDto) {
     const { data: unit } = (await this.supabase
-      .from('units')
-      .select('id, property:properties(id, user_id)')
+      .from('hr_units')
+      .select('id, property:hr_properties(id, user_id)')
       .eq('id', unitId)
       .single()) as any;
 
@@ -94,7 +94,7 @@ export class ContractService {
     const { tenant_ids, ...contractData } = dto;
 
     const { data: contract, error } = await this.supabase
-      .from('rental_contracts')
+      .from('hr_rental_contracts')
       .insert([{ unit_id: unitId, ...contractData }])
       .select()
       .single();
@@ -107,7 +107,7 @@ export class ContractService {
         contract_id: contract.id,
         tenant_id: tenantId,
       }));
-      await this.supabase.from('contract_tenants').insert(tenantLinks);
+      await this.supabase.from('hr_contract_tenants').insert(tenantLinks);
     }
 
     return contract;
@@ -117,7 +117,7 @@ export class ContractService {
     await this.getContractDetail(userId, contractId);
 
     const { data, error } = await this.supabase
-      .from('rental_contracts')
+      .from('hr_rental_contracts')
       .update({ ...dto, updated_at: new Date().toISOString() })
       .eq('id', contractId)
       .select()
@@ -131,7 +131,7 @@ export class ContractService {
     await this.getContractDetail(userId, contractId);
 
     const { error } = await this.supabase
-      .from('rental_contracts')
+      .from('hr_rental_contracts')
       .update({ deleted_at: new Date().toISOString() })
       .eq('id', contractId);
 

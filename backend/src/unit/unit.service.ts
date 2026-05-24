@@ -9,7 +9,7 @@ export class UnitService {
   async getUnitsByProperty(userId: string, propertyId: string) {
     // Verify property ownership
     const { data: property } = await this.supabase
-      .from('properties')
+      .from('hr_properties')
       .select('id')
       .eq('id', propertyId)
       .eq('user_id', userId)
@@ -20,11 +20,11 @@ export class UnitService {
     }
 
     const { data, error } = await this.supabase
-      .from('units')
+      .from('hr_units')
       .select(
         `*,
-        tenants(id, name, phone, email),
-        rental_contracts(id, status, rent_amount, start_date, end_date)`,
+        tenants:hr_tenants(id, name, phone, email),
+        rental_contracts:hr_rental_contracts(id, status, rent_amount, start_date, end_date)`,
       )
       .eq('property_id', propertyId)
       .is('deleted_at', null)
@@ -36,12 +36,12 @@ export class UnitService {
 
   async getUnitDetail(userId: string, unitId: string) {
     const { data, error } = (await this.supabase
-      .from('units')
+      .from('hr_units')
       .select(
         `*,
-        property:properties(id, user_id),
-        tenants(*),
-        rental_contracts(*)`,
+        property:hr_properties(id, user_id),
+        tenants:hr_tenants(*),
+        rental_contracts:hr_rental_contracts(*)`,
       )
       .eq('id', unitId)
       .is('deleted_at', null)
@@ -62,7 +62,7 @@ export class UnitService {
   async createUnit(userId: string, propertyId: string, dto: CreateUnitDto) {
     // Verify property ownership
     const { data: property } = await this.supabase
-      .from('properties')
+      .from('hr_properties')
       .select('id')
       .eq('id', propertyId)
       .eq('user_id', userId)
@@ -73,7 +73,7 @@ export class UnitService {
     }
 
     const { data, error } = await this.supabase
-      .from('units')
+      .from('hr_units')
       .insert([{ property_id: propertyId, ...dto }])
       .select()
       .single();
@@ -87,7 +87,7 @@ export class UnitService {
     await this.getUnitDetail(userId, unitId);
 
     const { data, error } = await this.supabase
-      .from('units')
+      .from('hr_units')
       .update({ ...dto, updated_at: new Date().toISOString() })
       .eq('id', unitId)
       .select()
@@ -102,7 +102,7 @@ export class UnitService {
     await this.getUnitDetail(userId, unitId);
 
     const { error } = await this.supabase
-      .from('units')
+      .from('hr_units')
       .update({ deleted_at: new Date().toISOString() })
       .eq('id', unitId);
 

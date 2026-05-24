@@ -28,7 +28,7 @@ export class TransactionService {
   ) {
     const { safeSkip, safeTake } = this.normalizePagination(skip, take, 20);
     const { data: userProperties } = await this.supabase
-      .from('properties')
+      .from('hr_properties')
       .select('id')
       .eq('user_id', userId)
       .is('deleted_at', null);
@@ -38,8 +38,8 @@ export class TransactionService {
 
     const buildQuery = () => {
       let query = this.supabase
-        .from('transactions')
-        .select('*, property:properties(id, name)', { count: 'exact' })
+        .from('hr_transactions')
+        .select('*, property:hr_properties(id, name)', { count: 'exact' })
         .in('property_id', propertyIds)
         .is('deleted_at', null);
 
@@ -75,7 +75,7 @@ export class TransactionService {
 
   async getGlobalSummary(userId: string, startDate?: Date, endDate?: Date) {
     const { data: userProperties } = await this.supabase
-      .from('properties')
+      .from('hr_properties')
       .select('id')
       .eq('user_id', userId)
       .is('deleted_at', null);
@@ -92,7 +92,7 @@ export class TransactionService {
     }
 
     let query = this.supabase
-      .from('transactions')
+      .from('hr_transactions')
       .select('type, category, amount, transaction_date')
       .in('property_id', propertyIds)
       .is('deleted_at', null);
@@ -144,7 +144,7 @@ export class TransactionService {
   ) {
     const { safeSkip, safeTake } = this.normalizePagination(skip, take, 20);
     const { data: property } = await this.supabase
-      .from('properties')
+      .from('hr_properties')
       .select('id, user_id')
       .eq('id', propertyId)
       .single();
@@ -155,7 +155,7 @@ export class TransactionService {
 
     const buildQuery = () => {
       let query = this.supabase
-        .from('transactions')
+        .from('hr_transactions')
         .select('*', { count: 'exact' })
         .eq('property_id', propertyId)
         .is('deleted_at', null);
@@ -196,7 +196,7 @@ export class TransactionService {
 
   async createTransaction(userId: string, propertyId: string, dto: CreateTransactionDto) {
     const { data: property } = await this.supabase
-      .from('properties')
+      .from('hr_properties')
       .select('id, user_id')
       .eq('id', propertyId)
       .single();
@@ -206,7 +206,7 @@ export class TransactionService {
     }
 
     const { data, error } = await this.supabase
-      .from('transactions')
+      .from('hr_transactions')
       .insert([{ property_id: propertyId, ...dto }])
       .select()
       .single();
@@ -217,8 +217,8 @@ export class TransactionService {
 
   async getTransactionById(userId: string, transactionId: string) {
     const { data, error } = (await this.supabase
-      .from('transactions')
-      .select('*, property:properties(id, name, user_id)')
+      .from('hr_transactions')
+      .select('*, property:hr_properties(id, name, user_id)')
       .eq('id', transactionId)
       .single()) as any;
 
@@ -229,8 +229,8 @@ export class TransactionService {
 
   async updateTransaction(userId: string, transactionId: string, dto: UpdateTransactionDto) {
     const { data: tx } = (await this.supabase
-      .from('transactions')
-      .select('property:properties(user_id)')
+      .from('hr_transactions')
+      .select('property:hr_properties(user_id)')
       .eq('id', transactionId)
       .single()) as any;
 
@@ -239,7 +239,7 @@ export class TransactionService {
     }
 
     const { data, error } = await this.supabase
-      .from('transactions')
+      .from('hr_transactions')
       .update({ ...dto, updated_at: new Date().toISOString() })
       .eq('id', transactionId)
       .select()
@@ -251,8 +251,8 @@ export class TransactionService {
 
   async deleteTransaction(userId: string, transactionId: string) {
     const { data: tx } = (await this.supabase
-      .from('transactions')
-      .select('property:properties(user_id)')
+      .from('hr_transactions')
+      .select('property:hr_properties(user_id)')
       .eq('id', transactionId)
       .single()) as any;
 
@@ -261,7 +261,7 @@ export class TransactionService {
     }
 
     const { error } = await this.supabase
-      .from('transactions')
+      .from('hr_transactions')
       .update({ deleted_at: new Date().toISOString() })
       .eq('id', transactionId);
 
@@ -270,7 +270,7 @@ export class TransactionService {
 
   async getSummary(userId: string, propertyId: string, startDate?: Date, endDate?: Date) {
     const { data: property } = await this.supabase
-      .from('properties')
+      .from('hr_properties')
       .select('id, user_id')
       .eq('id', propertyId)
       .single();
@@ -280,7 +280,7 @@ export class TransactionService {
     }
 
     let query = this.supabase
-      .from('transactions')
+      .from('hr_transactions')
       .select('type, category, amount')
       .eq('property_id', propertyId)
       .is('deleted_at', null);

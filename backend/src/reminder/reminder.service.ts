@@ -7,11 +7,11 @@ export class ReminderService {
 
   async getAllReminders(userId: string, status?: string) {
     let query = this.supabase
-      .from('reminders')
+      .from('hr_reminders')
       .select(
         `*,
-        property:properties!inner(id, name, user_id),
-        unit:units(id, name)`,
+        property:hr_properties!inner(id, name, user_id),
+        unit:hr_units(id, name)`,
       )
       .eq('property.user_id', userId)
       .is('deleted_at', null);
@@ -27,7 +27,7 @@ export class ReminderService {
 
   async getRemindersByProperty(userId: string, propertyId: string) {
     const { data: property } = await this.supabase
-      .from('properties')
+      .from('hr_properties')
       .select('id, user_id')
       .eq('id', propertyId)
       .single();
@@ -37,7 +37,7 @@ export class ReminderService {
     }
 
     const { data, error } = await this.supabase
-      .from('reminders')
+      .from('hr_reminders')
       .select('*')
       .eq('property_id', propertyId)
       .is('deleted_at', null)
@@ -53,9 +53,9 @@ export class ReminderService {
     endDate.setDate(endDate.getDate() + days);
 
     const { data, error } = await this.supabase
-      .from('reminders')
-      .select('*, property:properties(id, name, user_id)')
-      .eq('property:properties.user_id', userId)
+      .from('hr_reminders')
+      .select('*, property:hr_properties(id, name, user_id)')
+      .eq('property:hr_properties.user_id', userId)
       .gte('due_date', startDate.toISOString().split('T')[0])
       .lte('due_date', endDate.toISOString().split('T')[0])
       .eq('status', 'pending')
@@ -68,7 +68,7 @@ export class ReminderService {
 
   async createReminder(userId: string, propertyId: string, dto: any) {
     const { data: property } = await this.supabase
-      .from('properties')
+      .from('hr_properties')
       .select('id, user_id')
       .eq('id', propertyId)
       .single();
@@ -78,7 +78,7 @@ export class ReminderService {
     }
 
     const { data, error } = await this.supabase
-      .from('reminders')
+      .from('hr_reminders')
       .insert([{ property_id: propertyId, ...dto }])
       .select()
       .single();
@@ -89,8 +89,8 @@ export class ReminderService {
 
   async getReminderById(userId: string, reminderId: string) {
     const { data, error } = (await this.supabase
-      .from('reminders')
-      .select('*, property:properties(id, name, user_id)')
+      .from('hr_reminders')
+      .select('*, property:hr_properties(id, name, user_id)')
       .eq('id', reminderId)
       .single()) as any;
 
@@ -101,8 +101,8 @@ export class ReminderService {
 
   async updateReminder(userId: string, reminderId: string, dto: any) {
     const { data: reminder } = (await this.supabase
-      .from('reminders')
-      .select('property:properties(user_id)')
+      .from('hr_reminders')
+      .select('property:hr_properties(user_id)')
       .eq('id', reminderId)
       .single()) as any;
 
@@ -111,7 +111,7 @@ export class ReminderService {
     }
 
     const { data, error } = await this.supabase
-      .from('reminders')
+      .from('hr_reminders')
       .update({ ...dto, updated_at: new Date().toISOString() })
       .eq('id', reminderId)
       .select()
@@ -123,7 +123,7 @@ export class ReminderService {
 
   async createDefaultReminders(userId: string, propertyId: string) {
     const { data: property } = await this.supabase
-      .from('properties')
+      .from('hr_properties')
       .select('id, user_id, name')
       .eq('id', propertyId)
       .single();
@@ -175,7 +175,7 @@ export class ReminderService {
       });
     }
 
-    const { data, error } = await this.supabase.from('reminders').insert(reminders).select();
+    const { data, error } = await this.supabase.from('hr_reminders').insert(reminders).select();
 
     if (error) throw error;
     return data;
@@ -183,8 +183,8 @@ export class ReminderService {
 
   async deleteReminder(userId: string, reminderId: string) {
     const { data: reminder } = (await this.supabase
-      .from('reminders')
-      .select('property:properties(user_id)')
+      .from('hr_reminders')
+      .select('property:hr_properties(user_id)')
       .eq('id', reminderId)
       .single()) as any;
 
@@ -193,7 +193,7 @@ export class ReminderService {
     }
 
     const { error } = await this.supabase
-      .from('reminders')
+      .from('hr_reminders')
       .update({ deleted_at: new Date().toISOString() })
       .eq('id', reminderId);
 
