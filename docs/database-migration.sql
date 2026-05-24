@@ -9,28 +9,32 @@ CREATE TYPE contract_status AS ENUM ('draft', 'signed', 'active', 'expired', 'te
 CREATE TYPE transaction_type AS ENUM ('income', 'expense');
 CREATE TYPE transaction_category AS ENUM (
   'rent', 'service_fee', 'deposit_refund', 'other_income',
-  'repair', 'maintenance', 'utilities', 'brokerage', 'cleaning', 'other_expense'
+  'repair', 'maintenance', 'utilities', 'brokerage', 'cleaning', 'other_expense',
+  'deposit_received', 'tax', 'insurance', 'electricity', 'water_sewage', 'gas',
+  'lawn_care', 'snow_removal', 'hoa_fee', 'pest_control', 'hvac_maintenance',
+  'painting', 'appliance_repair'
 );
 CREATE TYPE reminder_type AS ENUM ('rent_payment_due', 'contract_expiring', 'maintenance_needed', 'custom_task');
 CREATE TYPE reminder_status AS ENUM ('pending', 'done');
 CREATE TYPE media_type AS ENUM ('image', 'contract', 'document');
 
 -- Users table
-CREATE TABLE IF NOT EXISTS public.users (
+CREATE TABLE IF NOT EXISTS public.hr_users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   email VARCHAR(255) UNIQUE NOT NULL,
   name VARCHAR(255),
   avatar_url TEXT,
+  google_sub VARCHAR(255),
   created_at TIMESTAMP DEFAULT now(),
   updated_at TIMESTAMP DEFAULT now(),
   deleted_at TIMESTAMP
 );
 
-CREATE INDEX idx_users_email ON public.users(email);
-CREATE INDEX idx_users_created_at ON public.users(created_at DESC);
+CREATE INDEX idx_hr_users_email ON public.hr_users(email);
+CREATE INDEX idx_hr_users_created_at ON public.hr_users(created_at DESC);
 
 -- Properties table
-CREATE TABLE IF NOT EXISTS public.properties (
+CREATE TABLE IF NOT EXISTS public.hr_properties (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL,
   name VARCHAR(255) NOT NULL,
@@ -39,19 +43,22 @@ CREATE TABLE IF NOT EXISTS public.properties (
   status property_status DEFAULT 'active',
   description TEXT,
   notes TEXT,
+  monthly_rent NUMERIC(12,2),
+  cover_image_url TEXT,
+  image_urls TEXT[] DEFAULT '{}',
   created_at TIMESTAMP DEFAULT now(),
   updated_at TIMESTAMP DEFAULT now(),
   deleted_at TIMESTAMP,
-  CONSTRAINT properties_user_id_fkey FOREIGN KEY (user_id)
-    REFERENCES public.users(id) ON DELETE CASCADE
+  CONSTRAINT hr_properties_user_id_fkey FOREIGN KEY (user_id)
+    REFERENCES public.hr_users(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_properties_user_id ON public.properties(user_id);
-CREATE INDEX idx_properties_status ON public.properties(status);
-CREATE INDEX idx_properties_created_at ON public.properties(created_at DESC);
+CREATE INDEX idx_hr_properties_user_id ON public.hr_properties(user_id);
+CREATE INDEX idx_hr_properties_status ON public.hr_properties(status);
+CREATE INDEX idx_hr_properties_created_at ON public.hr_properties(created_at DESC);
 
 -- Units table
-CREATE TABLE IF NOT EXISTS public.units (
+CREATE TABLE IF NOT EXISTS public.hr_units (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   property_id UUID NOT NULL,
   name VARCHAR(255) NOT NULL,
@@ -61,15 +68,15 @@ CREATE TABLE IF NOT EXISTS public.units (
   created_at TIMESTAMP DEFAULT now(),
   updated_at TIMESTAMP DEFAULT now(),
   deleted_at TIMESTAMP,
-  CONSTRAINT units_property_id_fkey FOREIGN KEY (property_id)
-    REFERENCES public.properties(id) ON DELETE CASCADE
+  CONSTRAINT hr_units_property_id_fkey FOREIGN KEY (property_id)
+    REFERENCES public.hr_properties(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_units_property_id ON public.units(property_id);
-CREATE INDEX idx_units_status ON public.units(status);
+CREATE INDEX idx_hr_units_property_id ON public.hr_units(property_id);
+CREATE INDEX idx_hr_units_status ON public.hr_units(status);
 
 -- Tenants table
-CREATE TABLE IF NOT EXISTS public.tenants (
+CREATE TABLE IF NOT EXISTS public.hr_tenants (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   unit_id UUID NOT NULL,
   name VARCHAR(255) NOT NULL,
@@ -77,19 +84,20 @@ CREATE TABLE IF NOT EXISTS public.tenants (
   email VARCHAR(255),
   address TEXT,
   notes TEXT,
+  emergency_contact TEXT,
   created_at TIMESTAMP DEFAULT now(),
   updated_at TIMESTAMP DEFAULT now(),
   deleted_at TIMESTAMP,
-  CONSTRAINT tenants_unit_id_fkey FOREIGN KEY (unit_id)
-    REFERENCES public.units(id) ON DELETE CASCADE
+  CONSTRAINT hr_tenants_unit_id_fkey FOREIGN KEY (unit_id)
+    REFERENCES public.hr_units(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_tenants_unit_id ON public.tenants(unit_id);
-CREATE INDEX idx_tenants_phone ON public.tenants(phone);
-CREATE INDEX idx_tenants_email ON public.tenants(email);
+CREATE INDEX idx_hr_tenants_unit_id ON public.hr_tenants(unit_id);
+CREATE INDEX idx_hr_tenants_phone ON public.hr_tenants(phone);
+CREATE INDEX idx_hr_tenants_email ON public.hr_tenants(email);
 
 -- Rental Contracts table
-CREATE TABLE IF NOT EXISTS public.rental_contracts (
+CREATE TABLE IF NOT EXISTS public.hr_rental_contracts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   unit_id UUID NOT NULL,
   signed_date DATE,
@@ -101,36 +109,38 @@ CREATE TABLE IF NOT EXISTS public.rental_contracts (
   terms TEXT,
   notes TEXT,
   status contract_status DEFAULT 'draft',
+  image_urls TEXT[] DEFAULT '{}',
+  rent_due_day INTEGER CHECK (rent_due_day BETWEEN 1 AND 31),
   created_at TIMESTAMP DEFAULT now(),
   updated_at TIMESTAMP DEFAULT now(),
   deleted_at TIMESTAMP,
-  CONSTRAINT contracts_unit_id_fkey FOREIGN KEY (unit_id)
-    REFERENCES public.units(id) ON DELETE CASCADE
+  CONSTRAINT hr_contracts_unit_id_fkey FOREIGN KEY (unit_id)
+    REFERENCES public.hr_units(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_contracts_unit_id ON public.rental_contracts(unit_id);
-CREATE INDEX idx_contracts_status ON public.rental_contracts(status);
-CREATE INDEX idx_contracts_end_date ON public.rental_contracts(end_date);
+CREATE INDEX idx_hr_contracts_unit_id ON public.hr_rental_contracts(unit_id);
+CREATE INDEX idx_hr_contracts_status ON public.hr_rental_contracts(status);
+CREATE INDEX idx_hr_contracts_end_date ON public.hr_rental_contracts(end_date);
 
 -- Contract Tenants junction table
-CREATE TABLE IF NOT EXISTS public.contract_tenants (
+CREATE TABLE IF NOT EXISTS public.hr_contract_tenants (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   contract_id UUID NOT NULL,
   tenant_id UUID NOT NULL,
   role VARCHAR(50) DEFAULT 'tenant',
   created_at TIMESTAMP DEFAULT now(),
-  CONSTRAINT contract_tenants_contract_id_fkey FOREIGN KEY (contract_id)
-    REFERENCES public.rental_contracts(id) ON DELETE CASCADE,
-  CONSTRAINT contract_tenants_tenant_id_fkey FOREIGN KEY (tenant_id)
-    REFERENCES public.tenants(id) ON DELETE CASCADE,
-  CONSTRAINT contract_tenants_unique UNIQUE (contract_id, tenant_id)
+  CONSTRAINT hr_contract_tenants_contract_id_fkey FOREIGN KEY (contract_id)
+    REFERENCES public.hr_rental_contracts(id) ON DELETE CASCADE,
+  CONSTRAINT hr_contract_tenants_tenant_id_fkey FOREIGN KEY (tenant_id)
+    REFERENCES public.hr_tenants(id) ON DELETE CASCADE,
+  CONSTRAINT hr_contract_tenants_unique UNIQUE (contract_id, tenant_id)
 );
 
-CREATE INDEX idx_contract_tenants_contract_id ON public.contract_tenants(contract_id);
-CREATE INDEX idx_contract_tenants_tenant_id ON public.contract_tenants(tenant_id);
+CREATE INDEX idx_hr_contract_tenants_contract_id ON public.hr_contract_tenants(contract_id);
+CREATE INDEX idx_hr_contract_tenants_tenant_id ON public.hr_contract_tenants(tenant_id);
 
 -- Transactions table
-CREATE TABLE IF NOT EXISTS public.transactions (
+CREATE TABLE IF NOT EXISTS public.hr_transactions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   property_id UUID NOT NULL,
   unit_id UUID,
@@ -142,21 +152,21 @@ CREATE TABLE IF NOT EXISTS public.transactions (
   created_at TIMESTAMP DEFAULT now(),
   updated_at TIMESTAMP DEFAULT now(),
   deleted_at TIMESTAMP,
-  CONSTRAINT transactions_property_id_fkey FOREIGN KEY (property_id)
-    REFERENCES public.properties(id) ON DELETE CASCADE,
-  CONSTRAINT transactions_unit_id_fkey FOREIGN KEY (unit_id)
-    REFERENCES public.units(id) ON DELETE SET NULL
+  CONSTRAINT hr_transactions_property_id_fkey FOREIGN KEY (property_id)
+    REFERENCES public.hr_properties(id) ON DELETE CASCADE,
+  CONSTRAINT hr_transactions_unit_id_fkey FOREIGN KEY (unit_id)
+    REFERENCES public.hr_units(id) ON DELETE SET NULL
 );
 
-CREATE INDEX idx_transactions_property_id ON public.transactions(property_id);
-CREATE INDEX idx_transactions_unit_id ON public.transactions(unit_id);
-CREATE INDEX idx_transactions_type ON public.transactions(type);
-CREATE INDEX idx_transactions_category ON public.transactions(category);
-CREATE INDEX idx_transactions_date ON public.transactions(transaction_date DESC);
-CREATE INDEX idx_transactions_property_date ON public.transactions(property_id, transaction_date DESC);
+CREATE INDEX idx_hr_transactions_property_id ON public.hr_transactions(property_id);
+CREATE INDEX idx_hr_transactions_unit_id ON public.hr_transactions(unit_id);
+CREATE INDEX idx_hr_transactions_type ON public.hr_transactions(type);
+CREATE INDEX idx_hr_transactions_category ON public.hr_transactions(category);
+CREATE INDEX idx_hr_transactions_date ON public.hr_transactions(transaction_date DESC);
+CREATE INDEX idx_hr_transactions_property_date ON public.hr_transactions(property_id, transaction_date DESC);
 
 -- Media table
-CREATE TABLE IF NOT EXISTS public.media (
+CREATE TABLE IF NOT EXISTS public.hr_media (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   property_id UUID NOT NULL,
   type media_type NOT NULL,
@@ -168,15 +178,15 @@ CREATE TABLE IF NOT EXISTS public.media (
   created_at TIMESTAMP DEFAULT now(),
   updated_at TIMESTAMP DEFAULT now(),
   deleted_at TIMESTAMP,
-  CONSTRAINT media_property_id_fkey FOREIGN KEY (property_id)
-    REFERENCES public.properties(id) ON DELETE CASCADE
+  CONSTRAINT hr_media_property_id_fkey FOREIGN KEY (property_id)
+    REFERENCES public.hr_properties(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_media_property_id ON public.media(property_id);
-CREATE INDEX idx_media_type ON public.media(type);
+CREATE INDEX idx_hr_media_property_id ON public.hr_media(property_id);
+CREATE INDEX idx_hr_media_type ON public.hr_media(type);
 
 -- Reminders table
-CREATE TABLE IF NOT EXISTS public.reminders (
+CREATE TABLE IF NOT EXISTS public.hr_reminders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   property_id UUID NOT NULL,
   unit_id UUID,
@@ -188,68 +198,68 @@ CREATE TABLE IF NOT EXISTS public.reminders (
   created_at TIMESTAMP DEFAULT now(),
   updated_at TIMESTAMP DEFAULT now(),
   deleted_at TIMESTAMP,
-  CONSTRAINT reminders_property_id_fkey FOREIGN KEY (property_id)
-    REFERENCES public.properties(id) ON DELETE CASCADE,
-  CONSTRAINT reminders_unit_id_fkey FOREIGN KEY (unit_id)
-    REFERENCES public.units(id) ON DELETE SET NULL
+  CONSTRAINT hr_reminders_property_id_fkey FOREIGN KEY (property_id)
+    REFERENCES public.hr_properties(id) ON DELETE CASCADE,
+  CONSTRAINT hr_reminders_unit_id_fkey FOREIGN KEY (unit_id)
+    REFERENCES public.hr_units(id) ON DELETE SET NULL
 );
 
-CREATE INDEX idx_reminders_property_id ON public.reminders(property_id);
-CREATE INDEX idx_reminders_due_date ON public.reminders(due_date);
-CREATE INDEX idx_reminders_status ON public.reminders(status);
+CREATE INDEX idx_hr_reminders_property_id ON public.hr_reminders(property_id);
+CREATE INDEX idx_hr_reminders_due_date ON public.hr_reminders(due_date);
+CREATE INDEX idx_hr_reminders_status ON public.hr_reminders(status);
 
 -- Trigger: Auto-create default unit when property is created
 CREATE OR REPLACE FUNCTION create_default_unit()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.units (property_id, name, status)
+  INSERT INTO public.hr_units (property_id, name, status)
   VALUES (NEW.id, NEW.name, 'available');
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trigger_create_default_unit
-AFTER INSERT ON public.properties
+CREATE OR REPLACE TRIGGER trigger_create_default_unit
+AFTER INSERT ON public.hr_properties
 FOR EACH ROW
 EXECUTE FUNCTION create_default_unit();
 
 -- Enable RLS
-ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.properties ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.units ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.tenants ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.rental_contracts ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.contract_tenants ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.media ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.reminders ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.hr_users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.hr_properties ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.hr_units ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.hr_tenants ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.hr_rental_contracts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.hr_contract_tenants ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.hr_transactions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.hr_media ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.hr_reminders ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for users
 CREATE POLICY "Users can view their own record"
-  ON public.users FOR SELECT
+  ON public.hr_users FOR SELECT
   USING (auth.uid() = id);
 
 CREATE POLICY "Users can update their own record"
-  ON public.users FOR UPDATE
+  ON public.hr_users FOR UPDATE
   USING (auth.uid() = id)
   WITH CHECK (auth.uid() = id);
 
 -- RLS Policies for properties
 CREATE POLICY "Users can view their own properties"
-  ON public.properties FOR SELECT
+  ON public.hr_properties FOR SELECT
   USING (auth.uid() = user_id);
 
 CREATE POLICY "Users can insert their own properties"
-  ON public.properties FOR INSERT
+  ON public.hr_properties FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
 CREATE POLICY "Users can update their own properties"
-  ON public.properties FOR UPDATE
+  ON public.hr_properties FOR UPDATE
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 
 CREATE POLICY "Users can delete their own properties"
-  ON public.properties FOR DELETE
+  ON public.hr_properties FOR DELETE
   USING (auth.uid() = user_id);
 
 -- RLS Policies for units (nested check via property)
@@ -260,14 +270,14 @@ SECURITY DEFINER
 AS $$
 BEGIN
   RETURN EXISTS (
-    SELECT 1 FROM public.properties p
+    SELECT 1 FROM public.hr_properties p
     WHERE p.id = unit_property_id AND p.user_id = auth.uid()
   );
 END;
 $$;
 
 CREATE POLICY "Users can manage units in their properties"
-  ON public.units FOR ALL
+  ON public.hr_units FOR ALL
   USING (unit_belongs_to_user(property_id))
   WITH CHECK (unit_belongs_to_user(property_id));
 
@@ -279,15 +289,15 @@ SECURITY DEFINER
 AS $$
 BEGIN
   RETURN EXISTS (
-    SELECT 1 FROM public.units u
-    JOIN public.properties p ON u.property_id = p.id
+    SELECT 1 FROM public.hr_units u
+    JOIN public.hr_properties p ON u.property_id = p.id
     WHERE u.id = tenant_unit_id AND p.user_id = auth.uid()
   );
 END;
 $$;
 
 CREATE POLICY "Users can manage tenants in their units"
-  ON public.tenants FOR ALL
+  ON public.hr_tenants FOR ALL
   USING (tenant_belongs_to_user(unit_id))
   WITH CHECK (tenant_belongs_to_user(unit_id));
 
@@ -299,15 +309,15 @@ SECURITY DEFINER
 AS $$
 BEGIN
   RETURN EXISTS (
-    SELECT 1 FROM public.units u
-    JOIN public.properties p ON u.property_id = p.id
+    SELECT 1 FROM public.hr_units u
+    JOIN public.hr_properties p ON u.property_id = p.id
     WHERE u.id = contract_unit_id AND p.user_id = auth.uid()
   );
 END;
 $$;
 
 CREATE POLICY "Users can manage contracts in their units"
-  ON public.rental_contracts FOR ALL
+  ON public.hr_rental_contracts FOR ALL
   USING (contract_belongs_to_user(unit_id))
   WITH CHECK (contract_belongs_to_user(unit_id));
 
@@ -319,45 +329,45 @@ SECURITY DEFINER
 AS $$
 BEGIN
   RETURN EXISTS (
-    SELECT 1 FROM public.rental_contracts rc
-    JOIN public.units u ON rc.unit_id = u.id
-    JOIN public.properties p ON u.property_id = p.id
+    SELECT 1 FROM public.hr_rental_contracts rc
+    JOIN public.hr_units u ON rc.unit_id = u.id
+    JOIN public.hr_properties p ON u.property_id = p.id
     WHERE rc.id = ct_contract_id AND p.user_id = auth.uid()
   );
 END;
 $$;
 
 CREATE POLICY "Users can manage contract tenants"
-  ON public.contract_tenants FOR ALL
+  ON public.hr_contract_tenants FOR ALL
   USING (contract_tenant_belongs_to_user(contract_id))
   WITH CHECK (contract_tenant_belongs_to_user(contract_id));
 
 -- RLS Policies for transactions
 CREATE POLICY "Users can manage transactions in their properties"
-  ON public.transactions FOR ALL
+  ON public.hr_transactions FOR ALL
   USING (EXISTS (
-    SELECT 1 FROM public.properties p
+    SELECT 1 FROM public.hr_properties p
     WHERE p.id = property_id AND p.user_id = auth.uid()
   ));
 
 -- RLS Policies for media
 CREATE POLICY "Users can manage media in their properties"
-  ON public.media FOR ALL
+  ON public.hr_media FOR ALL
   USING (EXISTS (
-    SELECT 1 FROM public.properties p
+    SELECT 1 FROM public.hr_properties p
     WHERE p.id = property_id AND p.user_id = auth.uid()
   ));
 
 -- RLS Policies for reminders
 CREATE POLICY "Users can manage reminders in their properties"
-  ON public.reminders FOR ALL
+  ON public.hr_reminders FOR ALL
   USING (EXISTS (
-    SELECT 1 FROM public.properties p
+    SELECT 1 FROM public.hr_properties p
     WHERE p.id = property_id AND p.user_id = auth.uid()
   ));
 
 -- Views for analytics
-CREATE OR REPLACE VIEW property_monthly_summary AS
+CREATE OR REPLACE VIEW public.hr_property_monthly_summary AS
 SELECT
   p.id as property_id,
   p.user_id,
@@ -366,41 +376,7 @@ SELECT
   SUM(CASE WHEN t.type = 'expense' THEN t.amount ELSE 0 END) as total_expense,
   SUM(CASE WHEN t.type = 'income' THEN t.amount ELSE 0 END) -
   SUM(CASE WHEN t.type = 'expense' THEN t.amount ELSE 0 END) as net_profit
-FROM public.properties p
-LEFT JOIN public.transactions t ON p.id = t.property_id
+FROM public.hr_properties p
+LEFT JOIN public.hr_transactions t ON p.id = t.property_id
 WHERE t.deleted_at IS NULL
 GROUP BY p.id, p.user_id, DATE_TRUNC('month', t.transaction_date);
-
--- ============================================================
--- Phase 1 migration — run in Supabase SQL Editor
--- ============================================================
-
--- New columns on properties
-ALTER TABLE public.properties
-  ADD COLUMN IF NOT EXISTS monthly_rent    NUMERIC(12,2),
-  ADD COLUMN IF NOT EXISTS cover_image_url TEXT,
-  ADD COLUMN IF NOT EXISTS image_urls      TEXT[] DEFAULT '{}';
-
--- New columns on rental_contracts
-ALTER TABLE public.rental_contracts
-  ADD COLUMN IF NOT EXISTS image_urls    TEXT[]  DEFAULT '{}',
-  ADD COLUMN IF NOT EXISTS rent_due_day  INTEGER CHECK (rent_due_day BETWEEN 1 AND 31);
-
--- New transaction categories
-ALTER TYPE transaction_category ADD VALUE IF NOT EXISTS 'deposit_received';
-ALTER TYPE transaction_category ADD VALUE IF NOT EXISTS 'tax';
-ALTER TYPE transaction_category ADD VALUE IF NOT EXISTS 'insurance';
-ALTER TYPE transaction_category ADD VALUE IF NOT EXISTS 'electricity';
-ALTER TYPE transaction_category ADD VALUE IF NOT EXISTS 'water_sewage';
-ALTER TYPE transaction_category ADD VALUE IF NOT EXISTS 'gas';
-ALTER TYPE transaction_category ADD VALUE IF NOT EXISTS 'lawn_care';
-ALTER TYPE transaction_category ADD VALUE IF NOT EXISTS 'snow_removal';
-ALTER TYPE transaction_category ADD VALUE IF NOT EXISTS 'hoa_fee';
-ALTER TYPE transaction_category ADD VALUE IF NOT EXISTS 'pest_control';
-ALTER TYPE transaction_category ADD VALUE IF NOT EXISTS 'hvac_maintenance';
-ALTER TYPE transaction_category ADD VALUE IF NOT EXISTS 'painting';
-ALTER TYPE transaction_category ADD VALUE IF NOT EXISTS 'appliance_repair';
-
--- New column on tenants
-ALTER TABLE public.tenants
-  ADD COLUMN IF NOT EXISTS emergency_contact TEXT;

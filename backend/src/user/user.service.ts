@@ -6,7 +6,7 @@ export class UserService {
   constructor(@Inject('SUPABASE_CLIENT') private supabase: SupabaseClient) {}
 
   async getUserProfile(userId: string) {
-    const { data, error } = await this.supabase.from('users').select('*').eq('id', userId).single();
+    const { data, error } = await this.supabase.from('hr_users').select('*').eq('id', userId).single();
 
     if (error) throw error;
     return data;
@@ -14,7 +14,7 @@ export class UserService {
 
   async updateUserProfile(userId: string, data: any) {
     const { data: updated, error } = await this.supabase
-      .from('users')
+      .from('hr_users')
       .update(data)
       .eq('id', userId)
       .select()

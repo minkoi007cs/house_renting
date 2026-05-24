@@ -46,9 +46,9 @@ export const ImageUploader = ({
       for (const file of arr) {
         const form = new FormData();
         form.append('file', file);
-        // Let browser set Content-Type with boundary — don't override it
+        // Explicitly set multipart/form-data to override default application/json header
         const res = await api.post('/upload', form, {
-          headers: { 'Content-Type': undefined },
+          headers: { 'Content-Type': 'multipart/form-data' },
         });
         uploaded.push(res.data.data.url);
       }

@@ -7,7 +7,7 @@ export class AnalyticsService {
 
   async getDashboard(userId: string, startDate?: Date, endDate?: Date) {
     const { data: properties } = await this.supabase
-      .from('properties')
+      .from('hr_properties')
       .select('id, name')
       .eq('user_id', userId)
       .is('deleted_at', null);
@@ -47,28 +47,28 @@ export class AnalyticsService {
       { data: expiringContracts },
     ] = await Promise.all([
       this.supabase
-        .from('units')
+        .from('hr_units')
         .select('*', { count: 'exact', head: true })
         .in('property_id', propertyIds)
         .is('deleted_at', null),
       this.supabase
-        .from('units')
+        .from('hr_units')
         .select('id')
         .in('property_id', propertyIds)
         .is('deleted_at', null),
       this.supabase
-        .from('rental_contracts')
+        .from('hr_rental_contracts')
         .select('id, unit_id, end_date, rent_amount')
         .eq('status', 'active')
         .is('deleted_at', null),
       this.supabase
-        .from('tenants')
-        .select('id, unit:units!inner(property_id)')
+        .from('hr_tenants')
+        .select('id, unit:hr_units!inner(property_id)')
         .in('unit.property_id', propertyIds)
         .is('deleted_at', null),
       (() => {
         let q = this.supabase
-          .from('transactions')
+          .from('hr_transactions')
           .select('type, category, amount, transaction_date')
           .in('property_id', propertyIds)
           .is('deleted_at', null);
@@ -77,23 +77,23 @@ export class AnalyticsService {
         return q;
       })(),
       this.supabase
-        .from('transactions')
-        .select(`*, property:properties(id, name)`)
+        .from('hr_transactions')
+        .select(`*, property:hr_properties(id, name)`)
         .in('property_id', propertyIds)
         .is('deleted_at', null)
         .order('transaction_date', { ascending: false })
         .limit(8),
       this.supabase
-        .from('reminders')
-        .select(`*, property:properties(id, name)`)
+        .from('hr_reminders')
+        .select(`*, property:hr_properties(id, name)`)
         .in('property_id', propertyIds)
         .eq('status', 'pending')
         .is('deleted_at', null)
         .order('due_date', { ascending: true })
         .limit(8),
       this.supabase
-        .from('rental_contracts')
-        .select(`*, unit:units!inner(id, name, property:properties!inner(id, name, user_id))`)
+        .from('hr_rental_contracts')
+        .select(`*, unit:hr_units!inner(id, name, property:hr_properties!inner(id, name, user_id))`)
         .eq('unit.property.user_id', userId)
         .eq('status', 'active')
         .is('deleted_at', null)
@@ -161,7 +161,7 @@ export class AnalyticsService {
 
   async getPropertyAnalytics(userId: string, propertyId: string, startDate?: Date, endDate?: Date) {
     const { data: property } = await this.supabase
-      .from('properties')
+      .from('hr_properties')
       .select('id, user_id')
       .eq('id', propertyId)
       .single();
@@ -171,13 +171,13 @@ export class AnalyticsService {
     }
 
     const { data: units } = await this.supabase
-      .from('units')
+      .from('hr_units')
       .select('id, name')
       .eq('property_id', propertyId)
       .is('deleted_at', null);
 
     let txQuery = this.supabase
-      .from('transactions')
+      .from('hr_transactions')
       .select('*')
       .eq('property_id', propertyId)
       .is('deleted_at', null);

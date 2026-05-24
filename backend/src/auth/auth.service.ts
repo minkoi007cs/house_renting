@@ -36,14 +36,14 @@ export class AuthService {
   async createOrUpdateUser(supabaseUser: any) {
     try {
       const { data: existingUser } = await this.supabase
-        .from('users')
+        .from('hr_users')
         .select('*')
         .eq('id', supabaseUser.id)
         .single();
 
       if (!existingUser) {
         const { data: newUser, error } = await this.supabase
-          .from('users')
+          .from('hr_users')
           .insert([
             {
               id: supabaseUser.id,
@@ -126,7 +126,7 @@ export class AuthService {
 
       // Look up by google_sub first (most reliable), then fall back to email
       const { data: bySubUser } = await this.supabase
-        .from('users')
+        .from('hr_users')
         .select('*')
         .eq('google_sub', googleUser.id)
         .single();
@@ -134,7 +134,7 @@ export class AuthService {
       if (bySubUser) return bySubUser;
 
       const { data: existingUser } = await this.supabase
-        .from('users')
+        .from('hr_users')
         .select('*')
         .eq('email', googleUser.email)
         .single();
@@ -142,7 +142,7 @@ export class AuthService {
       // Existing user found by email but missing google_sub — backfill it
       if (existingUser && !existingUser.google_sub) {
         await this.supabase
-          .from('users')
+          .from('hr_users')
           .update({ google_sub: googleUser.id })
           .eq('id', existingUser.id);
         return { ...existingUser, google_sub: googleUser.id };
@@ -150,7 +150,7 @@ export class AuthService {
 
       if (!existingUser) {
         const { data: newUser, error: insertError } = await this.supabase
-          .from('users')
+          .from('hr_users')
           .insert([
             {
               email: googleUser.email,
@@ -174,7 +174,7 @@ export class AuthService {
 
   async getUserById(userId: string) {
     const { data, error } = await this.supabase
-      .from('users')
+      .from('hr_users')
       .select('id, email, name, avatar_url, created_at')
       .eq('id', userId)
       .single();

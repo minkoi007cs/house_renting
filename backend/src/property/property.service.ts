@@ -10,7 +10,7 @@ export class PropertyService {
   async createProperty(userId: string, dto: CreatePropertyDto) {
     console.log('[Property] createProperty: userId =', userId, '| dto =', dto);
     const { data, error } = await this.supabase
-      .from('properties')
+      .from('hr_properties')
       .insert([{ user_id: userId, ...dto }])
       .select()
       .single();
@@ -26,8 +26,8 @@ export class PropertyService {
   async getProperties(userId: string, skip: number = 0, take: number = 10) {
     console.log('[Property] getProperties: userId =', userId, '| skip =', skip, '| take =', take);
     const { data: items, error: itemsError } = await this.supabase
-      .from('properties')
-      .select('*, units(count)', { count: 'exact' })
+      .from('hr_properties')
+      .select('*, units:hr_units(count)', { count: 'exact' })
       .eq('user_id', userId)
       .is('deleted_at', null)
       .order('created_at', { ascending: false })
@@ -39,7 +39,7 @@ export class PropertyService {
     }
 
     const { count: total, error: countError } = await this.supabase
-      .from('properties')
+      .from('hr_properties')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', userId)
       .is('deleted_at', null);
@@ -56,9 +56,9 @@ export class PropertyService {
   async getPropertyDetail(userId: string, propertyId: string) {
     console.log('[Property] getPropertyDetail: userId =', userId, '| propertyId =', propertyId);
     const { data, error } = await this.supabase
-      .from('properties')
+      .from('hr_properties')
       .select(
-        `*, units(*, tenants(*), rental_contracts(*)), transactions(*), media(*), reminders(*)`,
+        `*, units:hr_units(*, tenants:hr_tenants(*), rental_contracts:hr_rental_contracts(*)), transactions:hr_transactions(*), media:hr_media(*), reminders:hr_reminders(*)`,
       )
       .eq('id', propertyId)
       .eq('user_id', userId)
@@ -84,7 +84,7 @@ export class PropertyService {
       dto,
     );
     const { data: property } = await this.supabase
-      .from('properties')
+      .from('hr_properties')
       .select('user_id')
       .eq('id', propertyId)
       .single();
@@ -100,7 +100,7 @@ export class PropertyService {
     }
 
     const { data, error } = await this.supabase
-      .from('properties')
+      .from('hr_properties')
       .update({ ...dto, updated_at: new Date().toISOString() })
       .eq('id', propertyId)
       .select()
@@ -117,7 +117,7 @@ export class PropertyService {
   async deleteProperty(userId: string, propertyId: string) {
     console.log('[Property] deleteProperty: userId =', userId, '| propertyId =', propertyId);
     const { data: property } = await this.supabase
-      .from('properties')
+      .from('hr_properties')
       .select('user_id')
       .eq('id', propertyId)
       .single();
@@ -128,7 +128,7 @@ export class PropertyService {
     }
 
     const { error } = await this.supabase
-      .from('properties')
+      .from('hr_properties')
       .update({ deleted_at: new Date().toISOString() })
       .eq('id', propertyId);
 
