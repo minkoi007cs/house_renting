@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Building2,
@@ -74,7 +75,29 @@ const monthLabel = (m: string) => dayjs(m + '-01').format('MMM');
 
 export const DashboardPage = () => {
   const navigate = useNavigate();
-  const { stats, isLoading } = useDashboardStats();
+  const [timeRange, setTimeRange] = useState<'month' | 'quarter' | 'year' | 'all'>('all');
+
+  const getDates = () => {
+    let startDate: string | undefined;
+    let endDate: string | undefined;
+
+    if (timeRange === 'month') {
+      startDate = dayjs().startOf('month').format('YYYY-MM-DD');
+      endDate = dayjs().endOf('month').format('YYYY-MM-DD');
+    } else if (timeRange === 'quarter') {
+      const qStartMonth = Math.floor(dayjs().month() / 3) * 3;
+      startDate = dayjs().month(qStartMonth).startOf('month').format('YYYY-MM-DD');
+      endDate = dayjs().month(qStartMonth + 2).endOf('month').format('YYYY-MM-DD');
+    } else if (timeRange === 'year') {
+      startDate = dayjs().startOf('year').format('YYYY-MM-DD');
+      endDate = dayjs().endOf('year').format('YYYY-MM-DD');
+    }
+
+    return { startDate, endDate };
+  };
+
+  const { startDate, endDate } = getDates();
+  const { stats, isLoading } = useDashboardStats(startDate, endDate);
 
   if (isLoading) return <Layout title="Dashboard"><PageLoader /></Layout>;
 
@@ -94,6 +117,38 @@ export const DashboardPage = () => {
   return (
     <Layout title="Dashboard">
       <div className="space-y-6">
+        {/* Top Header & Range Switcher */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div>
+            <h2 className="text-xl font-bold text-ink-900">Workspace Overview</h2>
+            <p className="text-xs text-ink-500 mt-0.5">Real-time overview of your rental business</p>
+          </div>
+
+          <div className="flex gap-1 p-1 bg-white border border-ink-150 rounded-full shadow-sm">
+            {(['all', 'month', 'quarter', 'year'] as const).map((r) => {
+              const labels = {
+                all: 'All Time',
+                month: 'This Month',
+                quarter: 'This Quarter',
+                year: 'This Year',
+              };
+              return (
+                <button
+                  key={r}
+                  onClick={() => setTimeRange(r)}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
+                    timeRange === r
+                      ? 'bg-brand-500 text-white shadow-sm'
+                      : 'text-ink-600 hover:text-ink-900 hover:bg-ink-50'
+                  }`}
+                >
+                  {labels[r]}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
           <StatCard

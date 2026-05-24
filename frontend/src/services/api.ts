@@ -11,12 +11,18 @@ const api = axios.create({
   },
 });
 
-// Add token to every request
+// Add token and active workspace owner ID to every request
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().token;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  
+  const workspaceOwnerId = localStorage.getItem('active_workspace_owner_id');
+  if (workspaceOwnerId) {
+    config.headers['x-workspace-owner-id'] = workspaceOwnerId;
+  }
+  
   return config;
 });
 

@@ -1,6 +1,7 @@
 import { Menu, Settings } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { Link } from 'react-router-dom';
+import { WorkspaceSwitcher } from './WorkspaceSwitcher';
 
 interface Props {
   onMenuClick: () => void;
@@ -25,7 +26,10 @@ export const TopBar = ({ onMenuClick, title }: Props) => {
 
       <h1 className="text-base font-semibold text-ink-900 flex-1">{title}</h1>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
+        {/* Workspace Switcher Dropdown */}
+        <WorkspaceSwitcher />
+
         <Link
           to="/settings"
           className="p-2 sm:p-2.5 rounded-lg text-ink-400 hover:text-ink-700 hover:bg-ink-100 transition"
@@ -34,7 +38,7 @@ export const TopBar = ({ onMenuClick, title }: Props) => {
           <Settings className="w-5 h-5" />
         </Link>
 
-        <Link to="/settings" className="flex items-center gap-2 pl-2 border-l border-ink-100">
+        <Link to="/settings" className="flex items-center gap-2 pl-2 border-l border-ink-100 flex-shrink-0">
           <div className="w-7 h-7 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white text-xs font-bold">
             {initials}
           </div>

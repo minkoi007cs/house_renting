@@ -14,7 +14,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MediaService } from './media.service';
 import { JwtGuard } from '../common/guards/jwt.guard';
-import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { WorkspaceOwnerId } from '../common/decorators/workspace-owner.decorator';
 
 @Controller('api/properties/:propertyId/media')
 @UseGuards(JwtGuard)
@@ -23,7 +23,7 @@ export class MediaController {
 
   @Get()
   async getMedia(
-    @CurrentUser('sub') userId: string,
+    @WorkspaceOwnerId() userId: string,
     @Param('propertyId') propertyId: string,
     @Query('type') type?: string,
   ) {
@@ -34,7 +34,7 @@ export class MediaController {
   @Post()
   @UseInterceptors(FileInterceptor('file'))
   async uploadMedia(
-    @CurrentUser('sub') userId: string,
+    @WorkspaceOwnerId() userId: string,
     @Param('propertyId') propertyId: string,
     @UploadedFile() file: any,
     @Body('type') type: 'image' | 'contract' | 'document',
@@ -45,7 +45,7 @@ export class MediaController {
 
   @Get(':id')
   async getMediaDetail(
-    @CurrentUser('sub') userId: string,
+    @WorkspaceOwnerId() userId: string,
     @Param('propertyId') propertyId: string,
     @Param('id') mediaId: string,
   ) {
@@ -56,7 +56,7 @@ export class MediaController {
 
   @Delete(':id')
   @HttpCode(204)
-  async deleteMedia(@CurrentUser('sub') userId: string, @Param('id') mediaId: string) {
+  async deleteMedia(@WorkspaceOwnerId() userId: string, @Param('id') mediaId: string) {
     await this.mediaService.deleteMedia(userId, mediaId);
   }
 }
