@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { ReminderService } from './reminder.service';
 import { JwtGuard } from '../common/guards/jwt.guard';
-import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { WorkspaceOwnerId } from '../common/decorators/workspace-owner.decorator';
 
 @Controller('api/properties/:propertyId/reminders')
 @UseGuards(JwtGuard)
@@ -19,14 +19,14 @@ export class ReminderController {
   constructor(private reminderService: ReminderService) {}
 
   @Get()
-  async getReminders(@CurrentUser('sub') userId: string, @Param('propertyId') propertyId: string) {
+  async getReminders(@WorkspaceOwnerId() userId: string, @Param('propertyId') propertyId: string) {
     const reminders = await this.reminderService.getRemindersByProperty(userId, propertyId);
     return { status: 'success', data: reminders };
   }
 
   @Post('defaults')
   async createDefaultReminders(
-    @CurrentUser('sub') userId: string,
+    @WorkspaceOwnerId() userId: string,
     @Param('propertyId') propertyId: string,
   ) {
     const reminders = await this.reminderService.createDefaultReminders(userId, propertyId);
@@ -35,7 +35,7 @@ export class ReminderController {
 
   @Post()
   async createReminder(
-    @CurrentUser('sub') userId: string,
+    @WorkspaceOwnerId() userId: string,
     @Param('propertyId') propertyId: string,
     @Body() dto: any,
   ) {
@@ -44,14 +44,14 @@ export class ReminderController {
   }
 
   @Get(':id')
-  async getReminderDetail(@CurrentUser('sub') userId: string, @Param('id') reminderId: string) {
+  async getReminderDetail(@WorkspaceOwnerId() userId: string, @Param('id') reminderId: string) {
     const reminder = await this.reminderService.getReminderById(userId, reminderId);
     return { status: 'success', data: reminder };
   }
 
   @Patch(':id')
   async updateReminder(
-    @CurrentUser('sub') userId: string,
+    @WorkspaceOwnerId() userId: string,
     @Param('id') reminderId: string,
     @Body() dto: any,
   ) {
@@ -61,7 +61,7 @@ export class ReminderController {
 
   @Delete(':id')
   @HttpCode(204)
-  async deleteReminder(@CurrentUser('sub') userId: string, @Param('id') reminderId: string) {
+  async deleteReminder(@WorkspaceOwnerId() userId: string, @Param('id') reminderId: string) {
     await this.reminderService.deleteReminder(userId, reminderId);
   }
 }

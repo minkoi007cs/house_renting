@@ -1,7 +1,7 @@
 import { Controller, Get, UseGuards, Query, Param } from '@nestjs/common';
 import { AnalyticsService } from './analytics.service';
 import { JwtGuard } from '../common/guards/jwt.guard';
-import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { WorkspaceOwnerId } from '../common/decorators/workspace-owner.decorator';
 
 @Controller('api/analytics')
 @UseGuards(JwtGuard)
@@ -10,7 +10,7 @@ export class AnalyticsController {
 
   @Get('dashboard')
   async getDashboard(
-    @CurrentUser('sub') userId: string,
+    @WorkspaceOwnerId() userId: string,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
   ) {
@@ -24,7 +24,7 @@ export class AnalyticsController {
 
   @Get('property/:propertyId')
   async getPropertyAnalytics(
-    @CurrentUser('sub') userId: string,
+    @WorkspaceOwnerId() userId: string,
     @Param('propertyId') propertyId: string,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,

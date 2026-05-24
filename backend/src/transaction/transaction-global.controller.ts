@@ -12,7 +12,7 @@ import {
 import { TransactionService } from './transaction.service';
 import { UpdateTransactionDto } from './dto/create-transaction.dto';
 import { JwtGuard } from '../common/guards/jwt.guard';
-import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { WorkspaceOwnerId } from '../common/decorators/workspace-owner.decorator';
 
 const toPositiveInt = (value: unknown, fallback: number) => {
   const n = Number(value);
@@ -26,7 +26,7 @@ export class TransactionGlobalController {
 
   @Get()
   async list(
-    @CurrentUser('sub') userId: string,
+    @WorkspaceOwnerId() userId: string,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
     @Query('type') type?: string,
@@ -51,7 +51,7 @@ export class TransactionGlobalController {
 
   @Get('summary')
   async summary(
-    @CurrentUser('sub') userId: string,
+    @WorkspaceOwnerId() userId: string,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
   ) {
@@ -65,7 +65,7 @@ export class TransactionGlobalController {
 
   @Patch(':id')
   async update(
-    @CurrentUser('sub') userId: string,
+    @WorkspaceOwnerId() userId: string,
     @Param('id') id: string,
     @Body() dto: UpdateTransactionDto,
   ) {
@@ -75,7 +75,7 @@ export class TransactionGlobalController {
 
   @Delete(':id')
   @HttpCode(204)
-  async remove(@CurrentUser('sub') userId: string, @Param('id') id: string) {
+  async remove(@WorkspaceOwnerId() userId: string, @Param('id') id: string) {
     await this.transactionService.deleteTransaction(userId, id);
   }
 }

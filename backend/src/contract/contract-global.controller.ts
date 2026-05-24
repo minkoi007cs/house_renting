@@ -12,7 +12,7 @@ import {
 import { ContractService } from './contract.service';
 import { UpdateContractDto } from './dto/create-contract.dto';
 import { JwtGuard } from '../common/guards/jwt.guard';
-import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { WorkspaceOwnerId } from '../common/decorators/workspace-owner.decorator';
 
 @Controller('api/contracts')
 @UseGuards(JwtGuard)
@@ -20,14 +20,14 @@ export class ContractGlobalController {
   constructor(private contractService: ContractService) {}
 
   @Get()
-  async getAllContracts(@CurrentUser('sub') userId: string, @Query('status') status?: string) {
+  async getAllContracts(@WorkspaceOwnerId() userId: string, @Query('status') status?: string) {
     const contracts = await this.contractService.getAllContracts(userId, status);
     return { status: 'success', data: contracts };
   }
 
   @Patch(':id')
   async updateContract(
-    @CurrentUser('sub') userId: string,
+    @WorkspaceOwnerId() userId: string,
     @Param('id') contractId: string,
     @Body() dto: UpdateContractDto,
   ) {
@@ -37,7 +37,7 @@ export class ContractGlobalController {
 
   @Delete(':id')
   @HttpCode(204)
-  async deleteContract(@CurrentUser('sub') userId: string, @Param('id') contractId: string) {
+  async deleteContract(@WorkspaceOwnerId() userId: string, @Param('id') contractId: string) {
     await this.contractService.deleteContract(userId, contractId);
   }
 }

@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtGuard } from '../common/guards/jwt.guard';
-import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { WorkspaceOwnerId } from '../common/decorators/workspace-owner.decorator';
 import { SupabaseClient } from '@supabase/supabase-js';
 
 @Controller('api/upload')
@@ -19,7 +19,7 @@ export class UploadController {
 
   @Post()
   @UseInterceptors(FileInterceptor('file'))
-  async upload(@CurrentUser('sub') userId: string, @UploadedFile() file: any) {
+  async upload(@WorkspaceOwnerId() userId: string, @UploadedFile() file: any) {
     console.log('[Upload] POST /api/upload: userId =', userId);
     console.log(
       '[Upload] file =',

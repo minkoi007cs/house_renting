@@ -13,7 +13,7 @@ import {
 import { PropertyService } from './property.service';
 import { CreatePropertyDto, UpdatePropertyDto } from './dto';
 import { JwtGuard } from '../common/guards/jwt.guard';
-import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { WorkspaceOwnerId } from '../common/decorators/workspace-owner.decorator';
 
 @Controller('api/properties')
 @UseGuards(JwtGuard)
@@ -22,7 +22,7 @@ export class PropertyController {
 
   @Get()
   async getProperties(
-    @CurrentUser('sub') userId: string,
+    @WorkspaceOwnerId() userId: string,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
   ) {
@@ -32,20 +32,20 @@ export class PropertyController {
   }
 
   @Post()
-  async createProperty(@CurrentUser('sub') userId: string, @Body() dto: CreatePropertyDto) {
+  async createProperty(@WorkspaceOwnerId() userId: string, @Body() dto: CreatePropertyDto) {
     const property = await this.propertyService.createProperty(userId, dto);
     return { status: 'success', data: property };
   }
 
   @Get(':id')
-  async getPropertyDetail(@CurrentUser('sub') userId: string, @Param('id') propertyId: string) {
+  async getPropertyDetail(@WorkspaceOwnerId() userId: string, @Param('id') propertyId: string) {
     const property = await this.propertyService.getPropertyDetail(userId, propertyId);
     return { status: 'success', data: property };
   }
 
   @Patch(':id')
   async updateProperty(
-    @CurrentUser('sub') userId: string,
+    @WorkspaceOwnerId() userId: string,
     @Param('id') propertyId: string,
     @Body() dto: UpdatePropertyDto,
   ) {
@@ -55,7 +55,7 @@ export class PropertyController {
 
   @Delete(':id')
   @HttpCode(204)
-  async deleteProperty(@CurrentUser('sub') userId: string, @Param('id') propertyId: string) {
+  async deleteProperty(@WorkspaceOwnerId() userId: string, @Param('id') propertyId: string) {
     await this.propertyService.deleteProperty(userId, propertyId);
   }
 }

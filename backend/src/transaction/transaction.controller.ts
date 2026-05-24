@@ -13,7 +13,7 @@ import {
 import { TransactionService } from './transaction.service';
 import { CreateTransactionDto, UpdateTransactionDto } from './dto/create-transaction.dto';
 import { JwtGuard } from '../common/guards/jwt.guard';
-import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { WorkspaceOwnerId } from '../common/decorators/workspace-owner.decorator';
 
 const toPositiveInt = (value: unknown, fallback: number) => {
   const n = Number(value);
@@ -27,7 +27,7 @@ export class TransactionController {
 
   @Get()
   async getTransactions(
-    @CurrentUser('sub') userId: string,
+    @WorkspaceOwnerId() userId: string,
     @Param('propertyId') propertyId: string,
     @Query('startDate') startDate?: string,
     @Query('endDate') endDate?: string,
@@ -54,7 +54,7 @@ export class TransactionController {
 
   @Post()
   async createTransaction(
-    @CurrentUser('sub') userId: string,
+    @WorkspaceOwnerId() userId: string,
     @Param('propertyId') propertyId: string,
     @Body() dto: CreateTransactionDto,
   ) {
@@ -64,7 +64,7 @@ export class TransactionController {
 
   @Get(':id')
   async getTransactionDetail(
-    @CurrentUser('sub') userId: string,
+    @WorkspaceOwnerId() userId: string,
     @Param('id') transactionId: string,
   ) {
     const transaction = await this.transactionService.getTransactionById(userId, transactionId);
@@ -73,7 +73,7 @@ export class TransactionController {
 
   @Patch(':id')
   async updateTransaction(
-    @CurrentUser('sub') userId: string,
+    @WorkspaceOwnerId() userId: string,
     @Param('id') transactionId: string,
     @Body() dto: UpdateTransactionDto,
   ) {
@@ -83,7 +83,7 @@ export class TransactionController {
 
   @Delete(':id')
   @HttpCode(204)
-  async deleteTransaction(@CurrentUser('sub') userId: string, @Param('id') transactionId: string) {
+  async deleteTransaction(@WorkspaceOwnerId() userId: string, @Param('id') transactionId: string) {
     await this.transactionService.deleteTransaction(userId, transactionId);
   }
 }

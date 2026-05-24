@@ -36,6 +36,7 @@ async function bootstrap() {
       'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.js',
       'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.js',
     ],
+    customfavIcon: 'https://img.icons8.com/isometric/50/home.png',
   });
 
   const port = process.env.PORT || 3001;

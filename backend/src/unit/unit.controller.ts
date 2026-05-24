@@ -12,7 +12,7 @@ import {
 import { UnitService } from './unit.service';
 import { CreateUnitDto, UpdateUnitDto } from './dto/create-unit.dto';
 import { JwtGuard } from '../common/guards/jwt.guard';
-import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { WorkspaceOwnerId } from '../common/decorators/workspace-owner.decorator';
 
 @Controller('api/properties/:propertyId/units')
 @UseGuards(JwtGuard)
@@ -21,7 +21,7 @@ export class UnitController {
 
   @Get()
   async getUnitsByProperty(
-    @CurrentUser('sub') userId: string,
+    @WorkspaceOwnerId() userId: string,
     @Param('propertyId') propertyId: string,
   ) {
     const units = await this.unitService.getUnitsByProperty(userId, propertyId);
@@ -30,7 +30,7 @@ export class UnitController {
 
   @Post()
   async createUnit(
-    @CurrentUser('sub') userId: string,
+    @WorkspaceOwnerId() userId: string,
     @Param('propertyId') propertyId: string,
     @Body() dto: CreateUnitDto,
   ) {
@@ -39,14 +39,14 @@ export class UnitController {
   }
 
   @Get(':id')
-  async getUnitDetail(@CurrentUser('sub') userId: string, @Param('id') unitId: string) {
+  async getUnitDetail(@WorkspaceOwnerId() userId: string, @Param('id') unitId: string) {
     const unit = await this.unitService.getUnitDetail(userId, unitId);
     return { status: 'success', data: unit };
   }
 
   @Patch(':id')
   async updateUnit(
-    @CurrentUser('sub') userId: string,
+    @WorkspaceOwnerId() userId: string,
     @Param('id') unitId: string,
     @Body() dto: UpdateUnitDto,
   ) {
@@ -56,7 +56,7 @@ export class UnitController {
 
   @Delete(':id')
   @HttpCode(204)
-  async deleteUnit(@CurrentUser('sub') userId: string, @Param('id') unitId: string) {
+  async deleteUnit(@WorkspaceOwnerId() userId: string, @Param('id') unitId: string) {
     await this.unitService.deleteUnit(userId, unitId);
   }
 }

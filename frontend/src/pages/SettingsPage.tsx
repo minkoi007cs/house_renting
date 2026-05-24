@@ -4,6 +4,7 @@ import { Layout } from '@/components/common/Layout';
 import { useAuthStore } from '@/store/authStore';
 import { useNavigate } from 'react-router-dom';
 import api from '@/services/api';
+import { WorkspaceSharing } from '@/components/settings/WorkspaceSharing';
 
 export const SettingsPage = () => {
   const { user, setUser, logout } = useAuthStore();
@@ -140,6 +141,9 @@ export const SettingsPage = () => {
             </div>
           </div>
         </div>
+
+        {/* Workspace Sharing & Collaborators */}
+        <WorkspaceSharing />
 
         {/* Danger zone */}
         <div className="card p-6 border-rose-100">

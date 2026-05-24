@@ -12,7 +12,7 @@ import {
 import { TenantService } from './tenant.service';
 import { CreateTenantDto, UpdateTenantDto } from './dto/create-tenant.dto';
 import { JwtGuard } from '../common/guards/jwt.guard';
-import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { WorkspaceOwnerId } from '../common/decorators/workspace-owner.decorator';
 
 @Controller('api/units/:unitId/tenants')
 @UseGuards(JwtGuard)
@@ -20,14 +20,14 @@ export class TenantController {
   constructor(private tenantService: TenantService) {}
 
   @Get()
-  async getTenantsByUnit(@CurrentUser('sub') userId: string, @Param('unitId') unitId: string) {
+  async getTenantsByUnit(@WorkspaceOwnerId() userId: string, @Param('unitId') unitId: string) {
     const tenants = await this.tenantService.getTenantsByUnit(userId, unitId);
     return { status: 'success', data: tenants };
   }
 
   @Post()
   async createTenant(
-    @CurrentUser('sub') userId: string,
+    @WorkspaceOwnerId() userId: string,
     @Param('unitId') unitId: string,
     @Body() dto: CreateTenantDto,
   ) {
@@ -36,14 +36,14 @@ export class TenantController {
   }
 
   @Get(':id')
-  async getTenantDetail(@CurrentUser('sub') userId: string, @Param('id') tenantId: string) {
+  async getTenantDetail(@WorkspaceOwnerId() userId: string, @Param('id') tenantId: string) {
     const tenant = await this.tenantService.getTenantDetail(userId, tenantId);
     return { status: 'success', data: tenant };
   }
 
   @Patch(':id')
   async updateTenant(
-    @CurrentUser('sub') userId: string,
+    @WorkspaceOwnerId() userId: string,
     @Param('id') tenantId: string,
     @Body() dto: UpdateTenantDto,
   ) {
@@ -53,7 +53,7 @@ export class TenantController {
 
   @Delete(':id')
   @HttpCode(204)
-  async deleteTenant(@CurrentUser('sub') userId: string, @Param('id') tenantId: string) {
+  async deleteTenant(@WorkspaceOwnerId() userId: string, @Param('id') tenantId: string) {
     await this.tenantService.deleteTenant(userId, tenantId);
   }
 }
