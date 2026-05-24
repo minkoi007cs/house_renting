@@ -1,22 +1,67 @@
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Enum types
-CREATE TYPE property_type AS ENUM ('house', 'apartment', 'townhouse', 'land', 'other');
-CREATE TYPE property_status AS ENUM ('active', 'inactive', 'sold');
-CREATE TYPE unit_status AS ENUM ('available', 'occupied', 'maintenance', 'unavailable');
-CREATE TYPE contract_status AS ENUM ('draft', 'signed', 'active', 'expired', 'terminated', 'renewed');
-CREATE TYPE transaction_type AS ENUM ('income', 'expense');
-CREATE TYPE transaction_category AS ENUM (
-  'rent', 'service_fee', 'deposit_refund', 'other_income',
-  'repair', 'maintenance', 'utilities', 'brokerage', 'cleaning', 'other_expense',
-  'deposit_received', 'tax', 'insurance', 'electricity', 'water_sewage', 'gas',
-  'lawn_care', 'snow_removal', 'hoa_fee', 'pest_control', 'hvac_maintenance',
-  'painting', 'appliance_repair'
-);
-CREATE TYPE reminder_type AS ENUM ('rent_payment_due', 'contract_expiring', 'maintenance_needed', 'custom_task');
-CREATE TYPE reminder_status AS ENUM ('pending', 'done');
-CREATE TYPE media_type AS ENUM ('image', 'contract', 'document');
+-- Idempotent Enum types creation
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'property_type') THEN
+    CREATE TYPE property_type AS ENUM ('house', 'apartment', 'townhouse', 'land', 'other');
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'property_status') THEN
+    CREATE TYPE property_status AS ENUM ('active', 'inactive', 'sold');
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'unit_status') THEN
+    CREATE TYPE unit_status AS ENUM ('available', 'occupied', 'maintenance', 'unavailable');
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'contract_status') THEN
+    CREATE TYPE contract_status AS ENUM ('draft', 'signed', 'active', 'expired', 'terminated', 'renewed');
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'transaction_type') THEN
+    CREATE TYPE transaction_type AS ENUM ('income', 'expense');
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'transaction_category') THEN
+    CREATE TYPE transaction_category AS ENUM (
+      'rent', 'service_fee', 'deposit_refund', 'other_income',
+      'repair', 'maintenance', 'utilities', 'brokerage', 'cleaning', 'other_expense',
+      'deposit_received', 'tax', 'insurance', 'electricity', 'water_sewage', 'gas',
+      'lawn_care', 'snow_removal', 'hoa_fee', 'pest_control', 'hvac_maintenance',
+      'painting', 'appliance_repair'
+    );
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'reminder_type') THEN
+    CREATE TYPE reminder_type AS ENUM ('rent_payment_due', 'contract_expiring', 'maintenance_needed', 'custom_task');
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'reminder_status') THEN
+    CREATE TYPE reminder_status AS ENUM ('pending', 'done');
+  END IF;
+END $$;
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'media_type') THEN
+    CREATE TYPE media_type AS ENUM ('image', 'contract', 'document');
+  END IF;
+END $$;
+
 
 -- Users table
 CREATE TABLE IF NOT EXISTS public.hr_users (
@@ -30,8 +75,8 @@ CREATE TABLE IF NOT EXISTS public.hr_users (
   deleted_at TIMESTAMP
 );
 
-CREATE INDEX idx_hr_users_email ON public.hr_users(email);
-CREATE INDEX idx_hr_users_created_at ON public.hr_users(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_hr_users_email ON public.hr_users(email);
+CREATE INDEX IF NOT EXISTS idx_hr_users_created_at ON public.hr_users(created_at DESC);
 
 -- Properties table
 CREATE TABLE IF NOT EXISTS public.hr_properties (
@@ -53,9 +98,9 @@ CREATE TABLE IF NOT EXISTS public.hr_properties (
     REFERENCES public.hr_users(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_hr_properties_user_id ON public.hr_properties(user_id);
-CREATE INDEX idx_hr_properties_status ON public.hr_properties(status);
-CREATE INDEX idx_hr_properties_created_at ON public.hr_properties(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_hr_properties_user_id ON public.hr_properties(user_id);
+CREATE INDEX IF NOT EXISTS idx_hr_properties_status ON public.hr_properties(status);
+CREATE INDEX IF NOT EXISTS idx_hr_properties_created_at ON public.hr_properties(created_at DESC);
 
 -- Units table
 CREATE TABLE IF NOT EXISTS public.hr_units (
@@ -72,8 +117,8 @@ CREATE TABLE IF NOT EXISTS public.hr_units (
     REFERENCES public.hr_properties(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_hr_units_property_id ON public.hr_units(property_id);
-CREATE INDEX idx_hr_units_status ON public.hr_units(status);
+CREATE INDEX IF NOT EXISTS idx_hr_units_property_id ON public.hr_units(property_id);
+CREATE INDEX IF NOT EXISTS idx_hr_units_status ON public.hr_units(status);
 
 -- Tenants table
 CREATE TABLE IF NOT EXISTS public.hr_tenants (
@@ -92,9 +137,9 @@ CREATE TABLE IF NOT EXISTS public.hr_tenants (
     REFERENCES public.hr_units(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_hr_tenants_unit_id ON public.hr_tenants(unit_id);
-CREATE INDEX idx_hr_tenants_phone ON public.hr_tenants(phone);
-CREATE INDEX idx_hr_tenants_email ON public.hr_tenants(email);
+CREATE INDEX IF NOT EXISTS idx_hr_tenants_unit_id ON public.hr_tenants(unit_id);
+CREATE INDEX IF NOT EXISTS idx_hr_tenants_phone ON public.hr_tenants(phone);
+CREATE INDEX IF NOT EXISTS idx_hr_tenants_email ON public.hr_tenants(email);
 
 -- Rental Contracts table
 CREATE TABLE IF NOT EXISTS public.hr_rental_contracts (
@@ -118,9 +163,9 @@ CREATE TABLE IF NOT EXISTS public.hr_rental_contracts (
     REFERENCES public.hr_units(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_hr_contracts_unit_id ON public.hr_rental_contracts(unit_id);
-CREATE INDEX idx_hr_contracts_status ON public.hr_rental_contracts(status);
-CREATE INDEX idx_hr_contracts_end_date ON public.hr_rental_contracts(end_date);
+CREATE INDEX IF NOT EXISTS idx_hr_contracts_unit_id ON public.hr_rental_contracts(unit_id);
+CREATE INDEX IF NOT EXISTS idx_hr_contracts_status ON public.hr_rental_contracts(status);
+CREATE INDEX IF NOT EXISTS idx_hr_contracts_end_date ON public.hr_rental_contracts(end_date);
 
 -- Contract Tenants junction table
 CREATE TABLE IF NOT EXISTS public.hr_contract_tenants (
@@ -136,8 +181,8 @@ CREATE TABLE IF NOT EXISTS public.hr_contract_tenants (
   CONSTRAINT hr_contract_tenants_unique UNIQUE (contract_id, tenant_id)
 );
 
-CREATE INDEX idx_hr_contract_tenants_contract_id ON public.hr_contract_tenants(contract_id);
-CREATE INDEX idx_hr_contract_tenants_tenant_id ON public.hr_contract_tenants(tenant_id);
+CREATE INDEX IF NOT EXISTS idx_hr_contract_tenants_contract_id ON public.hr_contract_tenants(contract_id);
+CREATE INDEX IF NOT EXISTS idx_hr_contract_tenants_tenant_id ON public.hr_contract_tenants(tenant_id);
 
 -- Transactions table
 CREATE TABLE IF NOT EXISTS public.hr_transactions (
@@ -158,12 +203,12 @@ CREATE TABLE IF NOT EXISTS public.hr_transactions (
     REFERENCES public.hr_units(id) ON DELETE SET NULL
 );
 
-CREATE INDEX idx_hr_transactions_property_id ON public.hr_transactions(property_id);
-CREATE INDEX idx_hr_transactions_unit_id ON public.hr_transactions(unit_id);
-CREATE INDEX idx_hr_transactions_type ON public.hr_transactions(type);
-CREATE INDEX idx_hr_transactions_category ON public.hr_transactions(category);
-CREATE INDEX idx_hr_transactions_date ON public.hr_transactions(transaction_date DESC);
-CREATE INDEX idx_hr_transactions_property_date ON public.hr_transactions(property_id, transaction_date DESC);
+CREATE INDEX IF NOT EXISTS idx_hr_transactions_property_id ON public.hr_transactions(property_id);
+CREATE INDEX IF NOT EXISTS idx_hr_transactions_unit_id ON public.hr_transactions(unit_id);
+CREATE INDEX IF NOT EXISTS idx_hr_transactions_type ON public.hr_transactions(type);
+CREATE INDEX IF NOT EXISTS idx_hr_transactions_category ON public.hr_transactions(category);
+CREATE INDEX IF NOT EXISTS idx_hr_transactions_date ON public.hr_transactions(transaction_date DESC);
+CREATE INDEX IF NOT EXISTS idx_hr_transactions_property_date ON public.hr_transactions(property_id, transaction_date DESC);
 
 -- Media table
 CREATE TABLE IF NOT EXISTS public.hr_media (
@@ -182,8 +227,8 @@ CREATE TABLE IF NOT EXISTS public.hr_media (
     REFERENCES public.hr_properties(id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_hr_media_property_id ON public.hr_media(property_id);
-CREATE INDEX idx_hr_media_type ON public.hr_media(type);
+CREATE INDEX IF NOT EXISTS idx_hr_media_property_id ON public.hr_media(property_id);
+CREATE INDEX IF NOT EXISTS idx_hr_media_type ON public.hr_media(type);
 
 -- Reminders table
 CREATE TABLE IF NOT EXISTS public.hr_reminders (
@@ -204,9 +249,9 @@ CREATE TABLE IF NOT EXISTS public.hr_reminders (
     REFERENCES public.hr_units(id) ON DELETE SET NULL
 );
 
-CREATE INDEX idx_hr_reminders_property_id ON public.hr_reminders(property_id);
-CREATE INDEX idx_hr_reminders_due_date ON public.hr_reminders(due_date);
-CREATE INDEX idx_hr_reminders_status ON public.hr_reminders(status);
+CREATE INDEX IF NOT EXISTS idx_hr_reminders_property_id ON public.hr_reminders(property_id);
+CREATE INDEX IF NOT EXISTS idx_hr_reminders_due_date ON public.hr_reminders(due_date);
+CREATE INDEX IF NOT EXISTS idx_hr_reminders_status ON public.hr_reminders(status);
 
 -- Trigger: Auto-create default unit when property is created
 CREATE OR REPLACE FUNCTION create_default_unit()
@@ -235,29 +280,35 @@ ALTER TABLE public.hr_media ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.hr_reminders ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for users
+DROP POLICY IF EXISTS "Users can view their own record" ON public.hr_users;
 CREATE POLICY "Users can view their own record"
   ON public.hr_users FOR SELECT
   USING (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Users can update their own record" ON public.hr_users;
 CREATE POLICY "Users can update their own record"
   ON public.hr_users FOR UPDATE
   USING (auth.uid() = id)
   WITH CHECK (auth.uid() = id);
 
 -- RLS Policies for properties
+DROP POLICY IF EXISTS "Users can view their own properties" ON public.hr_properties;
 CREATE POLICY "Users can view their own properties"
   ON public.hr_properties FOR SELECT
   USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can insert their own properties" ON public.hr_properties;
 CREATE POLICY "Users can insert their own properties"
   ON public.hr_properties FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can update their own properties" ON public.hr_properties;
 CREATE POLICY "Users can update their own properties"
   ON public.hr_properties FOR UPDATE
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Users can delete their own properties" ON public.hr_properties;
 CREATE POLICY "Users can delete their own properties"
   ON public.hr_properties FOR DELETE
   USING (auth.uid() = user_id);
@@ -276,6 +327,7 @@ BEGIN
 END;
 $$;
 
+DROP POLICY IF EXISTS "Users can manage units in their properties" ON public.hr_units;
 CREATE POLICY "Users can manage units in their properties"
   ON public.hr_units FOR ALL
   USING (unit_belongs_to_user(property_id))
@@ -296,6 +348,7 @@ BEGIN
 END;
 $$;
 
+DROP POLICY IF EXISTS "Users can manage tenants in their units" ON public.hr_tenants;
 CREATE POLICY "Users can manage tenants in their units"
   ON public.hr_tenants FOR ALL
   USING (tenant_belongs_to_user(unit_id))
@@ -316,6 +369,7 @@ BEGIN
 END;
 $$;
 
+DROP POLICY IF EXISTS "Users can manage contracts in their units" ON public.hr_rental_contracts;
 CREATE POLICY "Users can manage contracts in their units"
   ON public.hr_rental_contracts FOR ALL
   USING (contract_belongs_to_user(unit_id))
@@ -337,12 +391,14 @@ BEGIN
 END;
 $$;
 
+DROP POLICY IF EXISTS "Users can manage contract tenants" ON public.hr_contract_tenants;
 CREATE POLICY "Users can manage contract tenants"
   ON public.hr_contract_tenants FOR ALL
   USING (contract_tenant_belongs_to_user(contract_id))
   WITH CHECK (contract_tenant_belongs_to_user(contract_id));
 
 -- RLS Policies for transactions
+DROP POLICY IF EXISTS "Users can manage transactions in their properties" ON public.hr_transactions;
 CREATE POLICY "Users can manage transactions in their properties"
   ON public.hr_transactions FOR ALL
   USING (EXISTS (
@@ -350,7 +406,7 @@ CREATE POLICY "Users can manage transactions in their properties"
     WHERE p.id = property_id AND p.user_id = auth.uid()
   ));
 
--- RLS Policies for media
+DROP POLICY IF EXISTS "Users can manage media in their properties" ON public.hr_media;
 CREATE POLICY "Users can manage media in their properties"
   ON public.hr_media FOR ALL
   USING (EXISTS (
@@ -358,7 +414,7 @@ CREATE POLICY "Users can manage media in their properties"
     WHERE p.id = property_id AND p.user_id = auth.uid()
   ));
 
--- RLS Policies for reminders
+DROP POLICY IF EXISTS "Users can manage reminders in their properties" ON public.hr_reminders;
 CREATE POLICY "Users can manage reminders in their properties"
   ON public.hr_reminders FOR ALL
   USING (EXISTS (
