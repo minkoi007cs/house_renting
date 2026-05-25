@@ -53,7 +53,7 @@ export const WorkspaceSwitcher = () => {
       localStorage.removeItem('active_workspace_role');
       // Set active currency back to logged-in user's currency preference
       const currentUser = useAuthStore.getState().user;
-      localStorage.setItem('active_workspace_currency', currentUser?.currency || 'VND');
+      localStorage.setItem('active_workspace_currency', currentUser?.currency || 'USD');
     } else {
       localStorage.setItem('active_workspace_owner_id', workspace.inviter.id);
       localStorage.setItem(
@@ -62,7 +62,7 @@ export const WorkspaceSwitcher = () => {
       );
       localStorage.setItem('active_workspace_role', workspace.role);
       // Set active currency to the workspace owner's currency preference
-      localStorage.setItem('active_workspace_currency', workspace.inviter.currency || 'VND');
+      localStorage.setItem('active_workspace_currency', workspace.inviter.currency || 'USD');
     }
     setIsOpen(false);
     // Reload page to reset all states and headers

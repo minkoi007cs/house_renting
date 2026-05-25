@@ -11,7 +11,7 @@ export const SettingsPage = () => {
   const navigate = useNavigate();
 
   const [name, setName] = useState(user?.name || '');
-  const [currency, setCurrency] = useState(user?.currency || 'VND');
+  const [currency, setCurrency] = useState(user?.currency || 'USD');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);

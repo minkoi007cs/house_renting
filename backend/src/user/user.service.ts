@@ -15,7 +15,7 @@ export class UserService {
   async updateUserProfile(userId: string, data: any) {
     // Get current profile to check if currency is changing
     const current = await this.getUserProfile(userId);
-    const oldCurrency = current.currency || 'VND';
+    const oldCurrency = current.currency || 'USD';
     const newCurrency = data.currency;
 
     const { data: updated, error } = await this.supabase
