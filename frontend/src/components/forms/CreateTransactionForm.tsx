@@ -35,6 +35,7 @@ export const CreateTransactionForm = ({
   initialData,
   transactionId,
 }: Props) => {
+  const currency = localStorage.getItem('active_workspace_currency') || 'USD';
   const isEdit = !!transactionId;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -128,7 +129,7 @@ export const CreateTransactionForm = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="label">Amount (USD) *</label>
+            <label className="label">Amount ({currency}) *</label>
             <input {...register('amount')} type="number" min="0" className="input" placeholder="0" />
             {errors.amount && <p className="mt-1 text-xs text-red-500">{errors.amount.message}</p>}
           </div>

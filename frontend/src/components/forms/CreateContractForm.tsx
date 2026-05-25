@@ -42,6 +42,7 @@ export const CreateContractForm = ({
   unitId, unitOptions, onUnitChange, contractId, onClose, onSuccess, initialData,
 }: Props) => {
   const isEdit = !!contractId;
+  const currency = localStorage.getItem('active_workspace_currency') || 'USD';
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedUnit, setSelectedUnit] = useState(unitId || '');
@@ -114,12 +115,12 @@ export const CreateContractForm = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="label">Rent (USD) *</label>
+            <label className="label">Rent ({currency}) *</label>
             <input {...register('rent_amount')} type="number" className="input" placeholder="1500" />
             {errors.rent_amount && <p className="mt-1 text-xs text-rose-500">{errors.rent_amount.message}</p>}
           </div>
           <div>
-            <label className="label">Security Deposit (USD)</label>
+            <label className="label">Security Deposit ({currency})</label>
             <input {...register('deposit_amount')} type="number" className="input" placeholder="1500" />
           </div>
         </div>
