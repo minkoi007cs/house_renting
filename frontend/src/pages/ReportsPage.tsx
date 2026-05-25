@@ -13,7 +13,7 @@ import { Layout } from '@/components/common/Layout';
 import { PageLoader } from '@/components/common/Spinner';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { TX_CATEGORY_LABELS } from '@/utils/labels';
-import { formatCurrency } from '@/utils/format';
+import { formatCurrency, formatChartYAxis } from '@/utils/format';
 import {
   AreaChart,
   Area,
@@ -138,7 +138,7 @@ export const ReportsPage = () => {
                     <YAxis
                       stroke="#94a3b8"
                       fontSize={12}
-                      tickFormatter={(v) => `${(v / 1_000_000).toFixed(0)}M`}
+                      tickFormatter={formatChartYAxis}
                     />
                     <Tooltip
                       formatter={(v: any) => formatCurrency(v)}
@@ -175,7 +175,7 @@ export const ReportsPage = () => {
                     <YAxis
                       stroke="#94a3b8"
                       fontSize={12}
-                      tickFormatter={(v) => `${(v / 1_000_000).toFixed(0)}M`}
+                      tickFormatter={formatChartYAxis}
                     />
                     <Tooltip
                       formatter={(v: any) => formatCurrency(v)}

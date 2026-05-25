@@ -24,7 +24,7 @@ import {
   PROPERTY_TYPE_LABELS, PROPERTY_STATUS_LABELS, CONTRACT_STATUS_LABELS,
   REMINDER_TYPE_LABELS, TX_CATEGORY_LABELS, PAYMENT_CYCLE_LABELS, statusBadgeClass,
 } from '@/utils/labels';
-import { formatCurrency, formatDate } from '@/utils/format';
+import { formatCurrency, formatDate, formatChartYAxis } from '@/utils/format';
 import { normalizeTransactionListResponse } from '@/utils/transactions';
 import { Tenant, RentalContract, Transaction, Reminder } from '@/types';
 import {
@@ -142,7 +142,7 @@ const OverviewTab = ({ propertyId }: { propertyId: string }) => {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} />
-                <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={(v) => v >= 1000 ? `$${(v / 1000).toFixed(0)}k` : `$${v}`} />
+                <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={formatChartYAxis} />
                 <Tooltip
                   formatter={(v: any) => formatCurrency(v as number)}
                   contentStyle={{ borderRadius: 12, border: '1px solid #e2e8f0', fontSize: 12 }}
