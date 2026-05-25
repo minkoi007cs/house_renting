@@ -13,6 +13,11 @@ export class UserService {
   }
 
   async updateUserProfile(userId: string, data: any) {
+    // Get current profile to check if currency is changing
+    const current = await this.getUserProfile(userId);
+    const oldCurrency = current.currency || 'VND';
+    const newCurrency = data.currency;
+
     const { data: updated, error } = await this.supabase
       .from('hr_users')
       .update(data)
@@ -21,6 +26,79 @@ export class UserService {
       .single();
 
     if (error) throw error;
+
+    // Perform conversion on existing records if currency changed
+    if (newCurrency && newCurrency !== oldCurrency) {
+      const EXCHANGE_RATE = 26360; // Google exchange rate (USD to VND)
+      
+      let multiplier = 1;
+      if (oldCurrency === 'VND' && newCurrency === 'USD') {
+        multiplier = 1 / EXCHANGE_RATE;
+      } else if (oldCurrency === 'USD' && newCurrency === 'VND') {
+        multiplier = EXCHANGE_RATE;
+      }
+
+      if (multiplier !== 1) {
+        // Fetch properties owned by the user
+        const { data: properties } = await this.supabase
+          .from('hr_properties')
+          .select('id, monthly_rent')
+          .eq('user_id', userId);
+
+        if (properties && properties.length > 0) {
+          const propertyIds = properties.map(p => p.id);
+
+          // 1. Convert Properties monthly_rent
+          for (const prop of properties) {
+            if (prop.monthly_rent) {
+              const newRent = Math.round(Number(prop.monthly_rent) * multiplier * 100) / 100;
+              await this.supabase.from('hr_properties').update({ monthly_rent: newRent }).eq('id', prop.id);
+            }
+          }
+
+          // 2. Convert Rental Contracts rent_amount & deposit_amount
+          const { data: units } = await this.supabase
+            .from('hr_units')
+            .select('id')
+            .in('property_id', propertyIds);
+
+          if (units && units.length > 0) {
+            const unitIds = units.map(u => u.id);
+            const { data: contracts } = await this.supabase
+              .from('hr_rental_contracts')
+              .select('id, rent_amount, deposit_amount')
+              .in('unit_id', unitIds);
+
+            if (contracts && contracts.length > 0) {
+              for (const contract of contracts) {
+                const newRent = Math.round(Number(contract.rent_amount) * multiplier * 100) / 100;
+                const newDeposit = Math.round(Number(contract.deposit_amount || 0) * multiplier * 100) / 100;
+                await this.supabase.from('hr_rental_contracts').update({
+                  rent_amount: newRent,
+                  deposit_amount: newDeposit
+                }).eq('id', contract.id);
+              }
+            }
+          }
+
+          // 3. Convert Transactions amount
+          const { data: transactions } = await this.supabase
+            .from('hr_transactions')
+            .select('id, amount')
+            .in('property_id', propertyIds);
+
+          if (transactions && transactions.length > 0) {
+            for (const tx of transactions) {
+              if (tx.amount) {
+                const newAmount = Math.round(Number(tx.amount) * multiplier * 100) / 100;
+                await this.supabase.from('hr_transactions').update({ amount: newAmount }).eq('id', tx.id);
+              }
+            }
+          }
+        }
+      }
+    }
+
     return updated;
   }
 
