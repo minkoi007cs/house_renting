@@ -93,4 +93,8 @@ export class UpdateTransactionDto {
   @IsString()
   @IsOptional()
   note?: string;
+
+  @IsUUID()
+  @IsOptional()
+  unit_id?: string;
 }

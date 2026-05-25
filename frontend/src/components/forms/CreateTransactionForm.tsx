@@ -53,7 +53,23 @@ export const CreateTransactionForm = ({
     try {
       setIsSubmitting(true);
       setError(null);
-      const payload = { ...data, type: txType };
+
+      // Strictly compile sanitized payload to avoid sending extra non-whitelisted fields (like id, property, created_at)
+      const payload: any = {
+        type: txType,
+        category: data.category,
+        amount: Number(data.amount) || 0,
+        transaction_date: data.transaction_date,
+      };
+
+      if (data.note !== undefined && data.note !== null) {
+        payload.note = data.note;
+      }
+
+      if (data.unit_id) {
+        payload.unit_id = data.unit_id;
+      }
+
       if (isEdit) {
         await api.patch(`/transactions/${transactionId}`, payload);
       } else {
