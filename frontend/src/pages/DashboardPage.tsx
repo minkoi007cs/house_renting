@@ -26,7 +26,7 @@ import {
 import { Layout } from '@/components/common/Layout';
 import { PageLoader } from '@/components/common/Spinner';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
-import { formatCurrency, formatDate } from '@/utils/format';
+import { formatCurrency, formatDate, formatChartYAxis } from '@/utils/format';
 import { statusBadgeClass, TX_CATEGORY_LABELS, CONTRACT_STATUS_LABELS } from '@/utils/labels';
 import dayjs from 'dayjs';
 
@@ -213,7 +213,7 @@ export const DashboardPage = () => {
                     tickLine={false}
                   />
                   <YAxis
-                    tickFormatter={(v) => `${(v / 1e6).toFixed(0)}M`}
+                    tickFormatter={formatChartYAxis}
                     tick={{ fontSize: 12, fill: '#94a3b8' }}
                     axisLine={false}
                     tickLine={false}
