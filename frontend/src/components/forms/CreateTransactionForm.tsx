@@ -10,12 +10,12 @@ const INCOME_CATS = ['rent', 'service_fee', 'deposit_received', 'deposit_refund'
 const EXPENSE_CATS = ['repair', 'maintenance', 'utilities', 'electricity', 'water_sewage', 'gas', 'lawn_care', 'snow_removal', 'hoa_fee', 'pest_control', 'hvac_maintenance', 'painting', 'appliance_repair', 'brokerage', 'cleaning', 'tax', 'insurance', 'other_expense'];
 
 const schema = z.object({
-  type: z.enum(['income', 'expense']),
+  type: z.enum(['income', 'expense']).optional(),
   category: z.string().min(1, 'Category is required'),
   amount: z.coerce.number().min(1, 'Amount must be > 0'),
   transaction_date: z.string().min(1, 'Date is required'),
-  note: z.string().optional(),
-  unit_id: z.string().optional(),
+  note: z.string().nullable().optional(),
+  unit_id: z.string().nullable().optional(),
 });
 
 type FormData = z.infer<typeof schema>;
