@@ -43,6 +43,11 @@ export const useAuthStore = create<AuthState>((set) => ({
   setUser: (user) => {
     if (user) {
       localStorage.setItem('auth_user', JSON.stringify(user));
+      // Synchronize active workspace currency if we are in Personal Workspace
+      const activeOwnerId = localStorage.getItem('active_workspace_owner_id');
+      if (!activeOwnerId) {
+        localStorage.setItem('active_workspace_currency', user.currency || 'VND');
+      }
     } else {
       localStorage.removeItem('auth_user');
     }

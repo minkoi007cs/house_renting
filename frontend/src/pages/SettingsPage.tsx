@@ -11,6 +11,7 @@ export const SettingsPage = () => {
   const navigate = useNavigate();
 
   const [name, setName] = useState(user?.name || '');
+  const [currency, setCurrency] = useState(user?.currency || 'VND');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +20,7 @@ export const SettingsPage = () => {
     try {
       setSaving(true);
       setError(null);
-      const res = await api.patch('/users/profile', { name });
+      const res = await api.patch('/users/profile', { name, currency });
       setUser(res.data.data);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
@@ -95,6 +96,21 @@ export const SettingsPage = () => {
             </div>
 
             <div>
+              <label className="label">Workspace Currency</label>
+              <select
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value)}
+                className="input cursor-pointer"
+              >
+                <option value="VND">VND (₫)</option>
+                <option value="USD">USD ($)</option>
+              </select>
+              <p className="mt-1 text-xs text-ink-400">
+                This currency will apply globally to your workspace, including other members viewing it.
+              </p>
+            </div>
+
+            <div>
               <label className="label">Email</label>
               <input
                 type="email"
@@ -108,7 +124,7 @@ export const SettingsPage = () => {
             <div className="flex justify-end">
               <button
                 onClick={handleSave}
-                disabled={saving || name === user?.name}
+                disabled={saving || (name === user?.name && currency === user?.currency)}
                 className="btn-primary"
               >
                 <Save className="w-4 h-4" />
