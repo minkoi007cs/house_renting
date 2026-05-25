@@ -28,6 +28,7 @@ interface Props {
 }
 
 export const CreatePropertyForm = ({ onClose, onSuccess, initialData, propertyId }: Props) => {
+  const currency = localStorage.getItem('active_workspace_currency') || 'USD';
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [images, setImages] = useState<string[]>(initialData?.image_urls || []);
@@ -110,7 +111,7 @@ export const CreatePropertyForm = ({ onClose, onSuccess, initialData, propertyId
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="label">Monthly rent (USD)</label>
+            <label className="label">Monthly rent ({currency})</label>
             <input
               {...register('monthly_rent')}
               type="number"
