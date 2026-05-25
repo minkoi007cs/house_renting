@@ -5,7 +5,7 @@ dayjs.extend(relativeTime);
 
 export const formatCurrency = (amount: number | string | undefined | null): string => {
   const n = Number(amount) || 0;
-  const currency = localStorage.getItem('active_workspace_currency') || 'VND';
+  const currency = localStorage.getItem('active_workspace_currency') || 'USD';
   return new Intl.NumberFormat(currency === 'VND' ? 'vi-VN' : 'en-US', {
     style: 'currency',
     currency: currency,
