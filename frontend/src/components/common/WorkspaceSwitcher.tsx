@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ChevronDown, Briefcase, User, ShieldCheck } from 'lucide-react';
 import api from '@/services/api';
+import { useAuthStore } from '@/store/authStore';
 
 interface Workspace {
   id: string;
@@ -9,6 +10,7 @@ interface Workspace {
     id: string;
     email: string;
     name: string | null;
+    currency: string | null;
   };
 }
 
@@ -49,6 +51,9 @@ export const WorkspaceSwitcher = () => {
       localStorage.removeItem('active_workspace_owner_id');
       localStorage.removeItem('active_workspace_owner_name');
       localStorage.removeItem('active_workspace_role');
+      // Set active currency back to logged-in user's currency preference
+      const currentUser = useAuthStore.getState().user;
+      localStorage.setItem('active_workspace_currency', currentUser?.currency || 'VND');
     } else {
       localStorage.setItem('active_workspace_owner_id', workspace.inviter.id);
       localStorage.setItem(
@@ -56,6 +61,8 @@ export const WorkspaceSwitcher = () => {
         workspace.inviter.name || workspace.inviter.email
       );
       localStorage.setItem('active_workspace_role', workspace.role);
+      // Set active currency to the workspace owner's currency preference
+      localStorage.setItem('active_workspace_currency', workspace.inviter.currency || 'VND');
     }
     setIsOpen(false);
     // Reload page to reset all states and headers
