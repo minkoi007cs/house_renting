@@ -10,6 +10,7 @@ import {
   HttpCode,
 } from '@nestjs/common';
 import { ReminderService } from './reminder.service';
+import { CreateReminderDto, UpdateReminderDto } from './dto/create-reminder.dto';
 import { JwtGuard } from '../common/guards/jwt.guard';
 import { WorkspaceOwnerId } from '../common/decorators/workspace-owner.decorator';
 
@@ -37,7 +38,7 @@ export class ReminderController {
   async createReminder(
     @WorkspaceOwnerId() userId: string,
     @Param('propertyId') propertyId: string,
-    @Body() dto: any,
+    @Body() dto: CreateReminderDto,
   ) {
     const reminder = await this.reminderService.createReminder(userId, propertyId, dto);
     return { status: 'success', data: reminder };
@@ -53,7 +54,7 @@ export class ReminderController {
   async updateReminder(
     @WorkspaceOwnerId() userId: string,
     @Param('id') reminderId: string,
-    @Body() dto: any,
+    @Body() dto: UpdateReminderDto,
   ) {
     const reminder = await this.reminderService.updateReminder(userId, reminderId, dto);
     return { status: 'success', data: reminder };

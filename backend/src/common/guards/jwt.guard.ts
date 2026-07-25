@@ -1,4 +1,11 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException, ForbiddenException, Inject } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+  ForbiddenException,
+  Inject,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SupabaseClient } from '@supabase/supabase-js';
 import * as jwt from 'jsonwebtoken';
@@ -29,9 +36,11 @@ export class JwtGuard implements CanActivate {
       throw new UnauthorizedException('Invalid authorization header');
     }
 
+    const secret = this.configService.get<string>('JWT_SECRET');
+    if (!secret) throw new Error('JWT_SECRET environment variable is not configured');
+
     let decoded: any;
     try {
-      const secret = this.configService.get<string>('JWT_SECRET') || 'default-secret';
       decoded = jwt.verify(token, secret) as any;
       request.user = decoded;
       console.log(
@@ -43,18 +52,22 @@ export class JwtGuard implements CanActivate {
     }
 
     const userId = decoded.sub;
-    
+
     // Set default workspace context (the user's own workspace)
     request.workspaceOwnerId = userId;
     request.workspacePermission = 'owner';
 
     // Check if switching workspace is requested via header
     const workspaceOwnerHeader = request.headers['x-workspace-owner-id'];
-    
+
     // Skip workspace switching for user settings and invitations routes
     const isUserSettingsOrInvitationsRoute = url.startsWith('/api/users');
 
-    if (workspaceOwnerHeader && workspaceOwnerHeader !== userId && !isUserSettingsOrInvitationsRoute) {
+    if (
+      workspaceOwnerHeader &&
+      workspaceOwnerHeader !== userId &&
+      !isUserSettingsOrInvitationsRoute
+    ) {
       console.log(`[JwtGuard] Switching requested to workspace owner: ${workspaceOwnerHeader}`);
 
       // 1. Get logged-in user's email from database
@@ -79,18 +92,27 @@ export class JwtGuard implements CanActivate {
         .single();
 
       if (inviteError || !inviteData) {
-        console.error('[JwtGuard] FAILED - No accepted invitation found between', workspaceOwnerHeader, 'and', userData.email);
+        console.error(
+          '[JwtGuard] FAILED - No accepted invitation found between',
+          workspaceOwnerHeader,
+          'and',
+          userData.email,
+        );
         throw new ForbiddenException('You do not have access to this workspace');
       }
 
-      console.log(`[JwtGuard] SWITCH OK - Switched to workspace: ${workspaceOwnerHeader} | Permission: ${inviteData.role}`);
+      console.log(
+        `[JwtGuard] SWITCH OK - Switched to workspace: ${workspaceOwnerHeader} | Permission: ${inviteData.role}`,
+      );
       request.workspaceOwnerId = workspaceOwnerHeader;
       request.workspacePermission = inviteData.role;
 
       // 3. Enforce read-only permission for 'viewer' role on write operations
       const isWriteOperation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
       if (inviteData.role === 'viewer' && isWriteOperation) {
-        console.error(`[JwtGuard] FAILED - Viewer attempted write operation (${method}) on workspace of: ${workspaceOwnerHeader}`);
+        console.error(
+          `[JwtGuard] FAILED - Viewer attempted write operation (${method}) on workspace of: ${workspaceOwnerHeader}`,
+        );
         throw new ForbiddenException('You only have read-only access to this workspace');
       }
     }

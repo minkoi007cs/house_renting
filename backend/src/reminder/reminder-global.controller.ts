@@ -10,6 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ReminderService } from './reminder.service';
+import { UpdateReminderDto } from './dto/create-reminder.dto';
 import { JwtGuard } from '../common/guards/jwt.guard';
 import { WorkspaceOwnerId } from '../common/decorators/workspace-owner.decorator';
 
@@ -25,7 +26,11 @@ export class ReminderGlobalController {
   }
 
   @Patch(':id')
-  async update(@WorkspaceOwnerId() userId: string, @Param('id') id: string, @Body() dto: any) {
+  async update(
+    @WorkspaceOwnerId() userId: string,
+    @Param('id') id: string,
+    @Body() dto: UpdateReminderDto,
+  ) {
     const reminder = await this.reminderService.updateReminder(userId, id, dto);
     return { status: 'success', data: reminder };
   }

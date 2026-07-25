@@ -1,0 +1,40 @@
+{
+  "generated_at": "2026-07-24T20:23:09-04:00",
+  "generated_by": "agentui control-plane (DERIVED, read-only — do NOT hand-edit)",
+  "parent": "BOSS",
+  "digest": "f859a0deaef2556e",
+  "children": {
+    "BACKEND_AGENT": {
+      "status": "idle",
+      "context_pct": 9.1,
+      "context_tokens": 91040,
+      "message_count": 4,
+      "last_activity": 1784938989.764925,
+      "last_activity_iso": "2026-07-24T20:23:09-04:00",
+      "memory_mtime": 1784938976.5427544,
+      "memory_updated_iso": "2026-07-24T20:22:56-04:00",
+      "memory_headline": "2026-07-25 — Phase 0: Vá bảo mật & ổn định backend (4 fix)",
+      "memory_hash": "sha256:d519d198893efc86",
+      "stale_memory": false,
+      "manifest_version": "0.1.0",
+      "overview_path": "../BACKEND_AGENT/overview.md",
+      "body_incomplete": false
+    },
+    "FRONTEND_AGENT": {
+      "status": "idle",
+      "context_pct": 7.2,
+      "context_tokens": 71694,
+      "message_count": 4,
+      "last_activity": 1784938865.801528,
+      "last_activity_iso": "2026-07-24T20:21:05-04:00",
+      "memory_mtime": 1784938860.3999972,
+      "memory_updated_iso": "2026-07-24T20:21:00-04:00",
+      "memory_headline": "2026-07-24 — Phase 0: stability & cleanup",
+      "memory_hash": "sha256:088dff4f2203b8ac",
+      "stale_memory": false,
+      "manifest_version": "0.1.0",
+      "overview_path": "../FRONTEND_AGENT/overview.md",
+      "body_incomplete": true
+    }
+  }
+}

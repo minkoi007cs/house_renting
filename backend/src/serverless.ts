@@ -15,8 +15,14 @@ async function bootstrap() {
     logger: ['error', 'warn'],
   });
 
+  const rawOrigins = process.env.FRONTEND_ORIGINS || process.env.FRONTEND_URL || '';
+  const allowedOrigins = rawOrigins
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
+
   app.enableCors({
-    origin: process.env.FRONTEND_URL || true,
+    origin: allowedOrigins.length > 0 ? allowedOrigins : false,
     credentials: true,
   });
 

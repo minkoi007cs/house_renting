@@ -67,7 +67,8 @@ export class AuthService {
   }
 
   generateJWT(userId: string): string {
-    const secret = this.configService.get<string>('JWT_SECRET') || 'default-secret';
+    const secret = this.configService.get<string>('JWT_SECRET');
+    if (!secret) throw new Error('JWT_SECRET environment variable is not configured');
     const expiresIn = parseInt(this.configService.get<string>('JWT_EXPIRATION') || '2592000', 10);
 
     return jwt.sign(
@@ -83,8 +84,9 @@ export class AuthService {
   }
 
   verifyJWT(token: string) {
+    const secret = this.configService.get<string>('JWT_SECRET');
+    if (!secret) throw new Error('JWT_SECRET environment variable is not configured');
     try {
-      const secret = this.configService.get<string>('JWT_SECRET') || 'default-secret';
       return jwt.verify(token, secret);
     } catch (error) {
       throw new UnauthorizedException('Invalid JWT token');

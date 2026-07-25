@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Mail, Share2, Shield, Eye, Edit3, Trash2, Check, X, RefreshCw } from 'lucide-react';
 import api from '@/services/api';
 import { toast } from '@/store/toastStore';
+import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 
 interface Invitation {
   id: string;
@@ -32,6 +33,8 @@ export const WorkspaceSharing = () => {
   
   const [loadingSent, setLoadingSent] = useState(false);
   const [loadingReceived, setLoadingReceived] = useState(false);
+  const [deletePending, setDeletePending] = useState<{ id: string; label: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const fetchSent = async () => {
     try {
@@ -109,16 +112,23 @@ export const WorkspaceSharing = () => {
     }
   };
 
-  const handleDelete = async (id: string, label: string) => {
-    if (!window.confirm(`Are you sure you want to ${label}?`)) return;
+  const handleDelete = (id: string, label: string) => {
+    setDeletePending({ id, label });
+  };
 
+  const confirmDelete = async () => {
+    if (!deletePending) return;
     try {
-      await api.delete(`/users/invitations/${id}`);
+      setDeleting(true);
+      await api.delete(`/users/invitations/${deletePending.id}`);
       toast.success('Invitation removed successfully.');
       loadAll();
       window.dispatchEvent(new Event('workspace-list-updated'));
     } catch (err: any) {
       toast.error('Failed to remove invitation');
+    } finally {
+      setDeleting(false);
+      setDeletePending(null);
     }
   };
 
@@ -127,6 +137,17 @@ export const WorkspaceSharing = () => {
 
   return (
     <div className="space-y-6">
+      {deletePending && (
+        <ConfirmDialog
+          title="Confirm removal"
+          message={`Are you sure you want to ${deletePending.label}?`}
+          confirmLabel="Remove"
+          loading={deleting}
+          onConfirm={confirmDelete}
+          onCancel={() => setDeletePending(null)}
+        />
+      )}
+
       {/* Invite Member */}
       <div className="card p-6">
         <h2 className="font-semibold text-ink-900 mb-4 flex items-center gap-2">

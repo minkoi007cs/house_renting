@@ -1,5 +1,6 @@
 import { Injectable, Inject, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { SupabaseClient } from '@supabase/supabase-js';
+import { CreateReminderDto, UpdateReminderDto } from './dto/create-reminder.dto';
 
 @Injectable()
 export class ReminderService {
@@ -66,7 +67,7 @@ export class ReminderService {
     return data;
   }
 
-  async createReminder(userId: string, propertyId: string, dto: any) {
+  async createReminder(userId: string, propertyId: string, dto: CreateReminderDto) {
     const { data: property } = await this.supabase
       .from('hr_properties')
       .select('id, user_id')
@@ -99,7 +100,7 @@ export class ReminderService {
     return data;
   }
 
-  async updateReminder(userId: string, reminderId: string, dto: any) {
+  async updateReminder(userId: string, reminderId: string, dto: UpdateReminderDto) {
     const { data: reminder } = (await this.supabase
       .from('hr_reminders')
       .select('property:hr_properties(user_id)')

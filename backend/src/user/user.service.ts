@@ -1,18 +1,29 @@
-import { Injectable, Inject, NotFoundException, ConflictException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  NotFoundException,
+  ConflictException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { SupabaseClient } from '@supabase/supabase-js';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class UserService {
   constructor(@Inject('SUPABASE_CLIENT') private supabase: SupabaseClient) {}
 
   async getUserProfile(userId: string) {
-    const { data, error } = await this.supabase.from('hr_users').select('*').eq('id', userId).single();
+    const { data, error } = await this.supabase
+      .from('hr_users')
+      .select('*')
+      .eq('id', userId)
+      .single();
 
     if (error) throw error;
     return data;
   }
 
-  async updateUserProfile(userId: string, data: any) {
+  async updateUserProfile(userId: string, data: UpdateProfileDto) {
     // Get current profile to check if currency is changing
     const current = await this.getUserProfile(userId);
     const oldCurrency = current.currency || 'USD';
@@ -30,7 +41,7 @@ export class UserService {
     // Perform conversion on existing records if currency changed
     if (newCurrency && newCurrency !== oldCurrency) {
       const EXCHANGE_RATE = 26360; // Google exchange rate (USD to VND)
-      
+
       let multiplier = 1;
       if (oldCurrency === 'VND' && newCurrency === 'USD') {
         multiplier = 1 / EXCHANGE_RATE;
@@ -46,13 +57,16 @@ export class UserService {
           .eq('user_id', userId);
 
         if (properties && properties.length > 0) {
-          const propertyIds = properties.map(p => p.id);
+          const propertyIds = properties.map((p) => p.id);
 
           // 1. Convert Properties monthly_rent
           for (const prop of properties) {
             if (prop.monthly_rent) {
               const newRent = Math.round(Number(prop.monthly_rent) * multiplier * 100) / 100;
-              await this.supabase.from('hr_properties').update({ monthly_rent: newRent }).eq('id', prop.id);
+              await this.supabase
+                .from('hr_properties')
+                .update({ monthly_rent: newRent })
+                .eq('id', prop.id);
             }
           }
 
@@ -63,7 +77,7 @@ export class UserService {
             .in('property_id', propertyIds);
 
           if (units && units.length > 0) {
-            const unitIds = units.map(u => u.id);
+            const unitIds = units.map((u) => u.id);
             const { data: contracts } = await this.supabase
               .from('hr_rental_contracts')
               .select('id, rent_amount, deposit_amount')
@@ -72,11 +86,15 @@ export class UserService {
             if (contracts && contracts.length > 0) {
               for (const contract of contracts) {
                 const newRent = Math.round(Number(contract.rent_amount) * multiplier * 100) / 100;
-                const newDeposit = Math.round(Number(contract.deposit_amount || 0) * multiplier * 100) / 100;
-                await this.supabase.from('hr_rental_contracts').update({
-                  rent_amount: newRent,
-                  deposit_amount: newDeposit
-                }).eq('id', contract.id);
+                const newDeposit =
+                  Math.round(Number(contract.deposit_amount || 0) * multiplier * 100) / 100;
+                await this.supabase
+                  .from('hr_rental_contracts')
+                  .update({
+                    rent_amount: newRent,
+                    deposit_amount: newDeposit,
+                  })
+                  .eq('id', contract.id);
               }
             }
           }
@@ -91,7 +109,10 @@ export class UserService {
             for (const tx of transactions) {
               if (tx.amount) {
                 const newAmount = Math.round(Number(tx.amount) * multiplier * 100) / 100;
-                await this.supabase.from('hr_transactions').update({ amount: newAmount }).eq('id', tx.id);
+                await this.supabase
+                  .from('hr_transactions')
+                  .update({ amount: newAmount })
+                  .eq('id', tx.id);
               }
             }
           }
@@ -111,7 +132,9 @@ export class UserService {
       .single();
 
     if (userError || !targetUser) {
-      throw new NotFoundException('The invited email is not registered in Renthub yet. Please ask them to register first!');
+      throw new NotFoundException(
+        'The invited email is not registered in Renthub yet. Please ask them to register first!',
+      );
     }
 
     // 2. Prevent self-invitation
@@ -150,7 +173,7 @@ export class UserService {
 
     if (error) throw error;
 
-    const emails = invites.map(i => i.invitee_email);
+    const emails = invites.map((i) => i.invitee_email);
     if (emails.length > 0) {
       const { data: users } = await this.supabase
         .from('hr_users')
@@ -158,14 +181,21 @@ export class UserService {
         .in('email', emails);
 
       if (users) {
-        const userMap = new Map(users.map(u => [u.email, u]));
-        return invites.map(i => ({
+        const userMap = new Map(users.map((u) => [u.email, u]));
+        return invites.map((i) => ({
           ...i,
-          invitee: userMap.get(i.invitee_email) || { email: i.invitee_email, name: 'Registered User', avatar_url: null }
+          invitee: userMap.get(i.invitee_email) || {
+            email: i.invitee_email,
+            name: 'Registered User',
+            avatar_url: null,
+          },
         }));
       }
     }
-    return invites.map(i => ({ ...i, invitee: { email: i.invitee_email, name: null, avatar_url: null } }));
+    return invites.map((i) => ({
+      ...i,
+      invitee: { email: i.invitee_email, name: null, avatar_url: null },
+    }));
   }
 
   async getReceivedInvitations(userId: string) {

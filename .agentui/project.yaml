@@ -1,0 +1,40 @@
+# AgentUI (agent_code_IDLE) project config cho House Renting.
+# Lưu ý: ổ đĩa Mac (APFS) không phân biệt hoa/thường, nên KHÔNG dùng id/thư mục
+# "BACKEND"/"FRONTEND" trùng chữ với thư mục thật backend/ frontend/ — dùng
+# hậu tố _AGENT để tách biệt an toàn.
+name: HouseRenting
+slug: house-renting
+description: >-
+  Monorepo — NestJS backend (Supabase Postgres + JWT + Google OAuth) + React/Vite frontend.
+  BOSS nhận yêu cầu, dispatch cho BACKEND_AGENT/FRONTEND_AGENT rồi tổng hợp.
+
+agents:
+  - id: BOSS
+    role: >-
+      Orchestrator. Nhận yêu cầu, chia việc theo tầng, dispatch cho BACKEND_AGENT/FRONTEND_AGENT
+      qua <dispatch agent="..">, nhận kết quả và tổng hợp/finalize cho người dùng.
+    model: claude
+    claude_model: claude-opus-4-8
+    cwd: "."
+    system_prompt_file: BOSS/AGENT.md
+    parents: []
+
+  - id: BACKEND_AGENT
+    role: >-
+      NestJS + Supabase (Postgres + Auth) + JWT + Google OAuth + Swagger.
+      Mọi việc trong backend/ — property, unit, tenant, contract, transaction, reminder, analytics, media.
+    model: claude
+    claude_model: claude-sonnet-4-6
+    cwd: "."
+    system_prompt_file: BACKEND_AGENT/AGENT.md
+    parents: [BOSS]
+
+  - id: FRONTEND_AGENT
+    role: >-
+      React + Vite + Tailwind + Zustand + React Hook Form + Zod + Recharts.
+      Mọi việc trong frontend/ — pages, components, hooks, store, services.
+    model: claude
+    claude_model: claude-sonnet-4-6
+    cwd: "."
+    system_prompt_file: FRONTEND_AGENT/AGENT.md
+    parents: [BOSS]

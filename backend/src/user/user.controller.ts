@@ -2,6 +2,7 @@ import { Controller, Get, Patch, Post, Delete, Body, Param, UseGuards } from '@n
 import { UserService } from './user.service';
 import { JwtGuard } from '../common/guards/jwt.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Controller('api/users')
 @UseGuards(JwtGuard)
@@ -18,7 +19,7 @@ export class UserController {
   }
 
   @Patch('profile')
-  async updateProfile(@CurrentUser('sub') userId: string, @Body() data: any) {
+  async updateProfile(@CurrentUser('sub') userId: string, @Body() data: UpdateProfileDto) {
     const updated = await this.userService.updateUserProfile(userId, data);
     return {
       status: 'success',
