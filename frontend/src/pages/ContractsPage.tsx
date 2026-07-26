@@ -1,12 +1,13 @@
 import { useState, useEffect, useMemo } from 'react';
 import { FileText, Plus, Pencil, Trash2, Calendar, Building2 } from 'lucide-react';
 import { Layout } from '@/components/common/Layout';
-import { PageLoader } from '@/components/common/Spinner';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
+import { SkeletonTable } from '@/components/common/Skeleton';
 import { CreateContractForm } from '@/components/forms/CreateContractForm';
 import { useContracts } from '@/hooks/useContracts';
 import { useProperties } from '@/hooks/useProperties';
+import { toast } from '@/store/toastStore';
 import api from '@/services/api';
 import {
   CONTRACT_STATUS_LABELS,
@@ -79,7 +80,7 @@ export const ContractsPage = () => {
         </div>
 
         {isLoading ? (
-          <PageLoader />
+          <SkeletonTable rows={6} cols={6} />
         ) : contracts.length === 0 ? (
           <div className="card">
             <EmptyState
@@ -182,10 +183,7 @@ export const ContractsPage = () => {
         <CreateContractForm
           unitOptions={unitOptions}
           onClose={resetCreate}
-          onSuccess={() => {
-            resetCreate();
-            fetchContracts();
-          }}
+          onSuccess={() => { resetCreate(); fetchContracts(); toast.success('Contract created'); }}
         />
       )}
 
@@ -195,10 +193,7 @@ export const ContractsPage = () => {
           contractId={editing.id}
           initialData={editing as any}
           onClose={() => setEditing(null)}
-          onSuccess={() => {
-            setEditing(null);
-            fetchContracts();
-          }}
+          onSuccess={() => { setEditing(null); fetchContracts(); toast.success('Contract updated'); }}
         />
       )}
 
@@ -208,8 +203,14 @@ export const ContractsPage = () => {
           message="This contract will be permanently removed."
           onCancel={() => setDeleting(null)}
           onConfirm={async () => {
-            await deleteContract(deleting.id);
-            setDeleting(null);
+            try {
+              await deleteContract(deleting.id);
+              toast.success('Contract deleted');
+            } catch {
+              toast.error('Failed to delete contract');
+            } finally {
+              setDeleting(null);
+            }
           }}
         />
       )}

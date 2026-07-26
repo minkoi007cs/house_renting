@@ -2,11 +2,12 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Building2, Plus, Search, MoreVertical, Pencil, Trash2, MapPin, DollarSign } from 'lucide-react';
 import { Layout } from '@/components/common/Layout';
-import { PageLoader } from '@/components/common/Spinner';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
+import { SkeletonCardGrid } from '@/components/common/Skeleton';
 import { CreatePropertyForm } from '@/components/forms/CreatePropertyForm';
 import { useProperties } from '@/hooks/useProperties';
+import { toast } from '@/store/toastStore';
 import {
   PROPERTY_TYPE_LABELS,
   PROPERTY_STATUS_LABELS,
@@ -142,8 +143,14 @@ export const PropertiesPage = () => {
 
   const handleDelete = async () => {
     if (!deleting) return;
-    await deleteProperty(deleting.id);
-    setDeleting(null);
+    try {
+      await deleteProperty(deleting.id);
+      toast.success(`"${deleting.name}" deleted`);
+    } catch {
+      toast.error('Failed to delete property');
+    } finally {
+      setDeleting(null);
+    }
   };
 
   return (
@@ -195,7 +202,7 @@ export const PropertiesPage = () => {
         </div>
 
         {isLoading ? (
-          <PageLoader />
+          <SkeletonCardGrid count={6} />
         ) : filtered.length === 0 ? (
           <div className="card">
             <EmptyState
@@ -231,12 +238,15 @@ export const PropertiesPage = () => {
       </div>
 
       {showCreate && (
-        <CreatePropertyForm onClose={() => setShowCreate(false)} onSuccess={() => fetchProperties()} />
+        <CreatePropertyForm
+          onClose={() => setShowCreate(false)}
+          onSuccess={() => { fetchProperties(); toast.success('Property created'); }}
+        />
       )}
       {editing && (
         <CreatePropertyForm
           onClose={() => setEditing(null)}
-          onSuccess={() => fetchProperties()}
+          onSuccess={() => { fetchProperties(); toast.success('Property updated'); }}
           propertyId={editing.id}
           initialData={editing as any}
         />

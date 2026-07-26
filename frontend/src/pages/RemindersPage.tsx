@@ -1,12 +1,13 @@
 import { useState, useMemo } from 'react';
 import { Bell, Plus, Pencil, Trash2, CheckCircle2, Circle, Calendar, AlertCircle } from 'lucide-react';
 import { Layout } from '@/components/common/Layout';
-import { PageLoader } from '@/components/common/Spinner';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
+import { SkeletonList } from '@/components/common/Skeleton';
 import { CreateReminderForm } from '@/components/forms/CreateReminderForm';
 import { useReminders } from '@/hooks/useReminders';
 import { useProperties } from '@/hooks/useProperties';
+import { toast } from '@/store/toastStore';
 import { REMINDER_TYPE_LABELS } from '@/utils/labels';
 import { formatDate } from '@/utils/format';
 import { Reminder } from '@/types';
@@ -76,7 +77,7 @@ export const RemindersPage = () => {
         </div>
 
         {isLoading ? (
-          <PageLoader />
+          <SkeletonList rows={5} />
         ) : sorted.length === 0 ? (
           <div className="card">
             <EmptyState
@@ -193,7 +194,7 @@ export const RemindersPage = () => {
         <CreateReminderForm
           propertyId={createPropId}
           onClose={() => setShowCreate(false)}
-          onSuccess={() => fetchReminders()}
+          onSuccess={() => { fetchReminders(); toast.success('Reminder created'); }}
         />
       )}
 
@@ -202,10 +203,7 @@ export const RemindersPage = () => {
           reminderId={editing.id}
           initialData={editing as any}
           onClose={() => setEditing(null)}
-          onSuccess={() => {
-            setEditing(null);
-            fetchReminders();
-          }}
+          onSuccess={() => { setEditing(null); fetchReminders(); toast.success('Reminder updated'); }}
         />
       )}
 
@@ -215,8 +213,14 @@ export const RemindersPage = () => {
           message={`Remove "${deleting.title}"?`}
           onCancel={() => setDeleting(null)}
           onConfirm={async () => {
-            await deleteReminder(deleting.id);
-            setDeleting(null);
+            try {
+              await deleteReminder(deleting.id);
+              toast.success('Reminder deleted');
+            } catch {
+              toast.error('Failed to delete reminder');
+            } finally {
+              setDeleting(null);
+            }
           }}
         />
       )}

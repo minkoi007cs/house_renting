@@ -1,12 +1,13 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Users, Plus, Search, Phone, Mail, MapPin, Pencil, Trash2, Building2 } from 'lucide-react';
 import { Layout } from '@/components/common/Layout';
-import { PageLoader } from '@/components/common/Spinner';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
+import { SkeletonCardGrid } from '@/components/common/Skeleton';
 import { CreateTenantForm } from '@/components/forms/CreateTenantForm';
 import { useTenants } from '@/hooks/useTenants';
 import { useProperties } from '@/hooks/useProperties';
+import { toast } from '@/store/toastStore';
 import api from '@/services/api';
 import { Tenant, Unit } from '@/types';
 
@@ -80,7 +81,7 @@ export const TenantsPage = () => {
         </div>
 
         {isLoading ? (
-          <PageLoader />
+          <SkeletonCardGrid count={6} />
         ) : tenants.length === 0 ? (
           <div className="card">
             <EmptyState
@@ -162,11 +163,8 @@ export const TenantsPage = () => {
             <CreateTenantForm
               unitOptions={unitOptions}
               onUnitChange={() => {}}
-              onClose={() => {
-                setShowCreate(false);
-                setPropertyId('');
-              }}
-              onSuccess={() => fetchTenants()}
+              onClose={() => { setShowCreate(false); setPropertyId(''); }}
+              onSuccess={() => { fetchTenants(); toast.success('Tenant added'); }}
             />
           )}
         </div>
@@ -176,7 +174,7 @@ export const TenantsPage = () => {
           tenantId={editing.id}
           initialData={editing as any}
           onClose={() => setEditing(null)}
-          onSuccess={() => fetchTenants()}
+          onSuccess={() => { fetchTenants(); toast.success('Tenant updated'); }}
         />
       )}
       {deleting && (
@@ -185,8 +183,14 @@ export const TenantsPage = () => {
           message={`This will permanently remove "${deleting.name}".`}
           onCancel={() => setDeleting(null)}
           onConfirm={async () => {
-            await deleteTenant(deleting.id);
-            setDeleting(null);
+            try {
+              await deleteTenant(deleting.id);
+              toast.success(`"${deleting.name}" removed`);
+            } catch {
+              toast.error('Failed to remove tenant');
+            } finally {
+              setDeleting(null);
+            }
           }}
         />
       )}

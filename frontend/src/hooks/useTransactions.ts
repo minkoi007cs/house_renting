@@ -2,11 +2,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { Transaction } from '@/types';
 import api from '@/services/api';
 import {
-  normalizeTransactionListResponse,
-  TransactionListResponse,
+  parseTransactionListResponse,
+  EMPTY_TRANSACTION_LIST,
 } from '@/utils/transactions';
 
-interface Filters {
+export interface TransactionFilters {
   startDate?: string;
   endDate?: string;
   type?: string;
@@ -15,13 +15,8 @@ interface Filters {
   limit?: number;
 }
 
-export const useTransactions = (filters: Filters = {}) => {
-  const [data, setData] = useState<TransactionListResponse>({
-    data: [],
-    count: 0,
-    skip: 0,
-    take: Number(filters.limit ?? 50),
-  });
+export const useTransactions = (filters: TransactionFilters = {}) => {
+  const [state, setState] = useState(EMPTY_TRANSACTION_LIST);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,16 +25,17 @@ export const useTransactions = (filters: Filters = {}) => {
       setIsLoading(true);
       setError(null);
       const params: Record<string, string | number> = {};
-      Object.entries(filters).forEach(([k, v]) => {
+      (Object.entries(filters) as [string, string | number | undefined][]).forEach(([k, v]) => {
         if (v !== undefined && v !== '') params[k] = v;
       });
       const res = await api.get('/transactions', { params });
-      setData(normalizeTransactionListResponse(res.data, Number(filters.limit ?? 50)));
+      setState(parseTransactionListResponse(res.data));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch transactions');
     } finally {
       setIsLoading(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(filters)]);
 
   const updateTransaction = async (id: string, payload: Partial<Transaction>) => {
@@ -58,8 +54,11 @@ export const useTransactions = (filters: Filters = {}) => {
   }, [fetchTransactions]);
 
   return {
-    transactions: data.data,
-    total: data.count,
+    transactions: state.data,
+    total: state.total,
+    page: state.page,
+    totalPages: state.totalPages,
+    limit: state.limit,
     isLoading,
     error,
     fetchTransactions,

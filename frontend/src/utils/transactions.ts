@@ -2,42 +2,36 @@ import { Transaction } from '@/types';
 
 export interface TransactionListResponse {
   data: Transaction[];
-  count: number;
-  skip: number;
-  take: number;
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === 'object' && value !== null;
-
-const toNumber = (value: unknown, fallback: number) => {
-  const n = Number(value);
-  return Number.isFinite(n) ? n : fallback;
+export const EMPTY_TRANSACTION_LIST: TransactionListResponse = {
+  data: [],
+  total: 0,
+  page: 1,
+  limit: 50,
+  totalPages: 1,
 };
 
-export const normalizeTransactionListResponse = (
+// Parses the new nested shape:
+// { status, data: { data: Transaction[], total, page, limit, totalPages } }
+export const parseTransactionListResponse = (
   payload: unknown,
-  fallbackTake = 50,
 ): TransactionListResponse => {
-  const body = isRecord(payload) && 'data' in payload ? payload.data : payload;
-
-  if (Array.isArray(body)) {
-    return { data: body, count: body.length, skip: 0, take: fallbackTake };
-  }
-
-  if (!isRecord(body)) {
-    return { data: [], count: 0, skip: 0, take: fallbackTake };
-  }
-
-  const data = (
-    Array.isArray(body.data) ? body.data : Array.isArray(body.items) ? body.items : []
-  ) as Transaction[];
-  const pagination = isRecord(body.pagination) ? body.pagination : {};
+  if (typeof payload !== 'object' || payload === null) return EMPTY_TRANSACTION_LIST;
+  const outer = payload as Record<string, unknown>;
+  const body = (typeof outer.data === 'object' && outer.data !== null)
+    ? (outer.data as Record<string, unknown>)
+    : outer;
 
   return {
-    data,
-    count: toNumber(body.count ?? pagination.total, data.length),
-    skip: toNumber(body.skip ?? pagination.skip, 0),
-    take: toNumber(body.take ?? pagination.take, fallbackTake),
+    data: Array.isArray(body.data) ? (body.data as Transaction[]) : [],
+    total: Number(body.total ?? 0),
+    page: Number(body.page ?? 1),
+    limit: Number(body.limit ?? 50),
+    totalPages: Number(body.totalPages ?? 1),
   };
 };

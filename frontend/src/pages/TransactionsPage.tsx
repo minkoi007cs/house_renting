@@ -1,12 +1,13 @@
 import { useState, useMemo } from 'react';
-import { DollarSign, Plus, Pencil, Trash2, TrendingUp, TrendingDown, Wallet, Search } from 'lucide-react';
+import { DollarSign, Plus, Pencil, Trash2, TrendingUp, TrendingDown, Wallet, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Layout } from '@/components/common/Layout';
-import { PageLoader } from '@/components/common/Spinner';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
+import { SkeletonTable } from '@/components/common/Skeleton';
 import { CreateTransactionForm } from '@/components/forms/CreateTransactionForm';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useProperties } from '@/hooks/useProperties';
+import { toast } from '@/store/toastStore';
 import { TX_CATEGORY_LABELS } from '@/utils/labels';
 import { formatCurrency, formatDate } from '@/utils/format';
 import { Transaction } from '@/types';
@@ -14,20 +15,26 @@ import { Transaction } from '@/types';
 const INCOME_CATS = ['rent', 'service_fee', 'deposit_received', 'deposit_refund', 'other_income'];
 const EXPENSE_CATS = ['repair', 'maintenance', 'utilities', 'electricity', 'water_sewage', 'gas', 'lawn_care', 'snow_removal', 'hoa_fee', 'pest_control', 'hvac_maintenance', 'painting', 'appliance_repair', 'brokerage', 'cleaning', 'tax', 'insurance', 'other_expense'];
 
+const PAGE_LIMIT = 50;
+
 export const TransactionsPage = () => {
   const [typeFilter, setTypeFilter] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
 
-  const { transactions, total, isLoading, error, fetchTransactions, deleteTransaction } = useTransactions({
+  const { transactions, total, totalPages, isLoading, error, fetchTransactions, deleteTransaction } = useTransactions({
     type: typeFilter || undefined,
     category: categoryFilter || undefined,
     startDate: startDate || undefined,
     endDate: endDate || undefined,
-    limit: 200,
+    page,
+    limit: PAGE_LIMIT,
   });
+
+  const resetPage = () => setPage(1);
 
   const { properties } = useProperties();
 
@@ -73,7 +80,10 @@ export const TransactionsPage = () => {
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <p className="text-sm text-ink-500">
-            Showing <span className="font-semibold text-ink-800">{filtered.length}</span> of {total} transactions
+            <span className="font-semibold text-ink-800">{total}</span> transactions
+            {totalPages > 1 && (
+              <span className="ml-1">· page <span className="font-semibold text-ink-800">{page}</span> / {totalPages}</span>
+            )}
           </p>
           <button
             onClick={() => {
@@ -103,23 +113,23 @@ export const TransactionsPage = () => {
               className="input pl-9"
             />
           </div>
-          <select value={typeFilter} onChange={(e) => { setTypeFilter(e.target.value); setCategoryFilter(''); }} className="input md:w-36">
+          <select value={typeFilter} onChange={(e) => { setTypeFilter(e.target.value); setCategoryFilter(''); resetPage(); }} className="input md:w-36">
             <option value="">All types</option>
             <option value="income">Income</option>
             <option value="expense">Expense</option>
           </select>
-          <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className="input md:w-44">
+          <select value={categoryFilter} onChange={(e) => { setCategoryFilter(e.target.value); resetPage(); }} className="input md:w-44">
             <option value="">All categories</option>
             {availableCategories.map((c) => (
               <option key={c} value={c}>{TX_CATEGORY_LABELS[c] || c}</option>
             ))}
           </select>
-          <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="input md:w-40" title="From" />
-          <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="input md:w-40" title="To" />
+          <input type="date" value={startDate} onChange={(e) => { setStartDate(e.target.value); resetPage(); }} className="input md:w-40" title="From" />
+          <input type="date" value={endDate} onChange={(e) => { setEndDate(e.target.value); resetPage(); }} className="input md:w-40" title="To" />
         </div>
 
         {isLoading ? (
-          <PageLoader />
+          <SkeletonTable rows={8} cols={7} />
         ) : error ? (
           <div className="card p-6 text-center">
             <p className="text-rose-600 font-medium mb-1">Failed to load transactions</p>
@@ -195,6 +205,29 @@ export const TransactionsPage = () => {
                 </tbody>
               </table>
             </div>
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between px-5 py-3 border-t border-ink-100">
+                <p className="text-xs text-ink-400">
+                  Page {page} of {totalPages} · {total} total
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setPage((p) => p - 1)}
+                    disabled={page <= 1}
+                    className="btn-secondary py-1.5 px-3 text-xs flex items-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" /> Prev
+                  </button>
+                  <button
+                    onClick={() => setPage((p) => p + 1)}
+                    disabled={page >= totalPages}
+                    className="btn-secondary py-1.5 px-3 text-xs flex items-center gap-1 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    Next <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -215,7 +248,7 @@ export const TransactionsPage = () => {
         <CreateTransactionForm
           propertyId={createPropId}
           onClose={() => setShowCreate(false)}
-          onSuccess={() => fetchTransactions()}
+          onSuccess={() => { fetchTransactions(); toast.success('Transaction recorded'); }}
         />
       )}
 
@@ -225,10 +258,7 @@ export const TransactionsPage = () => {
           transactionId={editing.id}
           initialData={editing as any}
           onClose={() => setEditing(null)}
-          onSuccess={() => {
-            setEditing(null);
-            fetchTransactions();
-          }}
+          onSuccess={() => { setEditing(null); fetchTransactions(); toast.success('Transaction updated'); }}
         />
       )}
 
@@ -238,8 +268,14 @@ export const TransactionsPage = () => {
           message="This transaction will be permanently removed."
           onCancel={() => setDeleting(null)}
           onConfirm={async () => {
-            await deleteTransaction(deleting.id);
-            setDeleting(null);
+            try {
+              await deleteTransaction(deleting.id);
+              toast.success('Transaction deleted');
+            } catch {
+              toast.error('Failed to delete transaction');
+            } finally {
+              setDeleting(null);
+            }
           }}
         />
       )}

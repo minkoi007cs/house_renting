@@ -2,6 +2,13 @@
 
 > Mỗi turn thực (Read/Write/analysis) → PREPEND một mục `## YYYY-MM-DD HH:MM — headline` + 2–5 bullet.
 
+## 2026-07-25 — Phase 1: Pagination thật cho GET /api/transactions
+- `getAllTransactions` service: đổi params `(skip,take)` → `(page,limit)`, cap 100, bỏ fallback-to-page-1.
+- Return shape mới: `{ data, total, page, limit, totalPages }`.
+- Controller gọn lại: bỏ `toPositiveInt` helper, pass `Number(page/limit)` thẳng vào service.
+- `normalizePagination` cap: 500 → 100 (áp cho per-property endpoint).
+- TSC 0 errors · ESLint 0 errors · Jest 3/3 passed.
+
 ## 2026-07-25 — Phase 0: Vá bảo mật & ổn định backend (4 fix)
 - JWT fail-fast: bỏ fallback `'default-secret'` trong `auth.service.ts` + `jwt.guard.ts` — throw `Error` nếu `JWT_SECRET` trống.
 - CORS serverless: thay `origin: true` bằng allowlist từ env `FRONTEND_ORIGINS` (comma-separated) trong `serverless.ts`.

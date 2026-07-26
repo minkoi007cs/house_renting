@@ -9,6 +9,8 @@ import {
   Layers,
   Bell,
   ArrowRight,
+  Sparkles,
+  Plus,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -73,6 +75,41 @@ const StatCard = ({
 
 const monthLabel = (m: string) => dayjs(m + '-01').format('MMM');
 
+const ONBOARDING_STEPS = [
+  { icon: Building2, title: 'Add a property', desc: 'Start by adding your first rental property — house, apartment, or any type.' },
+  { icon: Users, title: 'Add tenants & units', desc: 'Create units inside the property, then link tenants and rental contracts.' },
+  { icon: TrendingUp, title: 'Track finances', desc: 'Record income and expenses. See reports and cash flow at a glance.' },
+];
+
+const WelcomeBanner = ({ onGo }: { onGo: () => void }) => (
+  <div className="card p-8 border-brand-100 bg-gradient-to-br from-brand-50/60 to-white">
+    <div className="flex items-center gap-2 mb-2">
+      <Sparkles className="w-5 h-5 text-brand-500" />
+      <span className="text-xs font-bold text-brand-600 uppercase tracking-wider">Getting started</span>
+    </div>
+    <h2 className="text-2xl font-bold text-ink-900 mb-1">Welcome to Renthub!</h2>
+    <p className="text-sm text-ink-500 mb-8">
+      You don't have any properties yet. Follow these steps to get up and running.
+    </p>
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+      {ONBOARDING_STEPS.map(({ icon: Icon, title, desc }, i) => (
+        <div key={i} className="flex gap-4 items-start">
+          <div className="w-9 h-9 rounded-xl bg-brand-100 text-brand-600 flex items-center justify-center flex-shrink-0 text-sm font-bold">
+            {i + 1}
+          </div>
+          <div>
+            <p className="font-semibold text-ink-800 text-sm">{title}</p>
+            <p className="text-xs text-ink-500 mt-0.5 leading-relaxed">{desc}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+    <button onClick={onGo} className="btn-primary">
+      <Plus className="w-4 h-4" /> Add your first property
+    </button>
+  </div>
+);
+
 export const DashboardPage = () => {
   const navigate = useNavigate();
   const [timeRange, setTimeRange] = useState<'month' | 'quarter' | 'year' | 'all'>('all');
@@ -114,9 +151,13 @@ export const DashboardPage = () => {
     ([name, value]) => ({ name: TX_CATEGORY_LABELS[name] || name, value }),
   );
 
+  const isNewUser = !isLoading && (s?.total_properties ?? 0) === 0;
+
   return (
     <Layout title="Dashboard">
       <div className="space-y-6">
+        {isNewUser && <WelcomeBanner onGo={() => navigate('/properties')} />}
+
         {/* Top Header & Range Switcher */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>

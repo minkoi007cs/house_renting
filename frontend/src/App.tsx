@@ -15,6 +15,7 @@ const TransactionsPage = lazy(() => import('@/pages/TransactionsPage').then((m) 
 const RemindersPage = lazy(() => import('@/pages/RemindersPage').then((m) => ({ default: m.RemindersPage })));
 const ReportsPage = lazy(() => import('@/pages/ReportsPage').then((m) => ({ default: m.ReportsPage })));
 const SettingsPage = lazy(() => import('@/pages/SettingsPage').then((m) => ({ default: m.SettingsPage })));
+const NotFoundPage = lazy(() => import('@/pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage })));
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { token, isLoading, isAuthChecked } = useAuthStore();
@@ -52,7 +53,7 @@ export function App() {
           <Route path="/reports" element={wrap(<ReportsPage />)} />
           <Route path="/settings" element={wrap(<SettingsPage />)} />
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>
     </Router>

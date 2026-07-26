@@ -11,7 +11,7 @@ export class TransactionService {
       Number.isFinite(Number(skip)) && Number(skip) > 0 ? Math.floor(Number(skip)) : 0;
     const safeTake =
       Number.isFinite(Number(take)) && Number(take) > 0
-        ? Math.min(Math.floor(Number(take)), 500)
+        ? Math.min(Math.floor(Number(take)), 100)
         : fallbackTake;
 
     return { safeSkip, safeTake };
@@ -23,10 +23,13 @@ export class TransactionService {
     endDate?: Date,
     type?: string,
     category?: string,
-    skip = 0,
-    take = 20,
+    page = 1,
+    limit = 50,
   ) {
-    const { safeSkip, safeTake } = this.normalizePagination(skip, take, 20);
+    const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
+    const safeLimit = Number.isFinite(limit) && limit > 0 ? Math.min(Math.floor(limit), 100) : 50;
+    const skip = (safePage - 1) * safeLimit;
+
     const { data: userProperties } = await this.supabase
       .from('hr_properties')
       .select('id')
@@ -34,43 +37,35 @@ export class TransactionService {
       .is('deleted_at', null);
 
     const propertyIds = (userProperties || []).map((p: any) => p.id);
-    if (propertyIds.length === 0) return { data: [], count: 0, skip: safeSkip, take: safeTake };
+    if (propertyIds.length === 0) {
+      return { data: [], total: 0, page: safePage, limit: safeLimit, totalPages: 0 };
+    }
 
-    const buildQuery = () => {
-      let query = this.supabase
-        .from('hr_transactions')
-        .select('*, property:hr_properties(id, name)', { count: 'exact' })
-        .in('property_id', propertyIds)
-        .is('deleted_at', null);
+    let query = this.supabase
+      .from('hr_transactions')
+      .select('*, property:hr_properties(id, name)', { count: 'exact' })
+      .in('property_id', propertyIds)
+      .is('deleted_at', null);
 
-      if (startDate) {
-        query = query.gte('transaction_date', startDate.toISOString().split('T')[0]);
-      }
-      if (endDate) {
-        query = query.lte('transaction_date', endDate.toISOString().split('T')[0]);
-      }
-      if (type) query = query.eq('type', type);
-      if (category) query = query.eq('category', category);
+    if (startDate) query = query.gte('transaction_date', startDate.toISOString().split('T')[0]);
+    if (endDate) query = query.lte('transaction_date', endDate.toISOString().split('T')[0]);
+    if (type) query = query.eq('type', type);
+    if (category) query = query.eq('category', category);
 
-      return query.order('transaction_date', { ascending: false });
-    };
-
-    const { data, error, count } = await buildQuery().range(safeSkip, safeSkip + safeTake - 1);
+    const { data, error, count } = await query
+      .order('transaction_date', { ascending: false })
+      .range(skip, skip + safeLimit - 1);
 
     if (error) throw error;
 
-    if ((count || 0) > 0 && (data || []).length === 0) {
-      const fallback = await buildQuery().range(0, safeTake - 1);
-      if (fallback.error) throw fallback.error;
-      return {
-        data: fallback.data || [],
-        count: fallback.count ?? count,
-        skip: 0,
-        take: safeTake,
-      };
-    }
-
-    return { data: data || [], count: count ?? 0, skip: safeSkip, take: safeTake };
+    const total = count ?? 0;
+    return {
+      data: data || [],
+      total,
+      page: safePage,
+      limit: safeLimit,
+      totalPages: Math.ceil(total / safeLimit),
+    };
   }
 
   async getGlobalSummary(userId: string, startDate?: Date, endDate?: Date) {

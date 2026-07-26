@@ -25,7 +25,6 @@ import {
   REMINDER_TYPE_LABELS, TX_CATEGORY_LABELS, PAYMENT_CYCLE_LABELS, statusBadgeClass,
 } from '@/utils/labels';
 import { formatCurrency, formatDate, formatChartYAxis } from '@/utils/format';
-import { normalizeTransactionListResponse } from '@/utils/transactions';
 import { Tenant, RentalContract, Transaction, Reminder } from '@/types';
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
@@ -379,10 +378,17 @@ const FinanceTab = ({ propertyId }: { propertyId: string }) => {
     setLoading(true);
     setFetchError(null);
     try {
-      const params: any = { limit: 200 };
+      const params: any = {};
       if (type) params.type = type;
       const res = await api.get(`/properties/${propertyId}/transactions`, { params });
-      setTransactions(normalizeTransactionListResponse(res.data, 200).data);
+      // Handles both { data: Transaction[] } and { data: { data: Transaction[], ... } }
+      const payload = res.data?.data;
+      const txList: Transaction[] = Array.isArray(payload)
+        ? payload
+        : Array.isArray(payload?.data)
+          ? payload.data
+          : [];
+      setTransactions(txList);
     } catch (err: any) {
       const msg = err?.response?.data?.message || err?.message || 'Failed to load transactions';
       setFetchError(msg);

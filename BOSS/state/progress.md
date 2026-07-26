@@ -2,6 +2,14 @@
 
 > Mỗi turn thực (Read/Write/analysis) → PREPEND một mục `## YYYY-MM-DD HH:MM — headline` + 2–5 bullet.
 
+## 2026-07-26 — Phase 1 hoàn tất (UX & lỗ hổng chức năng)
+- Hướng đổi: bỏ VPS, tập trung hoàn thiện app trên Vercel cho chuyên nghiệp, bán sau.
+- Frontend: onboarding empty-state, NotFoundPage (404 thật), Skeleton loading, toast CRUD, dọn window.confirm.
+- Backend: pagination thật GET /api/transactions → shape {status,data:{data,total,page,limit,totalPages}}, limit default 50 cap 100, bỏ cap cứng 200/500.
+- Frontend nối pagination + UI prev/next, reset page khi filter đổi; fix PropertyDetailPage import vỡ.
+- Verify: frontend build ✓, backend tsc ✓. Push branch AgentUIslate.
+- Next: Phase 2 (mobile/responsive polish) hoặc Phase 3 (export CSV/PDF, refresh token, Intl currency).
+
 ## 2026-07-24 — Audit tổng thể app + đề xuất plan subscription
 - Dispatch BACKEND_AGENT + FRONTEND_AGENT rà soát hiện trạng.
 - Kết luận: core CRUD/dashboard/reports/workspace-sharing hoàn thiện, chạy được cho demo gia đình.

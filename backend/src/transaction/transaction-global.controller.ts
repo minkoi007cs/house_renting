@@ -14,11 +14,6 @@ import { UpdateTransactionDto } from './dto/create-transaction.dto';
 import { JwtGuard } from '../common/guards/jwt.guard';
 import { WorkspaceOwnerId } from '../common/decorators/workspace-owner.decorator';
 
-const toPositiveInt = (value: unknown, fallback: number) => {
-  const n = Number(value);
-  return Number.isFinite(n) && n > 0 ? Math.floor(n) : fallback;
-};
-
 @Controller('api/transactions')
 @UseGuards(JwtGuard)
 export class TransactionGlobalController {
@@ -34,17 +29,14 @@ export class TransactionGlobalController {
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 50,
   ) {
-    const safePage = toPositiveInt(page, 1);
-    const safeLimit = Math.min(toPositiveInt(limit, 50), 500);
-    const skip = (safePage - 1) * safeLimit;
     const result = await this.transactionService.getAllTransactions(
       userId,
       startDate ? new Date(startDate) : undefined,
       endDate ? new Date(endDate) : undefined,
       type,
       category,
-      skip,
-      safeLimit,
+      Number(page),
+      Number(limit),
     );
     return { status: 'success', data: result };
   }
