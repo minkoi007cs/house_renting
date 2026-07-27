@@ -2,6 +2,13 @@
 
 > Mỗi turn thực (Read/Write/analysis) → PREPEND một mục `## YYYY-MM-DD HH:MM — headline` + 2–5 bullet.
 
+## 2026-07-27 — Phase 3 hoàn tất (đánh bóng chức năng)
+- Backend: refresh token — login trả accessToken/refreshToken/expiresIn/refreshExpiresAt (giữ token cũ), POST /auth/refresh (rotation), POST /auth/logout (revoke). Bảng mới hr_refresh_tokens. Env JWT_REFRESH_EXPIRATION_DAYS (default 30).
+- ⚠️ CHƯA CHẠY: SQL migration BACKEND_AGENT/outputs/migration_refresh_tokens.sql phải chạy tay trên Supabase trước khi deploy.
+- Frontend: Export CSV (Transactions theo filter, Reports) + Print PDF Reports; currency dùng Intl.NumberFormat extensible; so sánh kỳ DeltaBadge % (income/expense/net) trên Dashboard + Reports; interceptor silent-refresh 401 + rotation, logout gọi API revoke.
+- Verify: frontend build ✓, backend tsc ✓. Push branch AgentUIslate.
+- Next: Phase 2 (mobile/responsive polish, PWA). Phase 4 (billing) để sau.
+
 ## 2026-07-26 — Phase 1 hoàn tất (UX & lỗ hổng chức năng)
 - Hướng đổi: bỏ VPS, tập trung hoàn thiện app trên Vercel cho chuyên nghiệp, bán sau.
 - Frontend: onboarding empty-state, NotFoundPage (404 thật), Skeleton loading, toast CRUD, dọn window.confirm.

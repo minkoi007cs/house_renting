@@ -16,7 +16,7 @@ const features = [
 
 export const LoginPage = () => {
   const navigate = useNavigate();
-  const { token, setUser, setToken, setError, error } = useAuthStore();
+  const { token, setUser, setToken, setRefreshToken, setError, error } = useAuthStore();
   const googleButtonRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -57,9 +57,10 @@ export const LoginPage = () => {
       if (!response.credential) throw new Error('No credential received');
       const result = await api.post('/auth/google', { idToken: response.credential });
       if (result.data?.status === 'success') {
-        const { userId, email, name, token: jwt } = result.data.data;
+        const { userId, email, name, token: jwt, accessToken, refreshToken } = result.data.data;
         setUser({ id: userId, email, name });
-        setToken(jwt);
+        setToken(accessToken || jwt);
+        if (refreshToken) setRefreshToken(refreshToken);
         navigate('/dashboard', { replace: true });
       } else {
         throw new Error('Unexpected server response');

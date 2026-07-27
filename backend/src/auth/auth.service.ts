@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { SupabaseClient } from '@supabase/supabase-js';
 import * as jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
+import { createHash, randomBytes } from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -184,5 +185,87 @@ export class AuthService {
       .single();
     if (error || !data) throw new UnauthorizedException('User not found');
     return data;
+  }
+
+  getAccessExpiresIn(): number {
+    return parseInt(this.configService.get<string>('JWT_EXPIRATION') || '1800', 10);
+  }
+
+  private hashToken(raw: string): string {
+    return createHash('sha256').update(raw).digest('hex');
+  }
+
+  private getRefreshExpirationDays(): number {
+    return parseInt(this.configService.get<string>('JWT_REFRESH_EXPIRATION_DAYS') || '30', 10);
+  }
+
+  async generateRefreshToken(userId: string): Promise<{ token: string; expiresAt: Date }> {
+    const raw = randomBytes(40).toString('hex');
+    const tokenHash = this.hashToken(raw);
+    const days = this.getRefreshExpirationDays();
+    const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+
+    const { error } = await this.supabase
+      .from('hr_refresh_tokens')
+      .insert([{ user_id: userId, token_hash: tokenHash, expires_at: expiresAt.toISOString() }]);
+
+    if (error) throw error;
+    return { token: raw, expiresAt };
+  }
+
+  async verifyAndRotateRefreshToken(rawToken: string): Promise<{
+    accessToken: string;
+    refreshToken: string;
+    expiresIn: number;
+    refreshExpiresAt: Date;
+  }> {
+    const tokenHash = this.hashToken(rawToken);
+
+    const { data: record, error } = await this.supabase
+      .from('hr_refresh_tokens')
+      .select('id, user_id, expires_at, revoked_at')
+      .eq('token_hash', tokenHash)
+      .single();
+
+    if (error || !record) throw new UnauthorizedException('Invalid refresh token');
+    if (record.revoked_at) throw new UnauthorizedException('Refresh token has been revoked');
+    if (new Date(record.expires_at) < new Date()) {
+      throw new UnauthorizedException('Refresh token has expired');
+    }
+
+    // Revoke the used token (rotation)
+    await this.supabase
+      .from('hr_refresh_tokens')
+      .update({ revoked_at: new Date().toISOString() })
+      .eq('id', record.id);
+
+    const accessToken = this.generateJWT(record.user_id);
+    const { token: newRefreshToken, expiresAt: refreshExpiresAt } = await this.generateRefreshToken(
+      record.user_id,
+    );
+
+    return {
+      accessToken,
+      refreshToken: newRefreshToken,
+      expiresIn: this.getAccessExpiresIn(),
+      refreshExpiresAt,
+    };
+  }
+
+  async revokeRefreshToken(rawToken: string): Promise<void> {
+    const tokenHash = this.hashToken(rawToken);
+
+    const { data: record } = await this.supabase
+      .from('hr_refresh_tokens')
+      .select('id, revoked_at')
+      .eq('token_hash', tokenHash)
+      .single();
+
+    if (!record || record.revoked_at) return; // already revoked or not found — no-op
+
+    await this.supabase
+      .from('hr_refresh_tokens')
+      .update({ revoked_at: new Date().toISOString() })
+      .eq('id', record.id);
   }
 }

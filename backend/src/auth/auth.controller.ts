@@ -12,6 +12,7 @@ import { ApiOperation, ApiResponse, ApiBearerAuth, ApiBody } from '@nestjs/swagg
 import { AuthService } from './auth.service';
 import { JwtGuard } from '../common/guards/jwt.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Controller('api/auth')
 export class AuthController {
@@ -31,7 +32,9 @@ export class AuthController {
     const token = authHeader.split(' ')[1];
     const supabaseUser = await this.authService.verifySupabaseToken(token);
     const user = await this.authService.createOrUpdateUser(supabaseUser);
-    const jwtToken = this.authService.generateJWT(user.id);
+    const accessToken = this.authService.generateJWT(user.id);
+    const { token: refreshToken, expiresAt: refreshExpiresAt } =
+      await this.authService.generateRefreshToken(user.id);
 
     return {
       status: 'success',
@@ -39,7 +42,11 @@ export class AuthController {
         userId: user.id,
         email: user.email,
         name: user.name,
-        token: jwtToken,
+        token: accessToken,
+        accessToken,
+        refreshToken,
+        expiresIn: this.authService.getAccessExpiresIn(),
+        refreshExpiresAt: refreshExpiresAt.toISOString(),
       },
     };
   }
@@ -58,7 +65,9 @@ export class AuthController {
 
     const googleUser = await this.authService.verifyGoogleIdToken(body.idToken);
     const user = await this.authService.createOrUpdateGoogleUser(googleUser);
-    const jwtToken = this.authService.generateJWT(user.id);
+    const accessToken = this.authService.generateJWT(user.id);
+    const { token: refreshToken, expiresAt: refreshExpiresAt } =
+      await this.authService.generateRefreshToken(user.id);
 
     return {
       status: 'success',
@@ -66,9 +75,41 @@ export class AuthController {
         userId: user.id,
         email: user.email,
         name: user.name,
-        token: jwtToken,
+        token: accessToken,
+        accessToken,
+        refreshToken,
+        expiresIn: this.authService.getAccessExpiresIn(),
+        refreshExpiresAt: refreshExpiresAt.toISOString(),
       },
     };
+  }
+
+  @Post('refresh')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Rotate refresh token and get new access token' })
+  @ApiResponse({ status: 200, description: 'New tokens issued' })
+  @ApiResponse({ status: 401, description: 'Invalid, expired, or revoked refresh token' })
+  async refresh(@Body() dto: RefreshTokenDto) {
+    const result = await this.authService.verifyAndRotateRefreshToken(dto.refreshToken);
+    return {
+      status: 'success',
+      data: {
+        token: result.accessToken,
+        accessToken: result.accessToken,
+        refreshToken: result.refreshToken,
+        expiresIn: result.expiresIn,
+        refreshExpiresAt: result.refreshExpiresAt.toISOString(),
+      },
+    };
+  }
+
+  @Post('logout')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Revoke refresh token (logout)' })
+  @ApiResponse({ status: 200, description: 'Logged out successfully' })
+  async logout(@Body() dto: RefreshTokenDto) {
+    await this.authService.revokeRefreshToken(dto.refreshToken);
+    return { status: 'success', data: { message: 'Logged out successfully' } };
   }
 
   @Get('profile')

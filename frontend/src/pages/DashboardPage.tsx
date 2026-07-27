@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Building2,
@@ -34,6 +34,20 @@ import dayjs from 'dayjs';
 
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#8b5cf6'];
 
+const DeltaBadge = ({ pct }: { pct: number | null }) => {
+  if (pct === null) return null;
+  const label = `${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%`;
+  const cls =
+    pct > 0 ? 'bg-emerald-100 text-emerald-700'
+    : pct < 0 ? 'bg-rose-100 text-rose-700'
+    : 'bg-ink-100 text-ink-500';
+  return (
+    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none flex-shrink-0 ${cls}`}>
+      {label}
+    </span>
+  );
+};
+
 const StatCard = ({
   label,
   value,
@@ -41,6 +55,7 @@ const StatCard = ({
   icon: Icon,
   accent = 'indigo',
   onClick,
+  delta,
 }: {
   label: string;
   value: string | number;
@@ -48,6 +63,7 @@ const StatCard = ({
   icon: React.ElementType;
   accent?: string;
   onClick?: () => void;
+  delta?: number | null;
 }) => {
   const accentMap: Record<string, string> = {
     indigo: 'bg-brand-50 text-brand-600',
@@ -64,9 +80,12 @@ const StatCard = ({
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${accentMap[accent] || accentMap.indigo}`}>
         <Icon className="w-5 h-5" />
       </div>
-      <div className="min-w-0">
+      <div className="min-w-0 flex-1">
         <p className="text-sm text-ink-500 font-medium">{label}</p>
-        <p className="mt-0.5 text-2xl font-bold text-ink-900 truncate">{value}</p>
+        <div className="mt-0.5 flex items-baseline gap-2 flex-wrap">
+          <p className="text-2xl font-bold text-ink-900 truncate">{value}</p>
+          {delta !== undefined && <DeltaBadge pct={delta} />}
+        </div>
         {sub && <p className="mt-0.5 text-xs text-ink-400">{sub}</p>}
       </div>
     </div>
@@ -136,9 +155,37 @@ export const DashboardPage = () => {
   const { startDate, endDate } = getDates();
   const { stats, isLoading } = useDashboardStats(startDate, endDate);
 
+  // Previous period for comparison (disabled for "all time" — no meaningful baseline)
+  const prevDates = useMemo(() => {
+    if (timeRange === 'month') return {
+      start: dayjs().subtract(1, 'month').startOf('month').format('YYYY-MM-DD'),
+      end:   dayjs().subtract(1, 'month').endOf('month').format('YYYY-MM-DD'),
+    };
+    if (timeRange === 'quarter') {
+      const qStart = Math.floor(dayjs().month() / 3) * 3;
+      return {
+        start: dayjs().month(qStart - 3).startOf('month').format('YYYY-MM-DD'),
+        end:   dayjs().month(qStart).startOf('month').subtract(1, 'day').format('YYYY-MM-DD'),
+      };
+    }
+    if (timeRange === 'year') return {
+      start: dayjs().subtract(1, 'year').startOf('year').format('YYYY-MM-DD'),
+      end:   dayjs().subtract(1, 'year').endOf('year').format('YYYY-MM-DD'),
+    };
+    return null;
+  }, [timeRange]);
+
+  const { stats: prevStats } = useDashboardStats(prevDates?.start, prevDates?.end, !!prevDates);
+
+  const pct = (curr: number | undefined, prev: number | undefined): number | null => {
+    if (curr === undefined || prev === undefined || prev === 0) return null;
+    return ((curr - prev) / Math.abs(prev)) * 100;
+  };
+
   if (isLoading) return <Layout title="Dashboard"><PageLoader /></Layout>;
 
   const s = stats?.summary;
+  const ps = prevStats?.summary;
   const byMonth = stats?.by_month || [];
   const recentTx = stats?.recent_transactions || [];
   const upcomingReminders = stats?.upcoming_reminders || [];
@@ -219,12 +266,40 @@ export const DashboardPage = () => {
           <StatCard
             label="Net Profit"
             value={formatCurrency(s?.net_profit)}
-            sub={`Income ${formatCurrency(s?.total_income)}`}
+            sub={`Income ${formatCurrency(s?.total_income)} · Exp ${formatCurrency(s?.total_expense)}`}
             icon={s?.net_profit && s.net_profit >= 0 ? TrendingUp : TrendingDown}
             accent={s?.net_profit && s.net_profit >= 0 ? 'green' : 'red'}
             onClick={() => navigate('/transactions')}
+            delta={pct(s?.net_profit, ps?.net_profit)}
           />
         </div>
+
+        {/* Period comparison row (only for time-scoped ranges) */}
+        {prevDates && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {[
+              { label: 'Income vs prev period', curr: s?.total_income, prev: ps?.total_income, accent: 'green' },
+              { label: 'Expense vs prev period', curr: s?.total_expense, prev: ps?.total_expense, accent: 'red' },
+              { label: 'Net profit vs prev period', curr: s?.net_profit, prev: ps?.net_profit, accent: 'indigo' },
+            ].map(({ label, curr, prev, accent }) => {
+              const delta = pct(curr, prev);
+              const accMap: Record<string, string> = {
+                green: 'text-emerald-700 bg-emerald-50 border-emerald-100',
+                red: 'text-rose-700 bg-rose-50 border-rose-100',
+                indigo: 'text-brand-700 bg-brand-50 border-brand-100',
+              };
+              return (
+                <div key={label} className={`rounded-xl border px-4 py-3 flex items-center justify-between ${accMap[accent]}`}>
+                  <span className="text-xs font-medium">{label}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold">{formatCurrency(curr)}</span>
+                    <DeltaBadge pct={delta} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Charts row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

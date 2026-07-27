@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
-import { DollarSign, Plus, Pencil, Trash2, TrendingUp, TrendingDown, Wallet, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { DollarSign, Plus, Pencil, Trash2, TrendingUp, TrendingDown, Wallet, Search, ChevronLeft, ChevronRight, Download } from 'lucide-react';
+import { downloadCSV } from '@/utils/export';
 import { Layout } from '@/components/common/Layout';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
@@ -85,20 +86,42 @@ export const TransactionsPage = () => {
               <span className="ml-1">· page <span className="font-semibold text-ink-800">{page}</span> / {totalPages}</span>
             )}
           </p>
-          <button
-            onClick={() => {
-              setCreatePropId(properties[0]?.id || '');
-              if (properties.length === 1) {
-                setCreatePropId(properties[0].id);
-                setShowCreate(true);
-              } else {
-                setPropStep(true);
+          <div className="flex gap-2">
+            <button
+              onClick={() =>
+                downloadCSV(
+                  'transactions',
+                  ['Date', 'Property', 'Category', 'Note', 'Type', 'Amount'],
+                  filtered.map((t) => [
+                    t.transaction_date,
+                    t.property?.name || '',
+                    TX_CATEGORY_LABELS[t.category] || t.category,
+                    t.note || '',
+                    t.type,
+                    t.amount,
+                  ]),
+                )
               }
-            }}
-            className="btn-primary"
-          >
-            <Plus className="w-4 h-4" /> Record transaction
-          </button>
+              disabled={filtered.length === 0}
+              className="btn-secondary flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <Download className="w-4 h-4" /> Export CSV
+            </button>
+            <button
+              onClick={() => {
+                setCreatePropId(properties[0]?.id || '');
+                if (properties.length === 1) {
+                  setCreatePropId(properties[0].id);
+                  setShowCreate(true);
+                } else {
+                  setPropStep(true);
+                }
+              }}
+              className="btn-primary"
+            >
+              <Plus className="w-4 h-4" /> Record transaction
+            </button>
+          </div>
         </div>
 
         {/* Filters */}

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import dayjs from 'dayjs';
 import {
   BarChart2,
   TrendingUp,
@@ -8,12 +9,15 @@ import {
   Users,
   FileText,
   Layers,
+  Download,
+  Printer,
 } from 'lucide-react';
 import { Layout } from '@/components/common/Layout';
-import { PageLoader } from '@/components/common/Spinner';
+import { SkeletonCardGrid } from '@/components/common/Skeleton';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { TX_CATEGORY_LABELS } from '@/utils/labels';
 import { formatCurrency, formatChartYAxis } from '@/utils/format';
+import { downloadCSV, printPage } from '@/utils/export';
 import {
   AreaChart,
   Area,
@@ -32,13 +36,80 @@ import {
 
 const PIE_COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899'];
 
+const DeltaBadge = ({ pct }: { pct: number | null }) => {
+  if (pct === null) return null;
+  const label = `${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%`;
+  const cls =
+    pct > 0
+      ? 'bg-emerald-100 text-emerald-700'
+      : pct < 0
+        ? 'bg-rose-100 text-rose-700'
+        : 'bg-ink-100 text-ink-500';
+  return (
+    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none ${cls}`}>
+      {label}
+    </span>
+  );
+};
+
 export const ReportsPage = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const { stats, isLoading, fetchStats } = useDashboardStats();
+  const [appliedDates, setAppliedDates] = useState<{ start: string; end: string } | null>(null);
 
-  const handleFilter = () => {
-    fetchStats(startDate || undefined, endDate || undefined);
+  const { stats, isLoading } = useDashboardStats(appliedDates?.start, appliedDates?.end);
+
+  const prevDates = useMemo(() => {
+    if (!appliedDates?.start || !appliedDates?.end) return null;
+    const start = dayjs(appliedDates.start);
+    const end = dayjs(appliedDates.end);
+    const days = end.diff(start, 'day');
+    return {
+      start: start.subtract(days + 1, 'day').format('YYYY-MM-DD'),
+      end: start.subtract(1, 'day').format('YYYY-MM-DD'),
+    };
+  }, [appliedDates]);
+
+  const { stats: prevStats } = useDashboardStats(prevDates?.start, prevDates?.end, !!prevDates);
+
+  const pct = (curr: number | undefined, prev: number | undefined): number | null => {
+    const p = Number(prev ?? 0);
+    if (!p) return null;
+    return ((Number(curr ?? 0) - p) / Math.abs(p)) * 100;
+  };
+
+  const handleApply = () => setAppliedDates({ start: startDate, end: endDate });
+
+  const handleReset = () => {
+    setStartDate('');
+    setEndDate('');
+    setAppliedDates(null);
+  };
+
+  const handleExportCSV = () => {
+    if (!stats) return;
+    const s = stats.summary;
+    const period = appliedDates?.start
+      ? `${appliedDates.start} to ${appliedDates.end}`
+      : 'All time';
+    downloadCSV(
+      'reports_summary',
+      ['Metric', 'Value', '', ''],
+      [
+        ['Period', period, '', ''],
+        ['Total Income', s.total_income, '', ''],
+        ['Total Expense', s.total_expense, '', ''],
+        ['Net Profit', s.net_profit, '', ''],
+        ['Properties', s.total_properties, '', ''],
+        ['Units', s.total_units, '', ''],
+        ['Tenants', s.total_tenants, '', ''],
+        ['Active Contracts', s.active_contracts, '', ''],
+        ['Occupancy %', s.occupancy_rate ?? 0, '', ''],
+        [],
+        ['Month', 'Income', 'Expense', 'Net'],
+        ...stats.by_month.map((m) => [m.month, m.income, m.expense, m.income - m.expense]),
+      ],
+    );
   };
 
   const byCategory = stats?.by_category;
@@ -54,33 +125,48 @@ export const ReportsPage = () => {
   return (
     <Layout title="Reports">
       <div className="space-y-6">
-        {/* Date range filter */}
+        {/* Date range filter + actions */}
         <div className="card p-4 flex flex-wrap gap-3 items-end">
           <div>
             <label className="label">From</label>
-            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="input w-40" />
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="input w-40"
+            />
           </div>
           <div>
             <label className="label">To</label>
-            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="input w-40" />
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="input w-40"
+            />
           </div>
-          <button onClick={handleFilter} className="btn-primary">
+          <button onClick={handleApply} className="btn-primary">
             Apply
           </button>
-          <button
-            onClick={() => {
-              setStartDate('');
-              setEndDate('');
-              fetchStats();
-            }}
-            className="btn-secondary"
-          >
+          <button onClick={handleReset} className="btn-secondary">
             Reset
           </button>
+          <div className="ml-auto flex gap-2">
+            <button
+              onClick={handleExportCSV}
+              disabled={!stats}
+              className="btn-secondary flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <Download className="w-4 h-4" /> Export CSV
+            </button>
+            <button onClick={printPage} className="btn-secondary flex items-center gap-1.5">
+              <Printer className="w-4 h-4" /> Print PDF
+            </button>
+          </div>
         </div>
 
         {isLoading ? (
-          <PageLoader />
+          <SkeletonCardGrid count={8} />
         ) : !stats ? (
           <div className="card p-10 text-center text-ink-400">No data available.</div>
         ) : (
@@ -90,24 +176,32 @@ export const ReportsPage = () => {
               <KPI icon={Home} label="Properties" value={stats.summary.total_properties} tone="brand" />
               <KPI icon={Layers} label="Units" value={stats.summary.total_units} tone="blue" />
               <KPI icon={Users} label="Tenants" value={stats.summary.total_tenants} tone="purple" />
-              <KPI icon={FileText} label="Active contracts" value={stats.summary.active_contracts} tone="green" />
+              <KPI
+                icon={FileText}
+                label="Active contracts"
+                value={stats.summary.active_contracts}
+                tone="green"
+              />
               <KPI
                 icon={TrendingUp}
                 label="Total income"
                 value={formatCurrency(stats.summary.total_income)}
                 tone="green"
+                delta={pct(stats.summary.total_income, prevStats?.summary.total_income)}
               />
               <KPI
                 icon={TrendingDown}
                 label="Total expense"
                 value={formatCurrency(stats.summary.total_expense)}
                 tone="red"
+                delta={pct(stats.summary.total_expense, prevStats?.summary.total_expense)}
               />
               <KPI
                 icon={Wallet}
                 label="Net profit"
                 value={formatCurrency(stats.summary.net_profit)}
                 tone={stats.summary.net_profit >= 0 ? 'brand' : 'red'}
+                delta={pct(stats.summary.net_profit, prevStats?.summary.net_profit)}
               />
               <KPI
                 icon={BarChart2}
@@ -119,7 +213,9 @@ export const ReportsPage = () => {
 
             {/* Cash flow chart */}
             <div className="card p-5">
-              <h2 className="font-semibold text-ink-900 mb-4">Cash flow — Income vs Expense by month</h2>
+              <h2 className="font-semibold text-ink-900 mb-4">
+                Cash flow — Income vs Expense by month
+              </h2>
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={stats.by_month}>
@@ -135,11 +231,7 @@ export const ReportsPage = () => {
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                     <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} />
-                    <YAxis
-                      stroke="#94a3b8"
-                      fontSize={12}
-                      tickFormatter={formatChartYAxis}
-                    />
+                    <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={formatChartYAxis} />
                     <Tooltip
                       formatter={(v: any) => formatCurrency(v)}
                       contentStyle={{ borderRadius: 12, border: '1px solid #e2e8f0' }}
@@ -169,23 +261,17 @@ export const ReportsPage = () => {
               <h2 className="font-semibold text-ink-900 mb-4">Net profit by month</h2>
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={stats.by_month.map((m) => ({ ...m, net: m.income - m.expense }))}>
+                  <BarChart
+                    data={stats.by_month.map((m) => ({ ...m, net: m.income - m.expense }))}
+                  >
                     <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                     <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} />
-                    <YAxis
-                      stroke="#94a3b8"
-                      fontSize={12}
-                      tickFormatter={formatChartYAxis}
-                    />
+                    <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={formatChartYAxis} />
                     <Tooltip
                       formatter={(v: any) => formatCurrency(v)}
                       contentStyle={{ borderRadius: 12, border: '1px solid #e2e8f0' }}
                     />
-                    <Bar
-                      dataKey="net"
-                      radius={[4, 4, 0, 0]}
-                      fill="#6366f1"
-                    />
+                    <Bar dataKey="net" radius={[4, 4, 0, 0]} fill="#6366f1" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -208,11 +294,13 @@ const KPI = ({
   label,
   value,
   tone,
+  delta,
 }: {
   icon: any;
   label: string;
   value: string | number;
   tone: 'brand' | 'blue' | 'green' | 'red' | 'amber' | 'purple';
+  delta?: number | null;
 }) => {
   const bg: Record<string, string> = {
     brand: 'bg-brand-50 text-brand-600',
@@ -227,7 +315,10 @@ const KPI = ({
       <div className="flex items-start justify-between">
         <div>
           <p className="text-xs text-ink-400 uppercase tracking-wide font-medium">{label}</p>
-          <p className="mt-2 text-xl font-bold text-ink-900">{value}</p>
+          <div className="mt-2 flex items-center gap-2 flex-wrap">
+            <p className="text-xl font-bold text-ink-900">{value}</p>
+            {delta !== undefined && <DeltaBadge pct={delta ?? null} />}
+          </div>
         </div>
         <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${bg[tone]}`}>
           <Icon className="w-4 h-4" />
@@ -237,7 +328,13 @@ const KPI = ({
   );
 };
 
-const CategoryPie = ({ title, data }: { title: string; data: { name: string; value: number }[] }) => (
+const CategoryPie = ({
+  title,
+  data,
+}: {
+  title: string;
+  data: { name: string; value: number }[];
+}) => (
   <div className="card p-5">
     <h3 className="font-semibold text-ink-900 mb-4">{title}</h3>
     {data.length === 0 ? (

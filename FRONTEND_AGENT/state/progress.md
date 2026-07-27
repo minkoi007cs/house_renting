@@ -2,6 +2,27 @@
 
 > Mỗi turn thực (Read/Write/analysis) → PREPEND một mục `## YYYY-MM-DD HH:MM — headline` + 2–5 bullet.
 
+## 2026-07-27 — Phase 3 complete + Refresh Token (Task A+B)
+
+**Phase 3A — ReportsPage.tsx (full rewrite)**
+- Switched from imperative `fetchStats()` pattern → reactive `appliedDates` state driving `useDashboardStats(start, end)`.
+- Added `prevDates` (same span, shifted back) + second `useDashboardStats` call with `enabled=!!prevDates`.
+- `KPI` component now accepts `delta?: number | null` → renders `DeltaBadge` inline; income/expense/net_profit show % vs prev period when a date range is applied.
+- Added Export CSV button (calls `downloadCSV`) and Print PDF button (calls `printPage`); CSV includes summary block + by_month breakdown.
+- Replaced `PageLoader` with `SkeletonCardGrid`.
+
+**Phase 3B — TransactionsPage.tsx**
+- Added Export CSV button (exports current `filtered` page data: Date, Property, Category, Note, Type, Amount).
+- Disabled when `filtered.length === 0`.
+
+**Refresh Token (Task B)**
+- `authStore.ts`: added `refreshToken` state + `setRefreshToken` + `updateTokens` (silent rotation — no `isAuthChecked` reset).
+- `services/api.ts`: replaced verify-then-logout 401 flow with full refresh loop: try POST `/auth/refresh` → retry original request → flush pending queue; on refresh failure drain queue + trigger logout. Guards: `_retry` flag, `isRefreshing` queuing, `logoutScheduled` dedup.
+- `LoginPage.tsx`: extracts `accessToken`/`token` + `refreshToken` from `/auth/google` response; calls `setRefreshToken`.
+- `SettingsPage.tsx`: `handleLogout` now calls `POST /api/auth/logout` with `{ refreshToken }` before clearing local state.
+
+**Build**: ✓ `tsc && vite build` — 0 TypeScript errors, 1.64s.
+
 ## 2026-07-26 — Pagination Transactions (backend shape migration)
 - `utils/transactions.ts`: thay `TransactionListResponse` + `normalizeTransactionListResponse` → `parseTransactionListResponse` đọc shape `{ data: { data, total, page, limit, totalPages } }`.
 - `hooks/useTransactions.ts`: parse shape mới, expose `page/totalPages/limit`, bỏ fallbackTake cũ.

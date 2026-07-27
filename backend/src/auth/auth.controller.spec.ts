@@ -7,6 +7,11 @@ import { JwtGuard } from '../common/guards/jwt.guard';
 describe('AuthController', () => {
   let controller: AuthController;
 
+  const mockRefreshResult = {
+    token: 'refresh-token-raw',
+    expiresAt: new Date('2026-08-24T00:00:00.000Z'),
+  };
+
   const mockAuthService = {
     verifySupabaseToken: jest.fn(),
     createOrUpdateUser: jest.fn(),
@@ -14,6 +19,10 @@ describe('AuthController', () => {
     createOrUpdateGoogleUser: jest.fn(),
     generateJWT: jest.fn(),
     getUserById: jest.fn(),
+    generateRefreshToken: jest.fn().mockResolvedValue(mockRefreshResult),
+    getAccessExpiresIn: jest.fn().mockReturnValue(1800),
+    verifyAndRotateRefreshToken: jest.fn(),
+    revokeRefreshToken: jest.fn(),
   };
 
   const mockJwtGuard = { canActivate: jest.fn(() => true) };

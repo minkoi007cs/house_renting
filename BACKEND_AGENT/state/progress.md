@@ -2,6 +2,14 @@
 
 > Mỗi turn thực (Read/Write/analysis) → PREPEND một mục `## YYYY-MM-DD HH:MM — headline` + 2–5 bullet.
 
+## 2026-07-25 — Phase 3: Refresh token auth
+- Bảng mới `hr_refresh_tokens` (SQL artifact: BACKEND_AGENT/outputs/migration_refresh_tokens.sql).
+- Service: `generateRefreshToken` (sha256 hash + DB insert), `verifyAndRotateRefreshToken` (revoke old → issue new), `revokeRefreshToken`.
+- Controller: login `/verify` + `/google` trả thêm `accessToken`, `refreshToken`, `expiresIn`, `refreshExpiresAt`; giữ `token` backward compat.
+- Endpoint mới: `POST /api/auth/refresh` (rotate), `POST /api/auth/logout` (revoke) — không cần JwtGuard.
+- Spec cập nhật mock `generateRefreshToken` + `getAccessExpiresIn`.
+- TSC 0 · ESLint 0 · Jest 3/3.
+
 ## 2026-07-25 — Phase 1: Pagination thật cho GET /api/transactions
 - `getAllTransactions` service: đổi params `(skip,take)` → `(page,limit)`, cap 100, bỏ fallback-to-page-1.
 - Return shape mới: `{ data, total, page, limit, totalPages }`.

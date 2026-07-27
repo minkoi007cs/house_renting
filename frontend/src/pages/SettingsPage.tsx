@@ -31,7 +31,15 @@ export const SettingsPage = () => {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const storedRefreshToken = localStorage.getItem('auth_refresh_token');
+    if (storedRefreshToken) {
+      try {
+        await api.post('/auth/logout', { refreshToken: storedRefreshToken });
+      } catch {
+        // proceed with client-side logout even if server call fails
+      }
+    }
     logout();
     navigate('/login');
   };
