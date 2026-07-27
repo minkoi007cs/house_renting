@@ -100,7 +100,7 @@ const Stat = ({
       <div className="flex items-start justify-between">
         <div>
           <p className="text-xs uppercase tracking-wide text-ink-400 font-medium">{label}</p>
-          <p className="mt-1.5 text-xl font-bold text-ink-900 leading-tight">{value}</p>
+          <p className="mt-1.5 text-base sm:text-xl font-bold text-ink-900 leading-tight truncate">{value}</p>
           {sub && <p className="text-xs text-ink-400 mt-0.5">{sub}</p>}
         </div>
         <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${tones[tone]}`}>
@@ -126,7 +126,7 @@ const OverviewTab = ({ propertyId }: { propertyId: string }) => {
       <div className="card p-5">
         <h3 className="font-semibold text-ink-900 mb-4">Cash flow — last 12 months</h3>
         {(analytics?.by_month || []).length > 0 ? (
-          <div className="h-64">
+          <div className="h-48 sm:h-64">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={analytics?.by_month || []}>
                 <defs>
@@ -421,7 +421,7 @@ const FinanceTab = ({ propertyId }: { propertyId: string }) => {
         </button>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
         <Stat icon={TrendingUp} label="Income" value={formatCurrency(totals.income)} tone="green" />
         <Stat icon={TrendingDown} label="Expense" value={formatCurrency(totals.expense)} tone="red" />
         <Stat icon={Wallet} label="Net" value={formatCurrency(totals.net)} tone={totals.net >= 0 ? 'brand' : 'red'} />
@@ -438,43 +438,75 @@ const FinanceTab = ({ propertyId }: { propertyId: string }) => {
       ) : transactions.length === 0 ? (
         <EmptyState icon={DollarSign} title="No transactions" description="Record income or expenses for this property." />
       ) : (
-        <div className="overflow-x-auto -mx-5">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Category</th>
-                <th>Note</th>
-                <th>Type</th>
-                <th className="text-right">Amount</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {transactions.map((t) => (
-                <tr key={t.id}>
-                  <td>{formatDate(t.transaction_date)}</td>
-                  <td>{TX_CATEGORY_LABELS[t.category] || t.category}</td>
-                  <td className="max-w-xs truncate text-ink-500">{t.note || '—'}</td>
-                  <td>
-                    <span className={t.type === 'income' ? 'badge-green' : 'badge-red'}>
-                      {t.type === 'income' ? 'Income' : 'Expense'}
-                    </span>
-                  </td>
-                  <td className={`text-right font-semibold ${t.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}`}>
-                    {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
-                  </td>
-                  <td>
-                    <div className="flex items-center justify-end gap-1">
-                      <button onClick={() => setEditing(t)} className="p-2 hover:bg-ink-100 rounded text-ink-400"><Pencil className="w-4 h-4" /></button>
-                      <button onClick={() => setDeleting(t)} className="p-2 hover:bg-rose-50 rounded text-ink-400 hover:text-rose-600"><Trash2 className="w-4 h-4" /></button>
-                    </div>
-                  </td>
+        <>
+          {/* Mobile card list — shown below sm breakpoint */}
+          <div className="sm:hidden divide-y divide-ink-50 -mx-5">
+            {transactions.map((t) => (
+              <div key={t.id} className="px-5 py-3.5 flex items-start gap-3">
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${t.type === 'income' ? 'bg-emerald-100' : 'bg-rose-100'}`}>
+                  {t.type === 'income'
+                    ? <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
+                    : <TrendingDown className="w-3.5 h-3.5 text-rose-600" />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="font-medium text-ink-900 text-sm truncate">
+                      {TX_CATEGORY_LABELS[t.category] || t.category}
+                    </p>
+                    <p className={`font-semibold text-sm flex-shrink-0 ${t.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                      {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
+                    </p>
+                  </div>
+                  <p className="text-xs text-ink-400 mt-0.5">{formatDate(t.transaction_date)}</p>
+                  {t.note && <p className="text-xs text-ink-400 mt-0.5 truncate">{t.note}</p>}
+                </div>
+                <div className="flex items-center gap-0.5 flex-shrink-0">
+                  <button onClick={() => setEditing(t)} className="p-1.5 hover:bg-ink-100 rounded text-ink-400"><Pencil className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => setDeleting(t)} className="p-1.5 hover:bg-rose-50 rounded text-ink-400 hover:text-rose-600"><Trash2 className="w-3.5 h-3.5" /></button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop table — shown from sm breakpoint up */}
+          <div className="hidden sm:block overflow-x-auto -mx-5">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Category</th>
+                  <th>Note</th>
+                  <th>Type</th>
+                  <th className="text-right">Amount</th>
+                  <th></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {transactions.map((t) => (
+                  <tr key={t.id}>
+                    <td>{formatDate(t.transaction_date)}</td>
+                    <td>{TX_CATEGORY_LABELS[t.category] || t.category}</td>
+                    <td className="max-w-xs truncate text-ink-500">{t.note || '—'}</td>
+                    <td>
+                      <span className={t.type === 'income' ? 'badge-green' : 'badge-red'}>
+                        {t.type === 'income' ? 'Income' : 'Expense'}
+                      </span>
+                    </td>
+                    <td className={`text-right font-semibold ${t.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                      {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
+                    </td>
+                    <td>
+                      <div className="flex items-center justify-end gap-1">
+                        <button onClick={() => setEditing(t)} className="p-2 hover:bg-ink-100 rounded text-ink-400"><Pencil className="w-4 h-4" /></button>
+                        <button onClick={() => setDeleting(t)} className="p-2 hover:bg-rose-50 rounded text-ink-400 hover:text-rose-600"><Trash2 className="w-4 h-4" /></button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
 
       {showAdd && <CreateTransactionForm propertyId={propertyId} onClose={() => setShowAdd(false)} onSuccess={() => fetchAll()} />}
@@ -549,7 +581,7 @@ const ReminderTab = ({ propertyId }: { propertyId: string }) => {
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-2">
         <h3 className="font-semibold text-ink-900">{reminders.length} reminder{reminders.length !== 1 ? 's' : ''}</h3>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={generateDefaults}
             disabled={generatingDefaults}
@@ -754,8 +786,8 @@ export const PropertyDetailPage = () => {
                     key={t.key}
                     onClick={() => !disabled && setTab(t.key)}
                     disabled={disabled}
-                    title={disabled ? 'Loading unit data…' : undefined}
-                    className={`px-5 py-3.5 text-sm font-medium flex items-center gap-2 border-b-2 -mb-px transition whitespace-nowrap ${
+                    title={t.label}
+                    className={`px-3 sm:px-5 py-3.5 text-sm font-medium flex items-center gap-1.5 sm:gap-2 border-b-2 -mb-px transition whitespace-nowrap ${
                       tab === t.key
                         ? 'border-brand-600 text-brand-700'
                         : disabled
@@ -764,7 +796,7 @@ export const PropertyDetailPage = () => {
                     }`}
                   >
                     <t.icon className="w-4 h-4" />
-                    {t.label}
+                    <span className="hidden sm:inline">{t.label}</span>
                   </button>
                 );
               })}

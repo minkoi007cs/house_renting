@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Rounded purple background -->
+  <rect width="512" height="512" rx="114" fill="#7c3aed"/>
+  <!-- Roof -->
+  <polygon points="256,108 426,268 86,268" fill="white"/>
+  <!-- Chimney -->
+  <rect x="310" y="128" width="36" height="80" rx="6" fill="white" opacity="0.85"/>
+  <!-- House body -->
+  <rect x="116" y="246" width="280" height="172" rx="10" fill="white"/>
+  <!-- Door -->
+  <rect x="216" y="306" width="80" height="112" rx="10" fill="#7c3aed"/>
+  <!-- Door handle -->
+  <circle cx="286" cy="362" r="7" fill="white" opacity="0.6"/>
+  <!-- Left window -->
+  <rect x="136" y="266" width="64" height="54" rx="8" fill="#ddd6fe"/>
+  <!-- Right window -->
+  <rect x="312" y="266" width="64" height="54" rx="8" fill="#ddd6fe"/>
+</svg>

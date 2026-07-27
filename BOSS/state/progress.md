@@ -2,6 +2,14 @@
 
 > Mỗi turn thực (Read/Write/analysis) → PREPEND một mục `## YYYY-MM-DD HH:MM — headline` + 2–5 bullet.
 
+## 2026-07-27 — Phase 2 hoàn tất (mobile & responsive polish)
+- PropertyDetailPage: tab bar icon-only mobile, stat truncate, chart h-48 sm:h-64, FinanceTab card layout mobile.
+- Chart heights responsive (Reports h-48/h-44 sm:full).
+- Mobile card layout thay bảng ở TransactionsPage + ContractsPage + FinanceTab (sm:hidden card / hidden sm:block table + overflow-x-auto). Không còn scroll ngang toàn trang @375px.
+- PWA: vite-plugin-pwa, manifest + icon.svg tím, theme #7c3aed, standalone, precache 46 files (offline app shell). apple-touch-icon cho iOS.
+- Verify: frontend build ✓. Push branch AgentUIslate.
+- Còn lại: Phase 4 (billing/subscription) — chờ user quyết cổng thanh toán + mô hình giá.
+
 ## 2026-07-27 — Phase 3 hoàn tất (đánh bóng chức năng)
 - Backend: refresh token — login trả accessToken/refreshToken/expiresIn/refreshExpiresAt (giữ token cũ), POST /auth/refresh (rotation), POST /auth/logout (revoke). Bảng mới hr_refresh_tokens. Env JWT_REFRESH_EXPIRATION_DAYS (default 30).
 - ⚠️ CHƯA CHẠY: SQL migration BACKEND_AGENT/outputs/migration_refresh_tokens.sql phải chạy tay trên Supabase trước khi deploy.

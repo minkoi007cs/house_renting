@@ -216,7 +216,7 @@ export const ReportsPage = () => {
               <h2 className="font-semibold text-ink-900 mb-4">
                 Cash flow — Income vs Expense by month
               </h2>
-              <div className="h-72">
+              <div className="h-48 sm:h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={stats.by_month}>
                     <defs>
@@ -259,7 +259,7 @@ export const ReportsPage = () => {
             {/* Monthly bar chart */}
             <div className="card p-5">
               <h2 className="font-semibold text-ink-900 mb-4">Net profit by month</h2>
-              <div className="h-56">
+              <div className="h-44 sm:h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={stats.by_month.map((m) => ({ ...m, net: m.income - m.expense }))}

@@ -174,7 +174,48 @@ export const TransactionsPage = () => {
           </div>
         ) : (
           <div className="card overflow-hidden">
-            <div className="overflow-x-auto">
+            {/* Mobile card list — shown below sm breakpoint */}
+            <div className="sm:hidden divide-y divide-ink-50">
+              {filtered.map((t) => (
+                <div key={t.id} className="px-4 py-3.5 flex items-start gap-3">
+                  <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                      t.type === 'income' ? 'bg-emerald-100' : 'bg-rose-100'
+                    }`}
+                  >
+                    {t.type === 'income'
+                      ? <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
+                      : <TrendingDown className="w-3.5 h-3.5 text-rose-600" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-medium text-ink-900 text-sm truncate">
+                        {TX_CATEGORY_LABELS[t.category] || t.category}
+                      </p>
+                      <p className={`font-semibold text-sm flex-shrink-0 ${t.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                        {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-x-2 mt-0.5 text-xs text-ink-400">
+                      <span>{formatDate(t.transaction_date)}</span>
+                      {t.property?.name && <span>· {t.property.name}</span>}
+                    </div>
+                    {t.note && <p className="text-xs text-ink-400 mt-0.5 truncate">{t.note}</p>}
+                  </div>
+                  <div className="flex items-center gap-0.5 flex-shrink-0">
+                    <button onClick={() => setEditing(t)} className="p-1.5 hover:bg-ink-100 rounded text-ink-400">
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                    <button onClick={() => setDeleting(t)} className="p-1.5 hover:bg-rose-50 rounded text-ink-400 hover:text-rose-600">
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop table — shown from sm breakpoint up */}
+            <div className="hidden sm:block overflow-x-auto">
               <table className="table">
                 <thead>
                   <tr>
@@ -199,26 +240,15 @@ export const TransactionsPage = () => {
                           {t.type === 'income' ? 'Income' : 'Expense'}
                         </span>
                       </td>
-                      <td
-                        className={`text-right font-semibold ${
-                          t.type === 'income' ? 'text-emerald-600' : 'text-rose-600'
-                        }`}
-                      >
-                        {t.type === 'income' ? '+' : '-'}
-                        {formatCurrency(t.amount)}
+                      <td className={`text-right font-semibold ${t.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                        {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
                       </td>
                       <td>
                         <div className="flex items-center justify-end gap-1">
-                          <button
-                            onClick={() => setEditing(t)}
-                            className="p-2 hover:bg-ink-100 rounded text-ink-400"
-                          >
+                          <button onClick={() => setEditing(t)} className="p-2 hover:bg-ink-100 rounded text-ink-400">
                             <Pencil className="w-4 h-4" />
                           </button>
-                          <button
-                            onClick={() => setDeleting(t)}
-                            className="p-2 hover:bg-rose-50 rounded text-ink-400 hover:text-rose-600"
-                          >
+                          <button onClick={() => setDeleting(t)} className="p-2 hover:bg-rose-50 rounded text-ink-400 hover:text-rose-600">
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
@@ -228,6 +258,7 @@ export const TransactionsPage = () => {
                 </tbody>
               </table>
             </div>
+
             {totalPages > 1 && (
               <div className="flex items-center justify-between px-5 py-3 border-t border-ink-100">
                 <p className="text-xs text-ink-400">

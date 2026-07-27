@@ -2,6 +2,30 @@
 
 > Mỗi turn thực (Read/Write/analysis) → PREPEND một mục `## YYYY-MM-DD HH:MM — headline` + 2–5 bullet.
 
+## 2026-07-27 — Phase 2: Mobile & Responsive polish + PWA
+
+**Layout.tsx**: `p-6` → `p-4 sm:p-6` — reduced mobile content padding.
+
+**PropertyDetailPage.tsx** (5 fixes):
+- Tab bar: `px-3 sm:px-5` padding + `<span className="hidden sm:inline">` on labels → icon-only tabs on mobile, full labels on ≥640px. `title={t.label}` for tooltip.
+- Stat component value: `text-xl` → `text-base sm:text-xl` + `truncate` — prevents overflow on narrow cards.
+- OverviewTab chart: `h-64` → `h-48 sm:h-64`.
+- FinanceTab stat row: `gap-3` → `gap-2 sm:gap-3`.
+- ReminderTab header: added `flex-wrap` so "Generate defaults" + "Add reminder" wrap on narrow screens.
+
+**ReportsPage.tsx** (2 fixes):
+- Cash flow chart: `h-72` → `h-48 sm:h-72`.
+- Net profit chart: `h-56` → `h-44 sm:h-56`.
+
+**PWA**:
+- Installed `vite-plugin-pwa@0.21.0` (devDependency).
+- `vite.config.ts`: added `VitePWA({ registerType: 'autoUpdate' })` with manifest (name, short_name, theme_color #7c3aed, icons: icon.svg), workbox precache of all static assets + navigateFallback to index.html + CacheFirst for Google Fonts.
+- Created `public/icon.svg` — house icon on purple (#7c3aed) rounded-square background.
+- `index.html`: added `<link rel="apple-touch-icon" href="/icon.svg">`.
+- Build outputs: `dist/sw.js`, `dist/workbox-*.js`, `dist/manifest.webmanifest`, `dist/registerSW.js`.
+
+**Build**: ✓ `tsc && vite build` — 0 TypeScript errors, 1.72s. PWA v0.21.0 precached 46 entries (904 KiB).
+
 ## 2026-07-27 — Phase 3 complete + Refresh Token (Task A+B)
 
 **Phase 3A — ReportsPage.tsx (full rewrite)**

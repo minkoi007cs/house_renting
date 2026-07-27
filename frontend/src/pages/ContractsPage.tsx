@@ -102,7 +102,49 @@ export const ContractsPage = () => {
           </div>
         ) : (
           <div className="card overflow-hidden">
-            <div className="overflow-x-auto">
+            {/* Mobile card list — shown below sm breakpoint */}
+            <div className="sm:hidden divide-y divide-ink-50">
+              {contracts.map((c) => {
+                const unit = c.unit;
+                const property = unit?.property;
+                return (
+                  <div key={c.id} className="px-4 py-3.5">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Building2 className="w-4 h-4 text-ink-400 flex-shrink-0" />
+                        <div className="min-w-0">
+                          <p className="font-medium text-ink-900 text-sm truncate">{property?.name || '—'}</p>
+                          <p className="text-xs text-ink-500">{unit?.name || '—'}</p>
+                        </div>
+                      </div>
+                      <span className={`${statusBadgeClass(c.status)} flex-shrink-0`}>
+                        {CONTRACT_STATUS_LABELS[c.status]}
+                      </span>
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-ink-500">
+                      <span className="flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {formatDate(c.start_date)} → {c.end_date ? formatDate(c.end_date) : 'open'}
+                      </span>
+                      <span className="font-semibold text-ink-800">
+                        {formatCurrency(c.rent_amount)} / {PAYMENT_CYCLE_LABELS[c.payment_cycle] || c.payment_cycle}
+                      </span>
+                    </div>
+                    <div className="mt-2 flex justify-end gap-1">
+                      <button onClick={() => setEditing(c)} className="p-1.5 hover:bg-ink-100 rounded text-ink-400">
+                        <Pencil className="w-3.5 h-3.5" />
+                      </button>
+                      <button onClick={() => setDeleting(c)} className="p-1.5 hover:bg-rose-50 rounded text-ink-400 hover:text-rose-600">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop table — shown from sm breakpoint up */}
+            <div className="hidden sm:block overflow-x-auto">
               <table className="table">
                 <thead>
                   <tr>
@@ -144,16 +186,10 @@ export const ContractsPage = () => {
                         </td>
                         <td>
                           <div className="flex items-center justify-end gap-1">
-                            <button
-                              onClick={() => setEditing(c)}
-                              className="p-2 hover:bg-ink-100 rounded text-ink-400"
-                            >
+                            <button onClick={() => setEditing(c)} className="p-2 hover:bg-ink-100 rounded text-ink-400">
                               <Pencil className="w-4 h-4" />
                             </button>
-                            <button
-                              onClick={() => setDeleting(c)}
-                              className="p-2 hover:bg-rose-50 rounded text-ink-400 hover:text-rose-600"
-                            >
+                            <button onClick={() => setDeleting(c)} className="p-2 hover:bg-rose-50 rounded text-ink-400 hover:text-rose-600">
                               <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
