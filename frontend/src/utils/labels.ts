@@ -91,3 +91,14 @@ export const statusBadgeClass = (status: string): string => {
   };
   return map[status] || 'badge-gray';
 };
+
+export const PAYMENT_METHOD_LABELS: Record<string, string> = {
+  zelle: 'Zelle®',
+  venmo: 'Venmo',
+  check: 'Check / Money Order',
+  ach: 'ACH / Direct Deposit',
+  cash: 'Cash',
+  wire: 'Wire Transfer',
+  credit_card: 'Credit Card',
+  other: 'Other',
+};

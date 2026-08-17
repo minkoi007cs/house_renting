@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
-import { DollarSign, Plus, Pencil, Trash2, TrendingUp, TrendingDown, Wallet, Search, ChevronLeft, ChevronRight, Download } from 'lucide-react';
+import { DollarSign, Plus, Pencil, Trash2, TrendingUp, TrendingDown, Wallet, Search, ChevronLeft, ChevronRight, Download, Printer } from 'lucide-react';
 import { downloadCSV } from '@/utils/export';
+import { printRentReceipt } from '@/utils/pdfReceipt';
 import { Layout } from '@/components/common/Layout';
 import { EmptyState } from '@/components/common/EmptyState';
 import { ConfirmDialog } from '@/components/common/ConfirmDialog';
@@ -245,6 +246,26 @@ export const TransactionsPage = () => {
                       </td>
                       <td>
                         <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={() =>
+                              printRentReceipt({
+                                receiptNumber: `REC-${t.id.substring(0, 8).toUpperCase()}`,
+                                date: t.transaction_date,
+                                propertyName: t.property?.name || 'Property',
+                                landlordName: 'Property Manager',
+                                tenantName: 'Tenant',
+                                amount: Number(t.amount),
+                                category: t.category,
+                                paymentMethod: (t as any).payment_method || 'zelle',
+                                notes: t.note || undefined,
+                                status: 'paid',
+                              })
+                            }
+                            title="Print / Export PDF Receipt"
+                            className="p-2 hover:bg-brand-50 rounded text-ink-400 hover:text-brand-600"
+                          >
+                            <Printer className="w-4 h-4" />
+                          </button>
                           <button onClick={() => setEditing(t)} className="p-2 hover:bg-ink-100 rounded text-ink-400">
                             <Pencil className="w-4 h-4" />
                           </button>

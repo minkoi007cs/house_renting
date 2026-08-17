@@ -2,6 +2,16 @@
 
 > Mỗi turn thực (Read/Write/analysis) → PREPEND một mục `## YYYY-MM-DD HH:MM — headline` + 2–5 bullet.
 
+## 2026-07-28 — Reminder email notifications (Gmail SMTP + cron)
+- Packages: `nodemailer`, `@nestjs/schedule`, `@types/nodemailer`.
+- `MailModule` (global): `MailService` dùng Nodemailer Gmail SMTP, graceful skip nếu env thiếu.
+- `ReminderSchedulerService`: cron `0 8 * * *`, query reminders due today/tomorrow + `notified_at IS NULL`, gửi mail + update `notified_at`.
+- SQL artifact: `migration_add_notified_at.sql` (thêm cột `notified_at` + partial index).
+- `AppModule`: thêm `ScheduleModule.forRoot()` + `MailModule`.
+- `ReminderModule`: thêm `ReminderSchedulerService` vào providers.
+- `.env.example`: thêm `GMAIL_USER`, `GMAIL_APP_PASSWORD`, `JWT_REFRESH_EXPIRATION_DAYS`, `FRONTEND_ORIGINS`.
+- TSC 0 · ESLint 0 · Jest 3/3.
+
 ## 2026-07-25 — Phase 3: Refresh token auth
 - Bảng mới `hr_refresh_tokens` (SQL artifact: BACKEND_AGENT/outputs/migration_refresh_tokens.sql).
 - Service: `generateRefreshToken` (sha256 hash + DB insert), `verifyAndRotateRefreshToken` (revoke old → issue new), `revokeRefreshToken`.

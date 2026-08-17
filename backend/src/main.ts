@@ -3,11 +3,24 @@ import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
+import helmet from 'helmet';
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.use(helmet({
+    contentSecurityPolicy: false, // Disable for swagger docs compatibility
+    crossOriginEmbedderPolicy: false,
+  }));
+
+  const allowedOrigins = [
+    process.env.FRONTEND_URL || 'http://localhost:5173',
+    ...(process.env.FRONTEND_ORIGINS ? process.env.FRONTEND_ORIGINS.split(',') : []),
+    /\.vercel\.app$/, // Allow Vercel preview deployments
+  ];
+
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+    origin: allowedOrigins,
     credentials: true,
   });
 

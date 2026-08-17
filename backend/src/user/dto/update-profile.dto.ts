@@ -10,6 +10,6 @@ export class UpdateProfileDto {
   avatar_url?: string;
 
   @IsOptional()
-  @IsIn(['VND', 'USD'])
+  @IsIn(['USD', 'EUR', 'CAD', 'GBP', 'MXN'])
   currency?: string;
 }
