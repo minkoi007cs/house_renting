@@ -91,7 +91,7 @@ export const CreateTransactionForm = ({
     <Modal title={isEdit ? 'Edit Transaction' : 'Record Transaction'} onClose={onClose}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">{error}</div>
+          <div className="p-3 bg-rose-950/60 border border-rose-800/80 rounded-lg text-rose-400 text-sm">{error}</div>
         )}
 
         <div>
@@ -105,9 +105,9 @@ export const CreateTransactionForm = ({
                 className={`flex-1 py-2 rounded-lg border text-sm font-medium transition ${
                   txType === t
                     ? t === 'income'
-                      ? 'bg-emerald-50 border-emerald-400 text-emerald-700'
-                      : 'bg-red-50 border-red-400 text-red-700'
-                    : 'border-ink-200 text-ink-500 hover:bg-ink-50'
+                      ? 'bg-emerald-950/60 border-emerald-500 text-emerald-400 font-bold'
+                      : 'bg-rose-950/60 border-rose-500 text-rose-400 font-bold'
+                    : 'border-[#3d301d] text-[#f4ede0]/60 hover:bg-[#0b1222]'
                 }`}
               >
                 {t === 'income' ? '+ Income' : '− Expense'}
@@ -124,14 +124,14 @@ export const CreateTransactionForm = ({
               <option key={c} value={c}>{TX_CATEGORY_LABELS[c] || c}</option>
             ))}
           </select>
-          {errors.category && <p className="mt-1 text-xs text-red-500">{errors.category.message}</p>}
+          {errors.category && <p className="mt-1 text-xs text-rose-400">{errors.category.message}</p>}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="label">Amount ({currency}) *</label>
             <input {...register('amount')} type="number" min="0" className="input" placeholder="0" />
-            {errors.amount && <p className="mt-1 text-xs text-red-500">{errors.amount.message}</p>}
+            {errors.amount && <p className="mt-1 text-xs text-rose-400">{errors.amount.message}</p>}
           </div>
           <div>
             <label className="label">Date *</label>

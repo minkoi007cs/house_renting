@@ -82,18 +82,18 @@ export const WorkspaceSwitcher = () => {
         onClick={() => setIsOpen(!isOpen)}
         className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
           activeOwnerId === null
-            ? 'bg-ink-50 border-ink-200 text-ink-700 hover:bg-ink-100'
-            : 'bg-brand-50 border-brand-200 text-brand-700 hover:bg-brand-100/50'
+            ? 'bg-[#111a2e] border-[#3d301d] text-[#f4ede0] hover:border-[#c9a96e]/50'
+            : 'bg-[#c9a96e]/15 border-[#c9a96e] text-[#c9a96e] hover:bg-[#c9a96e]/25'
         } hover:scale-[1.02] active:scale-[0.98]`}
       >
-        <Briefcase className="w-3.5 h-3.5" />
+        <Briefcase className="w-3.5 h-3.5 text-[#c9a96e]" />
         <span className="max-w-[120px] truncate">{activeName}</span>
         {activeOwnerId !== null && (
-          <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-brand-200/50 text-brand-800">
+          <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-[#c9a96e] text-[#0b1222]">
             {activeRole}
           </span>
         )}
-        <ChevronDown className="w-3.5 h-3.5 opacity-60" />
+        <ChevronDown className="w-3.5 h-3.5 opacity-60 text-[#c9a96e]" />
       </button>
 
       {isOpen && (
@@ -101,8 +101,8 @@ export const WorkspaceSwitcher = () => {
           {/* Backdrop to close the switcher */}
           <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} />
           
-          <div className="absolute right-0 mt-1.5 w-60 bg-white rounded-2xl border border-ink-150 shadow-lg py-2 z-20 overflow-hidden animate-fade-in">
-            <p className="px-4 py-1.5 text-[10px] font-bold text-ink-400 uppercase tracking-wider">
+          <div className="absolute right-0 mt-1.5 w-60 bg-[#111a2e] rounded-xl border border-[#3d301d] shadow-2xl py-2 z-20 overflow-hidden animate-fade-in text-[#f4ede0]">
+            <p className="px-4 py-1.5 text-[10px] font-bold text-[#c9a96e] uppercase tracking-wider">
               Select Workspace
             </p>
             
@@ -111,14 +111,14 @@ export const WorkspaceSwitcher = () => {
               onClick={() => handleSelect(null)}
               className={`w-full flex items-center gap-2.5 px-4 py-2 text-left text-xs font-semibold transition-all ${
                 activeOwnerId === null
-                  ? 'bg-brand-50/50 text-brand-700'
-                  : 'text-ink-700 hover:bg-ink-50'
+                  ? 'bg-[#c9a96e]/15 text-[#c9a96e]'
+                  : 'text-[#f4ede0]/80 hover:bg-[#0b1222] hover:text-[#f4ede0]'
               }`}
             >
-              <User className="w-4 h-4 opacity-70" />
+              <User className="w-4 h-4 opacity-70 text-[#c9a96e]" />
               <div className="flex-1 min-w-0">
                 <p className="truncate">Personal Workspace</p>
-                <p className="text-[10px] text-ink-400 font-normal mt-0.5">Your properties and units</p>
+                <p className="text-[10px] text-[#f4ede0]/50 font-normal mt-0.5">Your properties and units</p>
               </div>
             </button>
 
@@ -129,14 +129,14 @@ export const WorkspaceSwitcher = () => {
                 onClick={() => handleSelect(ws)}
                 className={`w-full flex items-center gap-2.5 px-4 py-2 text-left text-xs font-semibold transition-all ${
                   activeOwnerId === ws.inviter.id
-                    ? 'bg-brand-50/50 text-brand-700'
-                    : 'text-ink-700 hover:bg-ink-50'
+                    ? 'bg-[#c9a96e]/15 text-[#c9a96e]'
+                    : 'text-[#f4ede0]/80 hover:bg-[#0b1222] hover:text-[#f4ede0]'
                 }`}
               >
-                <ShieldCheck className="w-4 h-4 opacity-70" />
+                <ShieldCheck className="w-4 h-4 opacity-70 text-[#c9a96e]" />
                 <div className="flex-1 min-w-0">
                   <p className="truncate">{ws.inviter.name || ws.inviter.email}</p>
-                  <p className="text-[10px] text-ink-400 font-normal mt-0.5">
+                  <p className="text-[10px] text-[#f4ede0]/50 font-normal mt-0.5">
                     Workspace Owner • {ws.role === 'editor' ? 'Can Edit' : 'Read-only'}
                   </p>
                 </div>
@@ -144,7 +144,7 @@ export const WorkspaceSwitcher = () => {
             ))}
 
             {workspaces.length === 0 && (
-              <p className="px-4 py-3 text-[11px] text-ink-400 text-center italic border-t border-ink-50 mt-1">
+              <p className="px-4 py-3 text-[11px] text-[#f4ede0]/40 text-center italic border-t border-[#3d301d] mt-1">
                 No joined shared workspaces.
               </p>
             )}

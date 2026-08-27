@@ -77,7 +77,7 @@ export const CreateTenantForm = ({
     <Modal title={isEdit ? 'Edit Tenant' : 'Add Tenant'} onClose={onClose}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">{error}</div>
+          <div className="p-3 bg-rose-950/60 border border-rose-800/80 rounded-lg text-rose-400 text-sm">{error}</div>
         )}
 
         {!isEdit && unitOptions && unitOptions.length > 0 && (
@@ -102,7 +102,7 @@ export const CreateTenantForm = ({
         <div>
           <label className="label">Full name *</label>
           <input {...register('name')} className="input" placeholder="John Doe" />
-          {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name.message}</p>}
+          {errors.name && <p className="mt-1 text-xs text-rose-400">{errors.name.message}</p>}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -113,7 +113,7 @@ export const CreateTenantForm = ({
           <div>
             <label className="label">Email</label>
             <input {...register('email')} type="email" className="input" placeholder="email@example.com" />
-            {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
+            {errors.email && <p className="mt-1 text-xs text-rose-400">{errors.email.message}</p>}
           </div>
         </div>
 

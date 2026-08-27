@@ -11,7 +11,7 @@ export const Spinner = ({ className, size = 'md' }: Props) => {
     <div
       className={clsx(
         s,
-        'animate-spin rounded-full border-2 border-ink-200 border-t-brand-600',
+        'animate-spin rounded-full border-2 border-[#3d301d] border-t-[#c9a96e]',
         className,
       )}
     />

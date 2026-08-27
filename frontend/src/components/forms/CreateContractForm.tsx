@@ -78,7 +78,7 @@ export const CreateContractForm = ({
     <Modal title={isEdit ? 'Edit Contract' : 'New Contract'} onClose={onClose} size="lg">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {error && (
-          <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-600 text-sm">{error}</div>
+          <div className="p-3 bg-rose-950/60 border border-rose-800/80 rounded-lg text-rose-400 text-sm">{error}</div>
         )}
 
         {!isEdit && unitOptions && unitOptions.length > 0 && (
@@ -101,7 +101,7 @@ export const CreateContractForm = ({
           <div>
             <label className="label">Start date *</label>
             <input {...register('start_date')} type="date" className="input" />
-            {errors.start_date && <p className="mt-1 text-xs text-rose-500">{errors.start_date.message}</p>}
+            {errors.start_date && <p className="mt-1 text-xs text-rose-400">{errors.start_date.message}</p>}
           </div>
           <div>
             <label className="label">End date</label>
@@ -117,7 +117,7 @@ export const CreateContractForm = ({
           <div>
             <label className="label">Rent ({currency}) *</label>
             <input {...register('rent_amount')} type="number" className="input" placeholder="1500" />
-            {errors.rent_amount && <p className="mt-1 text-xs text-rose-500">{errors.rent_amount.message}</p>}
+            {errors.rent_amount && <p className="mt-1 text-xs text-rose-400">{errors.rent_amount.message}</p>}
           </div>
           <div>
             <label className="label">Security Deposit ({currency})</label>
@@ -145,7 +145,7 @@ export const CreateContractForm = ({
               className="input"
               placeholder="e.g. 5"
             />
-            <p className="mt-0.5 text-xs text-ink-400">Day of month 1–31</p>
+            <p className="mt-0.5 text-xs text-[#f4ede0]/50">Day of month 1–31</p>
           </div>
           <div>
             <label className="label">Status</label>
