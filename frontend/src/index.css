@@ -1,81 +1,139 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:ital,opsz,wght@0,14..32,300..700;1,14..32,300..700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --background: hsl(220, 43%, 9%);          /* #0b1222 midnight navy */
+  --foreground: hsl(34, 33%, 92%);           /* #f4ede0 warm cream */
+  --primary: hsl(38, 48%, 60%);              /* #c9a96e antique gold */
+  --primary-foreground: hsl(220, 43%, 9%);   /* navy — text on gold buttons */
+  --muted-foreground: hsl(34, 20%, 65%);     /* muted warm grey */
+  --border: hsl(38, 30%, 22%);               /* dark gold border */
+  --card: hsl(220, 40%, 12%);                /* slightly lighter card bg */
+  --card-glass: rgba(244, 237, 224, 0.06);   /* glassmorphism card base */
+  --accent: hsl(38, 48%, 60%);               /* antique gold accent */
+}
+
 @layer base {
-  *, *::before, *::after { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-  body { @apply bg-ink-50 text-ink-800 font-sans antialiased; }
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  html {
+    scroll-behavior: smooth;
+    font-family: 'Inter', sans-serif;
+  }
+  body {
+    background-color: #0b1222;
+    color: #f4ede0;
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    line-height: 1.75;
+    letter-spacing: 0.01em;
+    overflow-x: hidden;
+  }
+
+  h1, h2 {
+    font-family: 'Libre Baskerville', Georgia, serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-family: 'Libre Baskerville', serif;
+    font-style: italic;
+    font-weight: 400;
+  }
 }
 
 @layer components {
   /* Buttons */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-all duration-200 ease-out disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.97];
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-all duration-200 ease-out disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.97];
   }
   .btn-primary {
-    @apply btn bg-brand-600 text-white hover:bg-brand-700 hover:shadow-lg hover:shadow-brand-500/20 shadow-sm shadow-brand-900/10;
+    @apply btn bg-[#c9a96e] text-[#0b1222] hover:bg-[#d6b87e] hover:shadow-[0_0_20px_rgba(201,169,110,0.35)] shadow-md;
   }
   .btn-secondary {
-    @apply btn bg-white text-ink-700 border border-ink-200/80 hover:bg-brand-50/40 hover:border-brand-200 hover:text-brand-700;
+    @apply btn bg-[#111a2e] text-[#f4ede0] border border-[#3d301d] hover:bg-[#18243e] hover:border-[#c9a96e] hover:text-[#c9a96e];
   }
   .btn-ghost {
-    @apply btn text-ink-600 hover:bg-brand-50/50 hover:text-brand-700;
+    @apply btn text-[#f4ede0]/80 hover:bg-[#111a2e] hover:text-[#c9a96e];
   }
   .btn-danger {
-    @apply btn bg-rose-500 text-white hover:bg-rose-600 hover:shadow-lg hover:shadow-rose-500/15 shadow-sm shadow-rose-950/10;
+    @apply btn bg-rose-900/40 text-rose-300 border border-rose-800/60 hover:bg-rose-900/60 hover:shadow-lg hover:shadow-rose-900/30;
   }
 
   /* Cards */
   .card {
-    @apply bg-white rounded-2xl border border-ink-100/70 shadow-[0_8px_30px_rgb(0,0,0,0.02)] transition-all duration-300;
+    @apply bg-[#111a2e]/90 rounded-2xl border border-[#3d301d] shadow-[0_8px_30px_rgb(0,0,0,0.4)] backdrop-blur-md transition-all duration-300 text-[#f4ede0];
   }
   .card-hover {
-    @apply card hover:shadow-[0_12px_40px_rgba(124,58,237,0.06)] hover:border-brand-200 hover:-translate-y-0.5 cursor-pointer;
+    @apply card hover:shadow-[0_12px_40px_rgba(201,169,110,0.18)] hover:border-[#c9a96e]/60 hover:-translate-y-0.5 cursor-pointer;
   }
 
-  /* Form */
+  /* Form Inputs */
   .input {
-    @apply w-full rounded-xl border border-ink-200/80 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 focus:border-brand-400 focus:ring-4 focus:ring-brand-100 focus:outline-none transition-all duration-200;
+    @apply w-full rounded-xl border border-[#3d301d] bg-[#0b1222] px-3.5 py-2.5 text-sm text-[#f4ede0] placeholder:text-[#f4ede0]/40 focus:border-[#c9a96e] focus:ring-2 focus:ring-[#c9a96e]/20 focus:outline-none transition-all duration-200;
   }
   .label {
-    @apply block text-[11px] font-bold text-ink-400 uppercase tracking-wider mb-2;
+    @apply block text-[11px] font-bold text-[#c9a96e] uppercase tracking-widest mb-2 font-sans;
   }
 
   /* Badges */
   .badge {
-    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold transition-all duration-200;
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold transition-all duration-200 border;
   }
-  .badge-green  { @apply badge bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/80; }
-  .badge-amber  { @apply badge bg-amber-50 text-amber-700 ring-1 ring-amber-200/80; }
-  .badge-red    { @apply badge bg-rose-50 text-rose-700 ring-1 ring-rose-200/80; }
-  .badge-blue   { @apply badge bg-brand-50 text-brand-700 ring-1 ring-brand-200/80; }
-  .badge-gray   { @apply badge bg-ink-100 text-ink-600 ring-1 ring-ink-200/80; }
-  .badge-purple { @apply badge bg-violet-50 text-violet-700 ring-1 ring-violet-200/80; }
+  .badge-green  { @apply badge bg-emerald-950/40 text-emerald-400 border-emerald-800/60; }
+  .badge-amber  { @apply badge bg-amber-950/40 text-amber-400 border-amber-800/60; }
+  .badge-red    { @apply badge bg-rose-950/40 text-rose-400 border-rose-800/60; }
+  .badge-blue   { @apply badge bg-sky-950/40 text-sky-400 border-sky-800/60; }
+  .badge-gray   { @apply badge bg-[#0b1222] text-[#f4ede0]/70 border-[#3d301d]; }
+  .badge-purple { @apply badge bg-[#c9a96e]/15 text-[#c9a96e] border-[#c9a96e]/40; }
 
   /* Table */
   .table { @apply min-w-full text-sm text-left; }
   .table thead th {
-    @apply px-5 py-3 text-[10px] font-bold uppercase tracking-wider text-ink-400 bg-ink-50/60 border-b border-ink-100/80;
+    @apply px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-[#c9a96e] bg-[#0b1222] border-b border-[#3d301d];
   }
   .table tbody td {
-    @apply px-5 py-4 border-b border-ink-50/60 text-ink-700 transition-colors duration-150;
+    @apply px-5 py-4 border-b border-[#3d301d]/60 text-[#f4ede0]/90 transition-colors duration-150;
   }
   .table tbody tr:last-child td { @apply border-b-0; }
-  .table tbody tr:hover td { @apply bg-brand-50/20 text-brand-900; }
+  .table tbody tr:hover td { @apply bg-[#111a2e] text-[#f4ede0]; }
 
   /* Stat card */
   .stat-card {
-    @apply card p-6 flex items-center gap-4 hover:shadow-soft;
+    @apply card p-6 flex items-center gap-4 hover:border-[#c9a96e]/40;
   }
   .stat-icon {
-    @apply w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0;
+    @apply w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 bg-[#0b1222] border border-[#3d301d] text-[#c9a96e];
   }
 }
 
+/* Glassmorphism Cards */
+.glass-card {
+  background: rgba(244, 237, 224, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(201, 169, 110, 0.18);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(201, 169, 110, 0.4);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 30px rgba(201, 169, 110, 0.15);
+}
+
+.glass-panel {
+  background: rgba(11, 18, 34, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
 /* Scrollbar */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 6px; }
-::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #0b1222; }
+::-webkit-scrollbar-thumb { background: #25334d; border: 2px solid #0b1222; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #c9a96e; }

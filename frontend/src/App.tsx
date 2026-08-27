@@ -4,6 +4,7 @@ import { useAuthStore } from '@/store/authStore';
 import { PageLoader } from '@/components/common/Spinner';
 import { useAuthBootstrap } from '@/hooks/useAuthBootstrap';
 import { ToastContainer } from '@/components/common/Toast';
+import { HarlowPage } from '@/pages/HarlowPage';
 
 const LoginPage = lazy(() => import('@/pages/LoginPage').then((m) => ({ default: m.LoginPage })));
 const DashboardPage = lazy(() => import('@/pages/DashboardPage').then((m) => ({ default: m.DashboardPage })));
@@ -23,7 +24,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   if (!isAuthChecked || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-[#0b1222]">
         <PageLoader />
       </div>
     );
@@ -39,8 +40,13 @@ export function App() {
   return (
     <Router>
       <ToastContainer />
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><PageLoader /></div>}>
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-[#0b1222] text-[#f4ede0]"><PageLoader /></div>}>
         <Routes>
+          {/* Harlow Properties Luxury Real Estate Agent Website as root experience */}
+          <Route path="/" element={<HarlowPage />} />
+          <Route path="/harlow" element={<HarlowPage />} />
+
+          {/* Management Portal Routes */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/auth/callback" element={<LoginPage />} />
           <Route path="/dashboard" element={wrap(<DashboardPage />)} />
@@ -52,7 +58,6 @@ export function App() {
           <Route path="/reminders" element={wrap(<RemindersPage />)} />
           <Route path="/reports" element={wrap(<ReportsPage />)} />
           <Route path="/settings" element={wrap(<SettingsPage />)} />
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>
