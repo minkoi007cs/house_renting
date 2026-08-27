@@ -21,6 +21,11 @@ export const useAuthBootstrap = () => {
         return;
       }
 
+      if (token.startsWith('demo-jwt-token')) {
+        setAuthChecked(true);
+        return;
+      }
+
       try {
         setLoading(true);
         const res = await api.get('/auth/profile', {
