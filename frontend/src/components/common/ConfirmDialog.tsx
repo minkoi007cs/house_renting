@@ -20,12 +20,12 @@ export const ConfirmDialog = ({
 }: Props) => (
   <Modal title="" onClose={onCancel} size="sm">
     <div className="flex flex-col items-center text-center gap-3">
-      <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
-        <AlertTriangle className="w-6 h-6 text-red-600" />
+      <div className="w-12 h-12 rounded-full bg-rose-950/60 border border-rose-800/80 flex items-center justify-center">
+        <AlertTriangle className="w-6 h-6 text-rose-400" />
       </div>
       <div>
-        <p className="font-semibold text-ink-900">{title}</p>
-        <p className="mt-1 text-sm text-ink-500">{message}</p>
+        <p className="font-serif text-lg font-normal text-[#f4ede0]">{title}</p>
+        <p className="mt-1 text-sm font-sans text-[#f4ede0]/70">{message}</p>
       </div>
       <div className="flex gap-3 w-full mt-2">
         <button onClick={onCancel} className="btn-secondary flex-1">

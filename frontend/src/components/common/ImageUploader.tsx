@@ -77,7 +77,7 @@ export const ImageUploader = ({
     <div>
       {label && <label className="label">{label}</label>}
       {error && (
-        <div className="mb-2 p-2 bg-rose-50 border border-rose-200 rounded-lg text-rose-600 text-xs">
+        <div className="mb-2 p-2 bg-rose-950/60 border border-rose-800/80 rounded-lg text-rose-400 text-xs">
           {error}
         </div>
       )}
@@ -89,8 +89,8 @@ export const ImageUploader = ({
             return (
               <div
                 key={url}
-                className={`relative group aspect-square rounded-lg overflow-hidden border-2 ${
-                  isCover ? 'border-brand-500 ring-2 ring-brand-100' : 'border-ink-200'
+                className={`relative group aspect-square rounded-lg overflow-hidden border-2 bg-[#0b1222] ${
+                  isCover ? 'border-[#c9a96e] ring-2 ring-[#c9a96e]/30' : 'border-[#3d301d]'
                 }`}
               >
                 {isPdf(url) ? (
@@ -98,10 +98,10 @@ export const ImageUploader = ({
                     href={url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full h-full flex flex-col items-center justify-center bg-ink-50 text-ink-500 hover:bg-ink-100 transition gap-1 p-2"
+                    className="w-full h-full flex flex-col items-center justify-center bg-[#0b1222] text-[#f4ede0]/70 hover:bg-[#111a2e] transition gap-1 p-2"
                     title="Open PDF"
                   >
-                    <FileText className="w-6 h-6 text-rose-500" />
+                    <FileText className="w-6 h-6 text-rose-400" />
                     <span className="text-[10px] text-center leading-tight break-all line-clamp-2">
                       {url.split('/').pop()}
                     </span>
@@ -115,17 +115,17 @@ export const ImageUploader = ({
                 )}
 
                 {isCover && !isPdf(url) && (
-                  <div className="absolute top-1 left-1 bg-brand-600 text-white text-[10px] font-medium px-1.5 py-0.5 rounded flex items-center gap-1">
+                  <div className="absolute top-1 left-1 bg-[#c9a96e] text-[#0b1222] text-[10px] font-semibold px-1.5 py-0.5 rounded flex items-center gap-1">
                     <Star className="w-2.5 h-2.5 fill-current" /> Cover
                   </div>
                 )}
 
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100">
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100">
                   {showCoverPicker && !isCover && !isPdf(url) && (
                     <button
                       type="button"
                       onClick={() => setCover(url)}
-                      className="w-7 h-7 bg-white/90 hover:bg-white rounded-full flex items-center justify-center text-amber-500"
+                      className="w-7 h-7 bg-[#0b1222]/90 hover:bg-[#0b1222] border border-[#c9a96e] rounded-full flex items-center justify-center text-[#c9a96e]"
                       title="Set as cover"
                     >
                       <StarOff className="w-3.5 h-3.5" />
@@ -134,7 +134,7 @@ export const ImageUploader = ({
                   <button
                     type="button"
                     onClick={() => remove(url)}
-                    className="w-7 h-7 bg-rose-500 hover:bg-rose-600 rounded-full flex items-center justify-center text-white"
+                    className="w-7 h-7 bg-rose-900/80 border border-rose-600 hover:bg-rose-900 rounded-full flex items-center justify-center text-rose-200"
                     title="Remove"
                   >
                     <X className="w-3.5 h-3.5" />
@@ -150,15 +150,15 @@ export const ImageUploader = ({
         type="button"
         onClick={() => fileRef.current?.click()}
         disabled={uploading}
-        className="flex items-center gap-2 px-3 py-2 border border-dashed border-ink-300 rounded-lg text-sm text-ink-500 hover:border-brand-400 hover:text-brand-600 hover:bg-brand-50 transition w-full justify-center"
+        className="flex items-center gap-2 px-3 py-2 border border-dashed border-[#3d301d] rounded-lg text-sm text-[#f4ede0]/70 hover:border-[#c9a96e] hover:text-[#c9a96e] hover:bg-[#111a2e] transition w-full justify-center"
       >
         {uploading ? (
           <>
-            <Loader2 className="w-4 h-4 animate-spin" /> Uploading…
+            <Loader2 className="w-4 h-4 animate-spin text-[#c9a96e]" /> Uploading…
           </>
         ) : (
           <>
-            <ImagePlus className="w-4 h-4" />
+            <ImagePlus className="w-4 h-4 text-[#c9a96e]" />
             {images.length === 0
               ? accept.includes('.pdf') ? 'Add files' : 'Add images'
               : 'Add more'}

@@ -76,7 +76,7 @@ export const CreateReminderForm = ({
     <Modal title={isEdit ? 'Edit Reminder' : 'New Reminder'} onClose={onClose}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">{error}</div>
+          <div className="p-3 bg-rose-950/60 border border-rose-800/80 rounded-lg text-rose-400 text-sm">{error}</div>
         )}
 
         {!isEdit && propertyOptions && propertyOptions.length > 0 && (
@@ -111,7 +111,7 @@ export const CreateReminderForm = ({
         <div>
           <label className="label">Title *</label>
           <input {...register('title')} className="input" placeholder="e.g. Collect rent for Unit A" />
-          {errors.title && <p className="mt-1 text-xs text-red-500">{errors.title.message}</p>}
+          {errors.title && <p className="mt-1 text-xs text-rose-400">{errors.title.message}</p>}
         </div>
 
         <div>
@@ -123,7 +123,7 @@ export const CreateReminderForm = ({
           <div>
             <label className="label">Due date *</label>
             <input {...register('due_date')} type="date" className="input" />
-            {errors.due_date && <p className="mt-1 text-xs text-red-500">{errors.due_date.message}</p>}
+            {errors.due_date && <p className="mt-1 text-xs text-rose-400">{errors.due_date.message}</p>}
           </div>
           <div>
             <label className="label">Status</label>

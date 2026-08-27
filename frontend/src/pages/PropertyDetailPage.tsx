@@ -46,7 +46,7 @@ const ImageGallery = ({ images, cover }: { images?: string[] | null; cover?: str
   if (!sorted.length) return null;
 
   return (
-    <div className="relative w-full h-64 md:h-80 rounded-2xl overflow-hidden bg-ink-100 flex-shrink-0">
+    <div className="relative w-full h-64 md:h-80 rounded-2xl overflow-hidden bg-[#0b1222] border border-[#3d301d] flex-shrink-0">
       <img
         src={sorted[idx]}
         alt=""
@@ -57,13 +57,13 @@ const ImageGallery = ({ images, cover }: { images?: string[] | null; cover?: str
         <>
           <button
             onClick={() => setIdx((i) => (i - 1 + sorted.length) % sorted.length)}
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center"
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-[#0b1222]/70 hover:bg-[#0b1222] text-[#f4ede0] border border-[#3d301d] flex items-center justify-center transition"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
           <button
             onClick={() => setIdx((i) => (i + 1) % sorted.length)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center"
+            className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-[#0b1222]/70 hover:bg-[#0b1222] text-[#f4ede0] border border-[#3d301d] flex items-center justify-center transition"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -72,7 +72,7 @@ const ImageGallery = ({ images, cover }: { images?: string[] | null; cover?: str
               <button
                 key={i}
                 onClick={() => setIdx(i)}
-                className={`w-2 h-2 rounded-full transition ${i === idx ? 'bg-white' : 'bg-white/50'}`}
+                className={`w-2 h-2 rounded-full transition ${i === idx ? 'bg-[#c9a96e]' : 'bg-white/40'}`}
               />
             ))}
           </div>
@@ -90,19 +90,19 @@ const Stat = ({
   tone?: 'brand' | 'green' | 'red' | 'blue' | 'amber';
 }) => {
   const tones: Record<string, string> = {
-    brand: 'bg-brand-50 text-brand-600',
-    green: 'bg-emerald-50 text-emerald-600',
-    red: 'bg-rose-50 text-rose-600',
-    blue: 'bg-sky-50 text-sky-600',
-    amber: 'bg-amber-50 text-amber-600',
+    brand: 'bg-[#0b1222] text-[#c9a96e] border border-[#3d301d]',
+    green: 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/60',
+    red: 'bg-rose-950/60 text-rose-400 border border-rose-800/60',
+    blue: 'bg-sky-950/60 text-sky-400 border border-sky-800/60',
+    amber: 'bg-amber-950/60 text-amber-400 border border-amber-800/60',
   };
   return (
     <div className="card p-4">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs uppercase tracking-wide text-ink-400 font-medium">{label}</p>
-          <p className="mt-1.5 text-xl font-bold text-ink-900 leading-tight">{value}</p>
-          {sub && <p className="text-xs text-ink-400 mt-0.5">{sub}</p>}
+          <p className="text-xs uppercase font-sans tracking-widest text-[#c9a96e] font-semibold">{label}</p>
+          <p className="mt-1.5 text-xl font-bold font-sans text-[#f4ede0] leading-tight">{value}</p>
+          {sub && <p className="text-xs font-sans text-[#f4ede0]/50 mt-0.5">{sub}</p>}
         </div>
         <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${tones[tone]}`}>
           <Icon className="w-4 h-4" />
@@ -125,35 +125,35 @@ const OverviewTab = ({ propertyId }: { propertyId: string }) => {
       </div>
 
       <div className="card p-5">
-        <h3 className="font-semibold text-ink-900 mb-4">Cash flow — last 12 months</h3>
+        <h3 className="font-serif text-base font-normal text-[#f4ede0] mb-4">Cash flow — last 12 months</h3>
         {(analytics?.by_month || []).length > 0 ? (
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={analytics?.by_month || []}>
                 <defs>
                   <linearGradient id="ovIn" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#34d399" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#34d399" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="ovEx" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#f87171" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#f87171" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} />
-                <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={formatChartYAxis} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#3d301d" />
+                <XAxis dataKey="month" stroke="#baa58b" fontSize={12} />
+                <YAxis stroke="#baa58b" fontSize={12} tickFormatter={formatChartYAxis} />
                 <Tooltip
                   formatter={(v: any) => formatCurrency(v as number)}
-                  contentStyle={{ borderRadius: 12, border: '1px solid #e2e8f0', fontSize: 12 }}
+                  contentStyle={{ backgroundColor: '#111a2e', borderRadius: 12, border: '1px solid #3d301d', color: '#f4ede0', fontSize: 12 }}
                 />
-                <Area type="monotone" dataKey="income" stroke="#10b981" strokeWidth={2} fill="url(#ovIn)" name="Income" />
-                <Area type="monotone" dataKey="expense" stroke="#ef4444" strokeWidth={2} fill="url(#ovEx)" name="Expense" />
+                <Area type="monotone" dataKey="income" stroke="#34d399" strokeWidth={2} fill="url(#ovIn)" name="Income" />
+                <Area type="monotone" dataKey="expense" stroke="#f87171" strokeWidth={2} fill="url(#ovEx)" name="Expense" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         ) : (
-          <div className="h-32 flex items-center justify-center text-ink-400 text-sm">
+          <div className="h-32 flex items-center justify-center text-[#f4ede0]/40 text-sm font-sans">
             No transaction data yet
           </div>
         )}
@@ -174,7 +174,7 @@ const ContractTab = ({ primaryUnitId }: { primaryUnitId: string }) => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-ink-900">{contracts.length} contract{contracts.length !== 1 ? 's' : ''}</h3>
+        <h3 className="font-serif text-lg text-[#f4ede0] font-normal">{contracts.length} contract{contracts.length !== 1 ? 's' : ''}</h3>
         <button onClick={() => setShowAdd(true)} className="btn-primary">
           <Plus className="w-4 h-4" /> New contract
         </button>
@@ -190,17 +190,17 @@ const ContractTab = ({ primaryUnitId }: { primaryUnitId: string }) => {
       ) : (
         <div className="space-y-3">
           {contracts.map((c) => (
-            <div key={c.id} className={`card p-4 border-l-4 ${c.status === 'active' ? 'border-l-emerald-400' : c.status === 'expired' || c.status === 'terminated' ? 'border-l-rose-300' : 'border-l-ink-200'}`}>
+            <div key={c.id} className={`card p-4 border-l-4 ${c.status === 'active' ? 'border-l-emerald-400' : c.status === 'expired' || c.status === 'terminated' ? 'border-l-rose-400' : 'border-l-[#3d301d]'}`}>
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-semibold text-ink-900">{formatCurrency(c.rent_amount)}</span>
-                    <span className="text-sm text-ink-500">/ {PAYMENT_CYCLE_LABELS[c.payment_cycle] || c.payment_cycle}</span>
+                    <span className="font-semibold text-[#f4ede0] text-lg font-sans">{formatCurrency(c.rent_amount)}</span>
+                    <span className="text-sm text-[#f4ede0]/60 font-sans">/ {PAYMENT_CYCLE_LABELS[c.payment_cycle] || c.payment_cycle}</span>
                     <span className={statusBadgeClass(c.status)}>{CONTRACT_STATUS_LABELS[c.status]}</span>
                   </div>
-                  <div className="mt-2 flex flex-wrap gap-4 text-sm text-ink-500">
+                  <div className="mt-2 flex flex-wrap gap-4 text-xs font-sans text-[#f4ede0]/70">
                     <span className="flex items-center gap-1">
-                      <Calendar className="w-3.5 h-3.5" />
+                      <Calendar className="w-3.5 h-3.5 text-[#c9a96e]" />
                       {formatDate(c.start_date)} → {c.end_date ? formatDate(c.end_date) : 'open-ended'}
                     </span>
                     {c.deposit_amount > 0 && (
@@ -213,7 +213,7 @@ const ContractTab = ({ primaryUnitId }: { primaryUnitId: string }) => {
                   {c.contract_tenants && c.contract_tenants.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-2">
                       {c.contract_tenants.map(({ tenant, role }) => (
-                        <span key={tenant.id} className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full ${role === 'primary' ? 'bg-brand-100 text-brand-700' : 'bg-ink-100 text-ink-600'}`}>
+                        <span key={tenant.id} className={`inline-flex items-center gap-1 text-xs px-2.5 py-0.5 rounded-full border ${role === 'primary' ? 'bg-[#c9a96e]/20 border-[#c9a96e] text-[#c9a96e]' : 'bg-[#0b1222] border-[#3d301d] text-[#f4ede0]/80'}`}>
                           {role === 'primary' && '★ '}
                           {tenant.name}
                         </span>
@@ -224,17 +224,17 @@ const ContractTab = ({ primaryUnitId }: { primaryUnitId: string }) => {
                     <div className="mt-2 flex gap-2 overflow-x-auto">
                       {c.image_urls.map((url) => (
                         <a key={url} href={url} target="_blank" rel="noopener noreferrer">
-                          <img src={url} alt="" className="w-14 h-14 rounded-lg object-cover border border-ink-200 flex-shrink-0" />
+                          <img src={url} alt="" className="w-14 h-14 rounded-lg object-cover border border-[#3d301d] flex-shrink-0" />
                         </a>
                       ))}
                     </div>
                   )}
                 </div>
                 <div className="flex items-center gap-1 flex-shrink-0">
-                  <button onClick={() => setEditing(c)} className="p-2 hover:bg-ink-100 rounded-lg text-ink-400 hover:text-ink-700">
+                  <button onClick={() => setEditing(c)} className="p-2 hover:bg-[#0b1222] rounded-lg text-[#f4ede0]/60 hover:text-[#c9a96e]">
                     <Pencil className="w-4 h-4" />
                   </button>
-                  <button onClick={() => setDeleting(c)} className="p-2 hover:bg-rose-50 rounded-lg text-ink-400 hover:text-rose-600">
+                  <button onClick={() => setDeleting(c)} className="p-2 hover:bg-rose-950/40 rounded-lg text-[#f4ede0]/60 hover:text-rose-400">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -284,7 +284,7 @@ const TenantsTab = ({ primaryUnitId }: { primaryUnitId: string }) => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-ink-900">{tenants.length} tenant{tenants.length !== 1 ? 's' : ''}</h3>
+        <h3 className="font-serif text-lg text-[#f4ede0] font-normal">{tenants.length} tenant{tenants.length !== 1 ? 's' : ''}</h3>
         <button onClick={() => setShowAdd(true)} className="btn-primary">
           <Plus className="w-4 h-4" /> Add tenant
         </button>
@@ -301,34 +301,34 @@ const TenantsTab = ({ primaryUnitId }: { primaryUnitId: string }) => {
         <div className="grid gap-3 sm:grid-cols-2">
           {tenants.map((t) => (
             <div key={t.id} className="card p-4 flex items-start gap-3">
-              <div className="w-10 h-10 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-semibold text-sm flex-shrink-0">
+              <div className="w-10 h-10 rounded-full bg-[#c9a96e] text-[#0b1222] flex items-center justify-center font-bold text-sm font-serif flex-shrink-0">
                 {t.name.charAt(0).toUpperCase()}
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-ink-900">{t.name}</p>
+              <div className="flex-1 min-w-0 font-sans">
+                <p className="font-semibold text-[#f4ede0]">{t.name}</p>
                 <div className="mt-1.5 space-y-1">
                   {t.phone && (
-                    <p className="text-xs text-ink-500 flex items-center gap-1.5">
-                      <Phone className="w-3 h-3" /> {t.phone}
+                    <p className="text-xs text-[#f4ede0]/60 flex items-center gap-1.5">
+                      <Phone className="w-3 h-3 text-[#c9a96e]" /> {t.phone}
                     </p>
                   )}
                   {t.email && (
-                    <p className="text-xs text-ink-500 flex items-center gap-1.5">
-                      <Mail className="w-3 h-3" /> {t.email}
+                    <p className="text-xs text-[#f4ede0]/60 flex items-center gap-1.5">
+                      <Mail className="w-3 h-3 text-[#c9a96e]" /> {t.email}
                     </p>
                   )}
                   {(t as any).emergency_contact && (
-                    <p className="text-xs text-amber-600 flex items-center gap-1.5">
+                    <p className="text-xs text-amber-400 flex items-center gap-1.5">
                       <AlertCircle className="w-3 h-3" /> {(t as any).emergency_contact}
                     </p>
                   )}
                 </div>
               </div>
               <div className="flex items-center gap-1 flex-shrink-0">
-                <button onClick={() => setEditing(t)} className="p-2 hover:bg-ink-100 rounded-lg text-ink-400 hover:text-ink-700">
+                <button onClick={() => setEditing(t)} className="p-2 hover:bg-[#0b1222] rounded-lg text-[#f4ede0]/60 hover:text-[#c9a96e]">
                   <Pencil className="w-4 h-4" />
                 </button>
-                <button onClick={() => setDeleting(t)} className="p-2 hover:bg-rose-50 rounded-lg text-ink-400 hover:text-rose-600">
+                <button onClick={() => setDeleting(t)} className="p-2 hover:bg-rose-950/40 rounded-lg text-[#f4ede0]/60 hover:text-rose-400">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
@@ -403,7 +403,7 @@ const FinanceTab = ({ propertyId }: { propertyId: string }) => {
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-center gap-3">
-          <h3 className="font-semibold text-ink-900">{transactions.length} transactions</h3>
+          <h3 className="font-serif text-lg text-[#f4ede0] font-normal">{transactions.length} transactions</h3>
           <select value={type} onChange={(e) => setType(e.target.value as any)} className="input w-36">
             <option value="">All types</option>
             <option value="income">Income</option>
@@ -425,8 +425,8 @@ const FinanceTab = ({ propertyId }: { propertyId: string }) => {
         <div className="flex justify-center py-8"><Spinner /></div>
       ) : fetchError ? (
         <div className="card p-5 text-center">
-          <p className="text-rose-600 font-medium mb-1">Failed to load transactions</p>
-          <p className="text-sm text-ink-500 mb-3">{fetchError}</p>
+          <p className="text-rose-400 font-medium mb-1 font-sans">Failed to load transactions</p>
+          <p className="text-sm text-[#f4ede0]/60 mb-3 font-sans">{fetchError}</p>
           <button onClick={fetchAll} className="btn-secondary">Retry</button>
         </div>
       ) : transactions.length === 0 ? (
@@ -449,19 +449,19 @@ const FinanceTab = ({ propertyId }: { propertyId: string }) => {
                 <tr key={t.id}>
                   <td>{formatDate(t.transaction_date)}</td>
                   <td>{TX_CATEGORY_LABELS[t.category] || t.category}</td>
-                  <td className="max-w-xs truncate text-ink-500">{t.note || '—'}</td>
+                  <td className="max-w-xs truncate text-[#f4ede0]/50">{t.note || '—'}</td>
                   <td>
                     <span className={t.type === 'income' ? 'badge-green' : 'badge-red'}>
                       {t.type === 'income' ? 'Income' : 'Expense'}
                     </span>
                   </td>
-                  <td className={`text-right font-semibold ${t.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                  <td className={`text-right font-semibold ${t.type === 'income' ? 'text-emerald-400' : 'text-rose-400'}`}>
                     {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
                   </td>
                   <td>
                     <div className="flex items-center justify-end gap-1">
-                      <button onClick={() => setEditing(t)} className="p-2 hover:bg-ink-100 rounded text-ink-400"><Pencil className="w-4 h-4" /></button>
-                      <button onClick={() => setDeleting(t)} className="p-2 hover:bg-rose-50 rounded text-ink-400 hover:text-rose-600"><Trash2 className="w-4 h-4" /></button>
+                      <button onClick={() => setEditing(t)} className="p-2 hover:bg-[#0b1222] rounded text-[#f4ede0]/60 hover:text-[#c9a96e]"><Pencil className="w-4 h-4" /></button>
+                      <button onClick={() => setDeleting(t)} className="p-2 hover:bg-rose-950/40 rounded text-[#f4ede0]/60 hover:text-rose-400"><Trash2 className="w-4 h-4" /></button>
                     </div>
                   </td>
                 </tr>
@@ -542,15 +542,15 @@ const ReminderTab = ({ propertyId }: { propertyId: string }) => {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-2">
-        <h3 className="font-semibold text-ink-900">{reminders.length} reminder{reminders.length !== 1 ? 's' : ''}</h3>
+        <h3 className="font-serif text-lg text-[#f4ede0] font-normal">{reminders.length} reminder{reminders.length !== 1 ? 's' : ''}</h3>
         <div className="flex items-center gap-2">
           <button
             onClick={generateDefaults}
             disabled={generatingDefaults}
-            className="btn-secondary text-sm"
+            className="btn-secondary text-xs"
             title="Auto-generate monthly rent, HVAC cleaning, and lawn mowing reminders"
           >
-            {generatingDefaults ? <Spinner size="sm" /> : <Sparkles className="w-4 h-4" />}
+            {generatingDefaults ? <Spinner size="sm" /> : <Sparkles className="w-4 h-4 text-[#c9a96e]" />}
             Generate defaults
           </button>
           <button onClick={() => setShowAdd(true)} className="btn-primary">
@@ -560,14 +560,14 @@ const ReminderTab = ({ propertyId }: { propertyId: string }) => {
       </div>
 
       {toggleError && (
-        <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-sm">{toggleError}</div>
+        <div className="p-3 bg-rose-950/60 border border-rose-800/80 rounded-xl text-rose-400 text-sm font-sans">{toggleError}</div>
       )}
 
       {loading ? (
         <div className="flex justify-center py-8"><Spinner /></div>
       ) : fetchError ? (
         <div className="card p-6 text-center">
-          <p className="text-rose-600 font-medium mb-3">{fetchError}</p>
+          <p className="text-rose-400 font-medium mb-3 font-sans">{fetchError}</p>
           <button onClick={fetchAll} className="btn-secondary">Retry</button>
         </div>
       ) : reminders.length === 0 ? (
@@ -583,39 +583,39 @@ const ReminderTab = ({ propertyId }: { propertyId: string }) => {
             return (
               <div
                 key={r.id}
-                className={`flex items-center gap-3 p-3 rounded-xl border transition ${
+                className={`flex items-center gap-3 p-3.5 rounded-xl border transition ${
                   r.status === 'done'
-                    ? 'bg-ink-50/60 border-ink-100'
+                    ? 'bg-[#0b1222]/50 border-[#3d301d]'
                     : overdue
-                    ? 'bg-rose-50/50 border-rose-200'
+                    ? 'bg-rose-950/40 border-rose-800/80'
                     : soon
-                    ? 'bg-amber-50/50 border-amber-200'
-                    : 'bg-white border-ink-100'
+                    ? 'bg-amber-950/40 border-amber-800/80'
+                    : 'bg-[#111a2e] border-[#3d301d]'
                 }`}
               >
                 <button onClick={() => toggle(r)} className="flex-shrink-0">
                   {r.status === 'done' ? (
-                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                    <CheckCircle2 className="w-5 h-5 text-emerald-400" />
                   ) : overdue ? (
                     <Circle className="w-5 h-5 text-rose-400" />
                   ) : soon ? (
                     <Circle className="w-5 h-5 text-amber-400" />
                   ) : (
-                    <Circle className="w-5 h-5 text-ink-300" />
+                    <Circle className="w-5 h-5 text-[#c9a96e]" />
                   )}
                 </button>
-                <div className="flex-1 min-w-0">
-                  <p className={`font-medium ${r.status === 'done' ? 'text-ink-400 line-through' : 'text-ink-900'}`}>{r.title}</p>
-                  <div className="flex flex-wrap gap-3 mt-0.5 text-xs text-ink-500">
-                    <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {formatDate(r.due_date)}</span>
+                <div className="flex-1 min-w-0 font-sans">
+                  <p className={`font-medium ${r.status === 'done' ? 'text-[#f4ede0]/40 line-through' : 'text-[#f4ede0]'}`}>{r.title}</p>
+                  <div className="flex flex-wrap gap-3 mt-0.5 text-xs text-[#f4ede0]/60">
+                    <span className="flex items-center gap-1"><Calendar className="w-3 h-3 text-[#c9a96e]" /> {formatDate(r.due_date)}</span>
                     <span>{REMINDER_TYPE_LABELS[r.type] || r.type}</span>
-                    {overdue && <span className="text-rose-600 font-medium">Overdue</span>}
-                    {soon && <span className="text-amber-600 font-medium">Due in {daysUntil}d</span>}
+                    {overdue && <span className="text-rose-400 font-medium">Overdue</span>}
+                    {soon && <span className="text-amber-400 font-medium">Due in {daysUntil}d</span>}
                   </div>
                 </div>
                 <div className="flex items-center gap-1 flex-shrink-0">
-                  <button onClick={() => setEditing(r)} className="p-2 hover:bg-ink-100 rounded text-ink-400"><Pencil className="w-4 h-4" /></button>
-                  <button onClick={() => setDeleting(r)} className="p-2 hover:bg-rose-50 rounded text-ink-400 hover:text-rose-600"><Trash2 className="w-4 h-4" /></button>
+                  <button onClick={() => setEditing(r)} className="p-2 hover:bg-[#0b1222] rounded text-[#f4ede0]/60 hover:text-[#c9a96e]"><Pencil className="w-4 h-4" /></button>
+                  <button onClick={() => setDeleting(r)} className="p-2 hover:bg-rose-950/40 rounded text-[#f4ede0]/60 hover:text-rose-400"><Trash2 className="w-4 h-4" /></button>
                 </div>
               </div>
             );
@@ -683,7 +683,7 @@ export const PropertyDetailPage = () => {
       <div className="space-y-5">
         <button
           onClick={() => navigate('/properties')}
-          className="inline-flex items-center gap-2 text-sm text-ink-500 hover:text-ink-800 transition"
+          className="inline-flex items-center gap-2 text-xs font-sans font-medium uppercase tracking-wider text-[#c9a96e] hover:text-[#d6b87e] transition"
         >
           <ArrowLeft className="w-4 h-4" /> All properties
         </button>
@@ -700,20 +700,20 @@ export const PropertyDetailPage = () => {
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
               <div className="flex items-start gap-4">
                 {!hasImages && (
-                  <div className="w-14 h-14 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center flex-shrink-0">
+                  <div className="w-14 h-14 rounded-2xl bg-[#0b1222] border border-[#c9a96e] text-[#c9a96e] flex items-center justify-center flex-shrink-0">
                     <Building2 className="w-7 h-7" />
                   </div>
                 )}
                 <div>
-                  <h1 className="text-2xl font-bold text-ink-900">{property.name}</h1>
-                  <p className="text-ink-500 mt-1 flex items-center gap-1.5 text-sm">
-                    <MapPin className="w-4 h-4 flex-shrink-0" /> {property.address}
+                  <h1 className="font-serif text-3xl font-normal text-[#f4ede0]">{property.name}</h1>
+                  <p className="font-sans text-[#f4ede0]/60 mt-1 flex items-center gap-1.5 text-sm">
+                    <MapPin className="w-4 h-4 text-[#c9a96e] flex-shrink-0" /> {property.address}
                   </p>
-                  <div className="mt-3 flex items-center gap-2 flex-wrap">
-                    <span className="badge-blue">{PROPERTY_TYPE_LABELS[property.type] || property.type}</span>
+                  <div className="mt-3 flex items-center gap-2 flex-wrap font-sans">
+                    <span className="badge-purple">{PROPERTY_TYPE_LABELS[property.type] || property.type}</span>
                     <span className={statusBadgeClass(property.status)}>{PROPERTY_STATUS_LABELS[property.status]}</span>
                     {property.monthly_rent && (
-                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#c9a96e] bg-[#0b1222] border border-[#3d301d] px-2.5 py-0.5 rounded-full">
                         {formatCurrency(property.monthly_rent)}/mo
                       </span>
                     )}
@@ -730,7 +730,7 @@ export const PropertyDetailPage = () => {
               </div>
             </div>
             {property.description && (
-              <p className="mt-4 text-sm text-ink-600 border-t border-ink-100 pt-4 leading-relaxed">
+              <p className="mt-4 text-sm font-sans text-[#f4ede0]/80 border-t border-[#3d301d] pt-4 leading-relaxed font-light">
                 {property.description}
               </p>
             )}
@@ -739,7 +739,7 @@ export const PropertyDetailPage = () => {
 
         {/* Tabs */}
         <div className="card">
-          <div className="border-b border-ink-100 overflow-x-auto">
+          <div className="border-b border-[#3d301d] overflow-x-auto">
             <div className="flex">
               {tabs.map((t) => {
                 const disabled = t.needsUnit && !primaryUnitId;
@@ -749,12 +749,12 @@ export const PropertyDetailPage = () => {
                     onClick={() => !disabled && setTab(t.key)}
                     disabled={disabled}
                     title={disabled ? 'Loading unit data…' : undefined}
-                    className={`px-5 py-3.5 text-sm font-medium flex items-center gap-2 border-b-2 -mb-px transition whitespace-nowrap ${
+                    className={`px-5 py-3.5 text-xs font-sans uppercase tracking-wider font-semibold flex items-center gap-2 border-b-2 -mb-px transition whitespace-nowrap ${
                       tab === t.key
-                        ? 'border-brand-600 text-brand-700'
+                        ? 'border-[#c9a96e] text-[#c9a96e]'
                         : disabled
-                        ? 'border-transparent text-ink-300 cursor-not-allowed'
-                        : 'border-transparent text-ink-500 hover:text-ink-800'
+                        ? 'border-transparent text-[#f4ede0]/30 cursor-not-allowed'
+                        : 'border-transparent text-[#f4ede0]/60 hover:text-[#f4ede0]'
                     }`}
                   >
                     <t.icon className="w-4 h-4" />

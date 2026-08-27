@@ -30,7 +30,7 @@ import { formatCurrency, formatDate, formatChartYAxis } from '@/utils/format';
 import { statusBadgeClass, TX_CATEGORY_LABELS, CONTRACT_STATUS_LABELS } from '@/utils/labels';
 import dayjs from 'dayjs';
 
-const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#3b82f6', '#8b5cf6'];
+const COLORS = ['#c9a96e', '#34d399', '#fbbf24', '#f87171', '#38bdf8', '#a78bfa'];
 
 const StatCard = ({
   label,
@@ -48,24 +48,24 @@ const StatCard = ({
   onClick?: () => void;
 }) => {
   const accentMap: Record<string, string> = {
-    indigo: 'bg-brand-50 text-brand-600',
-    green: 'bg-emerald-50 text-emerald-600',
-    amber: 'bg-amber-50 text-amber-600',
-    red: 'bg-red-50 text-red-600',
-    blue: 'bg-blue-50 text-blue-600',
+    indigo: 'bg-[#0b1222] text-[#c9a96e] border border-[#3d301d]',
+    green: 'bg-emerald-950/50 text-emerald-400 border border-emerald-800/60',
+    amber: 'bg-amber-950/50 text-amber-400 border border-amber-800/60',
+    red: 'bg-rose-950/50 text-rose-400 border border-rose-800/60',
+    blue: 'bg-sky-950/50 text-sky-400 border border-sky-800/60',
   };
   return (
     <div
-      className={`card p-5 flex items-start gap-4 ${onClick ? 'cursor-pointer hover:shadow-md transition-shadow' : ''}`}
+      className={`card p-5 flex items-start gap-4 ${onClick ? 'cursor-pointer hover:border-[#c9a96e]/60 transition-all' : ''}`}
       onClick={onClick}
     >
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${accentMap[accent] || accentMap.indigo}`}>
+      <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${accentMap[accent] || accentMap.indigo}`}>
         <Icon className="w-5 h-5" />
       </div>
       <div className="min-w-0">
-        <p className="text-sm text-ink-500 font-medium">{label}</p>
-        <p className="mt-0.5 text-2xl font-bold text-ink-900 truncate">{value}</p>
-        {sub && <p className="mt-0.5 text-xs text-ink-400">{sub}</p>}
+        <p className="text-xs uppercase font-sans tracking-widest text-[#c9a96e] font-semibold">{label}</p>
+        <p className="mt-1 text-2xl font-bold font-sans text-[#f4ede0] truncate">{value}</p>
+        {sub && <p className="mt-0.5 text-xs font-sans text-[#f4ede0]/60">{sub}</p>}
       </div>
     </div>
   );
@@ -110,9 +110,6 @@ export const DashboardPage = () => {
   const incomeCategories = Object.entries(stats?.by_category?.income || {}).map(
     ([name, value]) => ({ name: TX_CATEGORY_LABELS[name] || name, value }),
   );
-  const expenseCategories = Object.entries(stats?.by_category?.expense || {}).map(
-    ([name, value]) => ({ name: TX_CATEGORY_LABELS[name] || name, value }),
-  );
 
   return (
     <Layout title="Dashboard">
@@ -120,11 +117,11 @@ export const DashboardPage = () => {
         {/* Top Header & Range Switcher */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
-            <h2 className="text-xl font-bold text-ink-900">Workspace Overview</h2>
-            <p className="text-xs text-ink-500 mt-0.5">Real-time overview of your rental business</p>
+            <h2 className="font-serif text-2xl font-normal text-[#f4ede0]">Workspace Overview</h2>
+            <p className="text-xs font-sans text-[#f4ede0]/60 mt-0.5">Real-time overview of your rental business</p>
           </div>
 
-          <div className="flex gap-1 p-1 bg-white border border-ink-150 rounded-full shadow-sm">
+          <div className="flex gap-1 p-1 bg-[#111a2e] border border-[#3d301d] rounded-full shadow-sm">
             {(['all', 'month', 'quarter', 'year'] as const).map((r) => {
               const labels = {
                 all: 'All Time',
@@ -136,10 +133,10 @@ export const DashboardPage = () => {
                 <button
                   key={r}
                   onClick={() => setTimeRange(r)}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-sans font-semibold transition-all duration-200 ${
                     timeRange === r
-                      ? 'bg-brand-500 text-white shadow-sm'
-                      : 'text-ink-600 hover:text-ink-900 hover:bg-ink-50'
+                      ? 'bg-[#c9a96e] text-[#0b1222] shadow-sm'
+                      : 'text-[#f4ede0]/70 hover:text-[#f4ede0] hover:bg-[#0b1222]'
                   }`}
                 >
                   {labels[r]}
@@ -189,32 +186,32 @@ export const DashboardPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Area chart */}
           <div className="card p-5 lg:col-span-2">
-            <h2 className="text-sm font-semibold text-ink-700 mb-4">Income vs Expense</h2>
+            <h2 className="font-serif text-base text-[#f4ede0] mb-4">Income vs Expense</h2>
             {byMonth.length > 0 ? (
               <div className="h-48 sm:h-56 md:h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={byMonth} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="incomeGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.15} />
-                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#c9a96e" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#c9a96e" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="expenseGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#ef4444" stopOpacity={0.12} />
-                      <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#f87171" stopOpacity={0.25} />
+                      <stop offset="95%" stopColor="#f87171" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#3d301d" />
                   <XAxis
                     dataKey="month"
                     tickFormatter={monthLabel}
-                    tick={{ fontSize: 12, fill: '#94a3b8' }}
+                    tick={{ fontSize: 12, fill: '#baa58b' }}
                     axisLine={false}
                     tickLine={false}
                   />
                   <YAxis
                     tickFormatter={formatChartYAxis}
-                    tick={{ fontSize: 12, fill: '#94a3b8' }}
+                    tick={{ fontSize: 12, fill: '#baa58b' }}
                     axisLine={false}
                     tickLine={false}
                     width={40}
@@ -222,15 +219,15 @@ export const DashboardPage = () => {
                   <Tooltip
                     formatter={(v: number) => formatCurrency(v)}
                     labelFormatter={(l) => dayjs(l + '-01').format('MMMM YYYY')}
-                    contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12 }}
+                    contentStyle={{ backgroundColor: '#111a2e', borderRadius: 8, border: '1px solid #3d301d', color: '#f4ede0', fontSize: 12 }}
                   />
-                  <Area type="monotone" dataKey="income" stroke="#6366f1" fill="url(#incomeGrad)" strokeWidth={2} name="Income" />
-                  <Area type="monotone" dataKey="expense" stroke="#ef4444" fill="url(#expenseGrad)" strokeWidth={2} name="Expense" />
+                  <Area type="monotone" dataKey="income" stroke="#c9a96e" fill="url(#incomeGrad)" strokeWidth={2} name="Income" />
+                  <Area type="monotone" dataKey="expense" stroke="#f87171" fill="url(#expenseGrad)" strokeWidth={2} name="Expense" />
                 </AreaChart>
               </ResponsiveContainer>
               </div>
             ) : (
-              <div className="h-48 sm:h-56 md:h-64 flex items-center justify-center text-ink-400 text-sm">
+              <div className="h-48 sm:h-56 md:h-64 flex items-center justify-center text-[#f4ede0]/40 text-sm font-sans">
                 No transaction data yet
               </div>
             )}
@@ -238,7 +235,7 @@ export const DashboardPage = () => {
 
           {/* Pie chart */}
           <div className="card p-5">
-            <h2 className="text-sm font-semibold text-ink-700 mb-4">Income breakdown</h2>
+            <h2 className="font-serif text-base text-[#f4ede0] mb-4">Income breakdown</h2>
             {incomeCategories.length > 0 ? (
               <div className="h-48 sm:h-56 md:h-64">
               <ResponsiveContainer width="100%" height="100%">
@@ -259,17 +256,17 @@ export const DashboardPage = () => {
                   <Legend
                     iconSize={8}
                     iconType="circle"
-                    formatter={(v) => <span className="text-xs text-ink-600">{v}</span>}
+                    formatter={(v) => <span className="text-xs text-[#f4ede0]/80">{v}</span>}
                   />
                   <Tooltip
                     formatter={(v: number) => formatCurrency(v)}
-                    contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12 }}
+                    contentStyle={{ backgroundColor: '#111a2e', borderRadius: 8, border: '1px solid #3d301d', color: '#f4ede0', fontSize: 12 }}
                   />
                 </PieChart>
               </ResponsiveContainer>
               </div>
             ) : (
-              <div className="h-48 sm:h-56 md:h-64 flex items-center justify-center text-ink-400 text-sm">
+              <div className="h-48 sm:h-56 md:h-64 flex items-center justify-center text-[#f4ede0]/40 text-sm font-sans">
                 No data
               </div>
             )}
@@ -280,32 +277,32 @@ export const DashboardPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Recent transactions */}
           <div className="card lg:col-span-2">
-            <div className="px-5 py-4 border-b border-ink-100 flex justify-between items-center">
-              <h2 className="text-sm font-semibold text-ink-700">Recent Transactions</h2>
+            <div className="px-5 py-4 border-b border-[#3d301d] flex justify-between items-center">
+              <h2 className="font-serif text-base text-[#f4ede0]">Recent Transactions</h2>
               <button
                 onClick={() => navigate('/transactions')}
-                className="text-xs text-brand-600 hover:text-brand-700 flex items-center gap-1"
+                className="text-xs font-sans text-[#c9a96e] hover:text-[#d6b87e] flex items-center gap-1 font-semibold uppercase tracking-wider"
               >
                 View all <ArrowRight className="w-3 h-3" />
               </button>
             </div>
             {recentTx.length > 0 ? (
-              <div className="divide-y divide-ink-100">
+              <div className="divide-y divide-[#3d301d]/60">
                 {recentTx.slice(0, 6).map((tx) => (
                   <div key={tx.id} className="px-5 py-3 flex items-center gap-3">
                     <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-xs ${tx.type === 'income' ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'}`}
+                      className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold ${tx.type === 'income' ? 'bg-emerald-950/80 border border-emerald-700 text-emerald-400' : 'bg-rose-950/80 border border-rose-700 text-rose-400'}`}
                     >
                       {tx.type === 'income' ? '+' : '−'}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-ink-800 truncate">
+                      <p className="text-sm font-medium text-[#f4ede0] truncate">
                         {TX_CATEGORY_LABELS[tx.category] || tx.category}
                       </p>
-                      <p className="text-xs text-ink-400">{formatDate(tx.transaction_date)}</p>
+                      <p className="text-xs text-[#f4ede0]/50">{formatDate(tx.transaction_date)}</p>
                     </div>
                     <p
-                      className={`text-sm font-semibold flex-shrink-0 ${tx.type === 'income' ? 'text-emerald-600' : 'text-red-500'}`}
+                      className={`text-sm font-semibold flex-shrink-0 ${tx.type === 'income' ? 'text-emerald-400' : 'text-rose-400'}`}
                     >
                       {tx.type === 'income' ? '+' : '−'}
                       {formatCurrency(tx.amount)}
@@ -314,58 +311,58 @@ export const DashboardPage = () => {
                 ))}
               </div>
             ) : (
-              <div className="py-8 text-center text-ink-400 text-sm">No transactions yet</div>
+              <div className="py-8 text-center text-[#f4ede0]/40 text-sm font-sans">No transactions yet</div>
             )}
           </div>
 
           {/* Sidebar: reminders + expiring contracts */}
           <div className="flex flex-col gap-4">
             <div className="card flex-1">
-              <div className="px-5 py-4 border-b border-ink-100 flex justify-between items-center">
-                <h2 className="text-sm font-semibold text-ink-700 flex items-center gap-2">
-                  <Bell className="w-4 h-4 text-amber-500" />
+              <div className="px-5 py-4 border-b border-[#3d301d] flex justify-between items-center">
+                <h2 className="font-serif text-base text-[#f4ede0] flex items-center gap-2">
+                  <Bell className="w-4 h-4 text-[#c9a96e]" />
                   Upcoming Reminders
                 </h2>
                 <button
                   onClick={() => navigate('/reminders')}
-                  className="text-xs text-brand-600 hover:text-brand-700"
+                  className="text-xs font-sans text-[#c9a96e] hover:text-[#d6b87e]"
                 >
                   <ArrowRight className="w-3 h-3" />
                 </button>
               </div>
               {upcomingReminders.length > 0 ? (
-                <div className="divide-y divide-ink-100">
+                <div className="divide-y divide-[#3d301d]/60">
                   {upcomingReminders.slice(0, 4).map((r) => (
                     <div key={r.id} className="px-5 py-3">
-                      <p className="text-sm font-medium text-ink-800 truncate">{r.title}</p>
-                      <p className="text-xs text-ink-400">{formatDate(r.due_date)}</p>
+                      <p className="text-sm font-medium text-[#f4ede0] truncate">{r.title}</p>
+                      <p className="text-xs text-[#f4ede0]/50">{formatDate(r.due_date)}</p>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="py-6 text-center text-ink-400 text-sm">No upcoming reminders</div>
+                <div className="py-6 text-center text-[#f4ede0]/40 text-sm font-sans">No upcoming reminders</div>
               )}
             </div>
 
             {expiringContracts.length > 0 && (
               <div className="card">
-                <div className="px-5 py-4 border-b border-ink-100 flex justify-between items-center">
-                  <h2 className="text-sm font-semibold text-ink-700 flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-amber-500" />
+                <div className="px-5 py-4 border-b border-[#3d301d] flex justify-between items-center">
+                  <h2 className="font-serif text-base text-[#f4ede0] flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-[#c9a96e]" />
                     Expiring Soon
                   </h2>
-                  <button onClick={() => navigate('/contracts')} className="text-xs text-brand-600 hover:text-brand-700">
+                  <button onClick={() => navigate('/contracts')} className="text-xs font-sans text-[#c9a96e] hover:text-[#d6b87e]">
                     <ArrowRight className="w-3 h-3" />
                   </button>
                 </div>
-                <div className="divide-y divide-ink-100">
+                <div className="divide-y divide-[#3d301d]/60">
                   {expiringContracts.slice(0, 3).map((c) => (
                     <div key={c.id} className="px-5 py-3 flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-ink-800 truncate">
+                        <p className="text-sm font-medium text-[#f4ede0] truncate">
                           {(c.unit as any)?.name}
                         </p>
-                        <p className="text-xs text-ink-400">{formatDate(c.end_date)}</p>
+                        <p className="text-xs text-[#f4ede0]/50">{formatDate(c.end_date)}</p>
                       </div>
                       <span className={statusBadgeClass(c.status)}>{CONTRACT_STATUS_LABELS[c.status]}</span>
                     </div>

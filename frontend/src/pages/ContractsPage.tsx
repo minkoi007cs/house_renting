@@ -54,11 +54,11 @@ export const ContractsPage = () => {
   return (
     <Layout title="Contracts">
       <div className="space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <p className="text-sm text-ink-500">
-            <span className="font-semibold text-ink-800">{contracts.length}</span> total ·{' '}
-            <span className="font-semibold text-emerald-600">{totals.active}</span> active ·{' '}
-            <span className="font-semibold text-brand-700">{formatCurrency(totals.totalRent)}</span> / month
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 font-sans">
+          <p className="text-sm text-[#f4ede0]/70">
+            <span className="font-semibold text-[#f4ede0]">{contracts.length}</span> total ·{' '}
+            <span className="font-semibold text-emerald-400">{totals.active}</span> active ·{' '}
+            <span className="font-semibold text-[#c9a96e]">{formatCurrency(totals.totalRent)}</span> / month
           </p>
           <button onClick={() => setStep('pick-property')} className="btn-primary">
             <Plus className="w-4 h-4" /> Add contract
@@ -121,21 +121,21 @@ export const ContractsPage = () => {
                       <tr key={c.id}>
                         <td>
                           <div className="flex items-center gap-2">
-                            <Building2 className="w-4 h-4 text-ink-400 flex-shrink-0" />
+                            <Building2 className="w-4 h-4 text-[#c9a96e] flex-shrink-0" />
                             <div>
-                              <div className="font-medium text-ink-900">{property?.name || '—'}</div>
-                              <div className="text-xs text-ink-500">{unit?.name || '—'}</div>
+                              <div className="font-medium text-[#f4ede0]">{property?.name || '—'}</div>
+                              <div className="text-xs text-[#f4ede0]/50">{unit?.name || '—'}</div>
                             </div>
                           </div>
                         </td>
                         <td>
-                          <div className="flex items-center gap-1.5 text-sm text-ink-600">
-                            <Calendar className="w-3.5 h-3.5 text-ink-400" />
+                          <div className="flex items-center gap-1.5 text-sm text-[#f4ede0]/80">
+                            <Calendar className="w-3.5 h-3.5 text-[#c9a96e]" />
                             {formatDate(c.start_date)} → {c.end_date ? formatDate(c.end_date) : 'open'}
                           </div>
                         </td>
-                        <td className="font-semibold text-ink-900">{formatCurrency(c.rent_amount)}</td>
-                        <td>{PAYMENT_CYCLE_LABELS[c.payment_cycle] || c.payment_cycle}</td>
+                        <td className="font-semibold text-[#c9a96e]">{formatCurrency(c.rent_amount)}</td>
+                        <td className="text-[#f4ede0]/80">{PAYMENT_CYCLE_LABELS[c.payment_cycle] || c.payment_cycle}</td>
                         <td>
                           <span className={statusBadgeClass(c.status)}>
                             {CONTRACT_STATUS_LABELS[c.status]}
@@ -145,13 +145,13 @@ export const ContractsPage = () => {
                           <div className="flex items-center justify-end gap-1">
                             <button
                               onClick={() => setEditing(c)}
-                              className="p-2 hover:bg-ink-100 rounded text-ink-400"
+                              className="p-2 hover:bg-[#0b1222] rounded text-[#f4ede0]/60 hover:text-[#c9a96e]"
                             >
                               <Pencil className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => setDeleting(c)}
-                              className="p-2 hover:bg-rose-50 rounded text-ink-400 hover:text-rose-600"
+                              className="p-2 hover:bg-rose-950/40 rounded text-[#f4ede0]/60 hover:text-rose-400"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -227,29 +227,29 @@ const PropertyPickerModal = ({
   onSelect: (id: string) => void;
 }) => (
   <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-    <div className="absolute inset-0 bg-ink-900/50" onClick={onCancel} />
-    <div className="relative w-full max-w-sm bg-white rounded-xl2 shadow-soft">
-      <div className="px-6 py-4 border-b border-ink-200">
-        <h3 className="font-semibold text-ink-900">Select a property</h3>
-        <p className="text-sm text-ink-500 mt-0.5">Contracts are linked to units inside a property.</p>
+    <div className="absolute inset-0 bg-[#0b1222]/80 backdrop-blur-sm" onClick={onCancel} />
+    <div className="relative w-full max-w-sm bg-[#111a2e] rounded-2xl border border-[#3d301d] shadow-2xl text-[#f4ede0]">
+      <div className="px-6 py-4 border-b border-[#3d301d]">
+        <h3 className="font-serif text-lg font-normal text-[#f4ede0]">Select a property</h3>
+        <p className="text-xs font-sans text-[#f4ede0]/60 mt-0.5">Contracts are linked to units inside a property.</p>
       </div>
       <div className="max-h-72 overflow-y-auto px-3 py-3 space-y-1">
         {properties.length === 0 ? (
-          <p className="text-sm text-ink-400 italic py-4 text-center">No properties yet.</p>
+          <p className="text-xs font-sans text-[#f4ede0]/40 italic py-4 text-center">No properties yet.</p>
         ) : (
           properties.map((p) => (
             <button
               key={p.id}
               onClick={() => onSelect(p.id)}
-              className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-brand-50 text-sm transition"
+              className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-[#0b1222] text-xs font-sans border border-transparent hover:border-[#3d301d] transition"
             >
-              <div className="font-medium text-ink-900">{p.name}</div>
-              <div className="text-xs text-ink-500">{p.address}</div>
+              <div className="font-semibold text-sm text-[#f4ede0]">{p.name}</div>
+              <div className="text-xs text-[#f4ede0]/50">{p.address}</div>
             </button>
           ))
         )}
       </div>
-      <div className="px-6 py-4 border-t border-ink-100">
+      <div className="px-6 py-4 border-t border-[#3d301d]">
         <button onClick={onCancel} className="btn-secondary w-full">Cancel</button>
       </div>
     </div>
