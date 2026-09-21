@@ -30,7 +30,7 @@ import {
   Legend,
 } from 'recharts';
 
-const PIE_COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899'];
+const PIE_COLORS = ['#c9a96e', '#34d399', '#fbbf24', '#f87171', '#a78bfa', '#38bdf8', '#f472b6'];
 
 export const ReportsPage = () => {
   const [startDate, setStartDate] = useState('');
@@ -55,7 +55,7 @@ export const ReportsPage = () => {
     <Layout title="Reports">
       <div className="space-y-6">
         {/* Date range filter */}
-        <div className="card p-4 flex flex-wrap gap-3 items-end">
+        <div className="card p-4 flex flex-wrap gap-3 items-end font-sans">
           <div>
             <label className="label">From</label>
             <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="input w-40" />
@@ -82,7 +82,7 @@ export const ReportsPage = () => {
         {isLoading ? (
           <PageLoader />
         ) : !stats ? (
-          <div className="card p-10 text-center text-ink-400">No data available.</div>
+          <div className="card p-10 text-center text-[#f4ede0]/40 font-sans">No data available.</div>
         ) : (
           <>
             {/* Summary KPIs */}
@@ -119,45 +119,47 @@ export const ReportsPage = () => {
 
             {/* Cash flow chart */}
             <div className="card p-5">
-              <h2 className="font-semibold text-ink-900 mb-4">Cash flow — Income vs Expense by month</h2>
+              <h2 className="font-serif text-base font-normal text-[#f4ede0] mb-4">Cash flow — Income vs Expense by month</h2>
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={stats.by_month}>
                     <defs>
                       <linearGradient id="rIncome" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.35} />
-                        <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                        <stop offset="5%" stopColor="#34d399" stopOpacity={0.35} />
+                        <stop offset="95%" stopColor="#34d399" stopOpacity={0} />
                       </linearGradient>
                       <linearGradient id="rExpense" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                        <stop offset="5%" stopColor="#f87171" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#f87171" stopOpacity={0} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                    <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#3d301d" />
+                    <XAxis dataKey="month" stroke="#baa58b" fontSize={12} />
                     <YAxis
-                      stroke="#94a3b8"
+                      stroke="#baa58b"
                       fontSize={12}
                       tickFormatter={formatChartYAxis}
                     />
                     <Tooltip
                       formatter={(v: any) => formatCurrency(v)}
-                      contentStyle={{ borderRadius: 12, border: '1px solid #e2e8f0' }}
+                      contentStyle={{ backgroundColor: '#111a2e', borderRadius: 12, border: '1px solid #3d301d', color: '#f4ede0', fontSize: 12 }}
                     />
                     <Legend />
                     <Area
                       type="monotone"
                       dataKey="income"
-                      stroke="#10b981"
+                      stroke="#34d399"
                       strokeWidth={2}
                       fill="url(#rIncome)"
+                      name="Income"
                     />
                     <Area
                       type="monotone"
                       dataKey="expense"
-                      stroke="#ef4444"
+                      stroke="#f87171"
                       strokeWidth={2}
                       fill="url(#rExpense)"
+                      name="Expense"
                     />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -166,25 +168,25 @@ export const ReportsPage = () => {
 
             {/* Monthly bar chart */}
             <div className="card p-5">
-              <h2 className="font-semibold text-ink-900 mb-4">Net profit by month</h2>
+              <h2 className="font-serif text-base font-normal text-[#f4ede0] mb-4">Net profit by month</h2>
               <div className="h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={stats.by_month.map((m) => ({ ...m, net: m.income - m.expense }))}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                    <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#3d301d" />
+                    <XAxis dataKey="month" stroke="#baa58b" fontSize={12} />
                     <YAxis
-                      stroke="#94a3b8"
+                      stroke="#baa58b"
                       fontSize={12}
                       tickFormatter={formatChartYAxis}
                     />
                     <Tooltip
                       formatter={(v: any) => formatCurrency(v)}
-                      contentStyle={{ borderRadius: 12, border: '1px solid #e2e8f0' }}
+                      contentStyle={{ backgroundColor: '#111a2e', borderRadius: 12, border: '1px solid #3d301d', color: '#f4ede0', fontSize: 12 }}
                     />
                     <Bar
                       dataKey="net"
                       radius={[4, 4, 0, 0]}
-                      fill="#6366f1"
+                      fill="#c9a96e"
                     />
                   </BarChart>
                 </ResponsiveContainer>
@@ -215,19 +217,19 @@ const KPI = ({
   tone: 'brand' | 'blue' | 'green' | 'red' | 'amber' | 'purple';
 }) => {
   const bg: Record<string, string> = {
-    brand: 'bg-brand-50 text-brand-600',
-    blue: 'bg-sky-50 text-sky-600',
-    green: 'bg-emerald-50 text-emerald-600',
-    red: 'bg-rose-50 text-rose-600',
-    amber: 'bg-amber-50 text-amber-600',
-    purple: 'bg-violet-50 text-violet-600',
+    brand: 'bg-[#0b1222] text-[#c9a96e] border border-[#3d301d]',
+    blue: 'bg-sky-950/60 text-sky-400 border border-sky-800/60',
+    green: 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/60',
+    red: 'bg-rose-950/60 text-rose-400 border border-rose-800/60',
+    amber: 'bg-amber-950/60 text-amber-400 border border-amber-800/60',
+    purple: 'bg-purple-950/60 text-purple-400 border border-purple-800/60',
   };
   return (
     <div className="card p-4">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs text-ink-400 uppercase tracking-wide font-medium">{label}</p>
-          <p className="mt-2 text-xl font-bold text-ink-900">{value}</p>
+          <p className="text-xs text-[#c9a96e] uppercase tracking-widest font-semibold font-sans">{label}</p>
+          <p className="mt-2 text-xl font-bold text-[#f4ede0] font-sans">{value}</p>
         </div>
         <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${bg[tone]}`}>
           <Icon className="w-4 h-4" />
@@ -239,11 +241,11 @@ const KPI = ({
 
 const CategoryPie = ({ title, data }: { title: string; data: { name: string; value: number }[] }) => (
   <div className="card p-5">
-    <h3 className="font-semibold text-ink-900 mb-4">{title}</h3>
+    <h3 className="font-serif text-base font-normal text-[#f4ede0] mb-4">{title}</h3>
     {data.length === 0 ? (
-      <p className="text-sm text-ink-400 italic py-6 text-center">No data</p>
+      <p className="text-sm text-[#f4ede0]/40 italic py-6 text-center font-sans">No data</p>
     ) : (
-      <div className="flex flex-col sm:flex-row items-center gap-6">
+      <div className="flex flex-col sm:flex-row items-center gap-6 font-sans">
         <div className="w-44 h-44 flex-shrink-0">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
@@ -252,21 +254,21 @@ const CategoryPie = ({ title, data }: { title: string; data: { name: string; val
                   <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip formatter={(v: any) => formatCurrency(v)} />
+              <Tooltip formatter={(v: any) => formatCurrency(v)} contentStyle={{ backgroundColor: '#111a2e', borderRadius: 12, border: '1px solid #3d301d', color: '#f4ede0', fontSize: 12 }} />
             </PieChart>
           </ResponsiveContainer>
         </div>
-        <div className="flex-1 space-y-1.5">
+        <div className="flex-1 space-y-1.5 w-full">
           {data.map((d, i) => (
-            <div key={d.name} className="flex items-center justify-between text-sm">
+            <div key={d.name} className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-2">
                 <div
                   className="w-2.5 h-2.5 rounded-full"
                   style={{ background: PIE_COLORS[i % PIE_COLORS.length] }}
                 />
-                <span className="text-ink-600">{d.name}</span>
+                <span className="text-[#f4ede0]/80">{d.name}</span>
               </div>
-              <span className="font-medium text-ink-900">{formatCurrency(d.value)}</span>
+              <span className="font-semibold text-[#f4ede0]">{formatCurrency(d.value)}</span>
             </div>
           ))}
         </div>

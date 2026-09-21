@@ -129,14 +129,14 @@ export const WorkspaceSharing = () => {
     <div className="space-y-6">
       {/* Invite Member */}
       <div className="card p-6">
-        <h2 className="font-semibold text-ink-900 mb-4 flex items-center gap-2">
-          <Share2 className="w-4 h-4 text-brand-500" /> Share Workspace
+        <h2 className="font-serif text-xl font-normal text-[#f4ede0] mb-4 flex items-center gap-2">
+          <Share2 className="w-5 h-5 text-[#c9a96e]" /> Share Workspace
         </h2>
-        <p className="text-xs text-ink-500 mb-5 leading-relaxed">
+        <p className="text-xs text-[#f4ede0]/70 mb-5 leading-relaxed font-sans">
           Invite another registered user to collaborate on your property data. You can choose whether they can only view your data (viewer) or edit it as well (editor).
         </p>
 
-        <form onSubmit={handleSendInvite} className="space-y-4">
+        <form onSubmit={handleSendInvite} className="space-y-4 font-sans">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="label">Collaborator Email</label>
@@ -149,20 +149,20 @@ export const WorkspaceSharing = () => {
                   className="input pl-10"
                   placeholder="collaborator@example.com"
                 />
-                <Mail className="absolute left-3.5 top-3 w-4 h-4 text-ink-400" />
+                <Mail className="absolute left-3.5 top-3 w-4 h-4 text-[#c9a96e]" />
               </div>
             </div>
 
             <div>
               <label className="label col-span-1">Permission Role</label>
-              <div className="flex gap-2 p-1 bg-ink-50 rounded-xl">
+              <div className="flex gap-2 p-1 bg-[#0b1222] border border-[#3d301d] rounded-xl">
                 <button
                   type="button"
                   onClick={() => setRole('viewer')}
                   className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
                     role === 'viewer'
-                      ? 'bg-white text-brand-600 shadow-sm'
-                      : 'text-ink-600 hover:text-ink-900'
+                      ? 'bg-[#c9a96e] text-[#0b1222] shadow-sm'
+                      : 'text-[#f4ede0]/70 hover:text-[#f4ede0]'
                   }`}
                 >
                   <Eye className="w-3.5 h-3.5" />
@@ -173,8 +173,8 @@ export const WorkspaceSharing = () => {
                   onClick={() => setRole('editor')}
                   className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
                     role === 'editor'
-                      ? 'bg-white text-brand-600 shadow-sm'
-                      : 'text-ink-600 hover:text-ink-900'
+                      ? 'bg-[#c9a96e] text-[#0b1222] shadow-sm'
+                      : 'text-[#f4ede0]/70 hover:text-[#f4ede0]'
                   }`}
                 >
                   <Edit3 className="w-3.5 h-3.5" />
@@ -198,20 +198,20 @@ export const WorkspaceSharing = () => {
 
       {/* Received Pending Invitations */}
       {pendingReceived.length > 0 && (
-        <div className="card p-6 border-amber-100 bg-amber-50/10">
-          <h2 className="font-semibold text-amber-700 mb-4 flex items-center gap-2">
-            <Shield className="w-4 h-4 text-amber-600" /> Received Invitations ({pendingReceived.length})
+        <div className="card p-6 border-amber-800/80 bg-amber-950/20">
+          <h2 className="font-serif text-lg text-amber-400 mb-4 flex items-center gap-2">
+            <Shield className="w-4 h-4 text-amber-400" /> Received Invitations ({pendingReceived.length})
           </h2>
-          <div className="divide-y divide-ink-100">
+          <div className="divide-y divide-[#3d301d]">
             {pendingReceived.map((invite) => {
               const inviterName = invite.inviter?.name || invite.inviter?.email || 'Someone';
               return (
                 <div key={invite.id} className="flex items-center justify-between py-3">
                   <div>
-                    <p className="text-sm font-semibold text-ink-900">{inviterName}</p>
-                    <p className="text-xs text-ink-500 mt-0.5">
+                    <p className="text-sm font-semibold text-[#f4ede0]">{inviterName}</p>
+                    <p className="text-xs text-[#f4ede0]/70 mt-0.5">
                       Invited you to co-work as a{' '}
-                      <span className={`font-semibold ${invite.role === 'editor' ? 'text-violet-600' : 'text-blue-600'}`}>
+                      <span className={`font-semibold ${invite.role === 'editor' ? 'text-[#c9a96e]' : 'text-sky-400'}`}>
                         {invite.role}
                       </span>
                     </p>
@@ -219,13 +219,13 @@ export const WorkspaceSharing = () => {
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleAccept(invite.id, inviterName)}
-                      className="p-1.5 rounded-lg bg-emerald-100 text-emerald-700 hover:scale-105 active:scale-95 transition-all flex items-center gap-1 text-xs font-semibold px-2.5"
+                      className="p-1.5 rounded-lg bg-emerald-950/80 border border-emerald-700 text-emerald-300 hover:scale-105 active:scale-95 transition-all flex items-center gap-1 text-xs font-semibold px-2.5"
                     >
                       <Check className="w-3.5 h-3.5" /> Accept
                     </button>
                     <button
                       onClick={() => handleReject(invite.id)}
-                      className="p-1.5 rounded-lg bg-ink-100 text-ink-600 hover:scale-105 active:scale-95 transition-all flex items-center gap-1 text-xs font-semibold px-2.5"
+                      className="p-1.5 rounded-lg bg-[#0b1222] border border-[#3d301d] text-[#f4ede0]/70 hover:scale-105 active:scale-95 transition-all flex items-center gap-1 text-xs font-semibold px-2.5"
                     >
                       <X className="w-3.5 h-3.5" /> Reject
                     </button>
@@ -239,34 +239,34 @@ export const WorkspaceSharing = () => {
 
       {/* Joined Workspaces */}
       <div className="card p-6">
-        <h2 className="font-semibold text-ink-900 mb-4 flex items-center gap-2 justify-between">
+        <h2 className="font-serif text-xl font-normal text-[#f4ede0] mb-4 flex items-center gap-2 justify-between">
           <span className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-brand-500" /> Joined Workspaces
+            <Shield className="w-5 h-5 text-[#c9a96e]" /> Joined Workspaces
           </span>
-          <button onClick={loadAll} className="p-1 hover:bg-ink-100 rounded-full transition-all">
-            <RefreshCw className="w-3.5 h-3.5 text-ink-500" />
+          <button onClick={loadAll} className="p-1 hover:bg-[#0b1222] text-[#f4ede0]/60 hover:text-[#c9a96e] rounded-full transition-all">
+            <RefreshCw className="w-4 h-4" />
           </button>
         </h2>
         {loadingReceived ? (
-          <p className="text-center py-5 text-sm text-ink-400">Loading workspaces…</p>
+          <p className="text-center py-5 text-sm text-[#f4ede0]/50">Loading workspaces…</p>
         ) : acceptedReceived.length === 0 ? (
-          <p className="text-center py-6 text-sm text-ink-400 italic">You have not joined any shared workspaces yet.</p>
+          <p className="text-center py-6 text-sm text-[#f4ede0]/50 italic">You have not joined any shared workspaces yet.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-ink-100 text-xs font-semibold text-ink-500">
+                <tr className="border-b border-[#3d301d] text-xs font-semibold text-[#c9a96e]">
                   <th className="py-2.5">Workspace Owner</th>
                   <th className="py-2.5">Role</th>
                   <th className="py-2.5 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-ink-50">
+              <tbody className="divide-y divide-[#3d301d]/60">
                 {acceptedReceived.map((invite) => (
                   <tr key={invite.id} className="text-sm">
                     <td className="py-3">
-                      <p className="font-medium text-ink-900">{invite.inviter?.name || 'Registered User'}</p>
-                      <p className="text-xs text-ink-400">{invite.inviter?.email}</p>
+                      <p className="font-medium text-[#f4ede0]">{invite.inviter?.name || 'Registered User'}</p>
+                      <p className="text-xs text-[#f4ede0]/50">{invite.inviter?.email}</p>
                     </td>
                     <td className="py-3">
                       <span className={invite.role === 'editor' ? 'badge-purple' : 'badge-blue'}>
@@ -276,7 +276,7 @@ export const WorkspaceSharing = () => {
                     <td className="py-3 text-right">
                       <button
                         onClick={() => handleDelete(invite.id, 'leave this workspace')}
-                        className="text-rose-600 hover:text-rose-800 text-xs font-semibold flex items-center gap-1 ml-auto"
+                        className="text-rose-400 hover:text-rose-300 text-xs font-semibold flex items-center gap-1 ml-auto"
                       >
                         <Trash2 className="w-3.5 h-3.5" /> Leave Workspace
                       </button>
@@ -291,30 +291,30 @@ export const WorkspaceSharing = () => {
 
       {/* Sent Invitations */}
       <div className="card p-6">
-        <h2 className="font-semibold text-ink-900 mb-4 flex items-center gap-2">
-          <Share2 className="w-4 h-4 text-brand-500" /> Sent Invitations
+        <h2 className="font-serif text-xl font-normal text-[#f4ede0] mb-4 flex items-center gap-2">
+          <Share2 className="w-5 h-5 text-[#c9a96e]" /> Sent Invitations
         </h2>
         {loadingSent ? (
-          <p className="text-center py-5 text-sm text-ink-400">Loading invitations…</p>
+          <p className="text-center py-5 text-sm text-[#f4ede0]/50">Loading invitations…</p>
         ) : sentInvites.length === 0 ? (
-          <p className="text-center py-6 text-sm text-ink-400 italic">You have not invited anyone to your workspace yet.</p>
+          <p className="text-center py-6 text-sm text-[#f4ede0]/50 italic">You have not invited anyone to your workspace yet.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-ink-100 text-xs font-semibold text-ink-500">
+                <tr className="border-b border-[#3d301d] text-xs font-semibold text-[#c9a96e]">
                   <th className="py-2.5">User Invited</th>
                   <th className="py-2.5">Role</th>
                   <th className="py-2.5">Status</th>
                   <th className="py-2.5 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-ink-50">
+              <tbody className="divide-y divide-[#3d301d]/60">
                 {sentInvites.map((invite) => (
                   <tr key={invite.id} className="text-sm">
                     <td className="py-3">
-                      <p className="font-medium text-ink-900">{invite.invitee?.name || 'Registered User'}</p>
-                      <p className="text-xs text-ink-400">{invite.invitee_email}</p>
+                      <p className="font-medium text-[#f4ede0]">{invite.invitee?.name || 'Registered User'}</p>
+                      <p className="text-xs text-[#f4ede0]/50">{invite.invitee_email}</p>
                     </td>
                     <td className="py-3">
                       <span className={invite.role === 'editor' ? 'badge-purple' : 'badge-blue'}>
@@ -337,7 +337,7 @@ export const WorkspaceSharing = () => {
                     <td className="py-3 text-right">
                       <button
                         onClick={() => handleDelete(invite.id, 'cancel this invitation')}
-                        className="text-ink-400 hover:text-rose-600 transition-colors p-1"
+                        className="text-[#f4ede0]/50 hover:text-rose-400 transition-colors p-1"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

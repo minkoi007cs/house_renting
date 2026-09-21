@@ -71,9 +71,9 @@ export const TransactionsPage = () => {
           />
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <p className="text-sm text-ink-500">
-            Showing <span className="font-semibold text-ink-800">{filtered.length}</span> of {total} transactions
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 font-sans">
+          <p className="text-sm text-[#f4ede0]/70">
+            Showing <span className="font-semibold text-[#f4ede0]">{filtered.length}</span> of {total} transactions
           </p>
           <button
             onClick={() => {
@@ -94,7 +94,7 @@ export const TransactionsPage = () => {
         {/* Filters */}
         <div className="card p-4 flex flex-col md:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#c9a96e]" />
             <input
               type="text"
               placeholder="Search by note or category…"
@@ -122,8 +122,8 @@ export const TransactionsPage = () => {
           <PageLoader />
         ) : error ? (
           <div className="card p-6 text-center">
-            <p className="text-rose-600 font-medium mb-1">Failed to load transactions</p>
-            <p className="text-sm text-ink-500 mb-4">{error}</p>
+            <p className="text-rose-400 font-medium mb-1 font-sans">Failed to load transactions</p>
+            <p className="text-sm text-[#f4ede0]/60 mb-4 font-sans">{error}</p>
             <button onClick={fetchTransactions} className="btn-secondary">Retry</button>
           </div>
         ) : filtered.length === 0 ? (
@@ -158,9 +158,9 @@ export const TransactionsPage = () => {
                   {filtered.map((t) => (
                     <tr key={t.id}>
                       <td className="whitespace-nowrap">{formatDate(t.transaction_date)}</td>
-                      <td className="text-ink-600">{t.property?.name || '—'}</td>
+                      <td className="text-[#f4ede0]/80">{t.property?.name || '—'}</td>
                       <td>{TX_CATEGORY_LABELS[t.category] || t.category}</td>
-                      <td className="max-w-[200px] truncate text-ink-500">{t.note || '—'}</td>
+                      <td className="max-w-[200px] truncate text-[#f4ede0]/50">{t.note || '—'}</td>
                       <td>
                         <span className={t.type === 'income' ? 'badge-green' : 'badge-red'}>
                           {t.type === 'income' ? 'Income' : 'Expense'}
@@ -168,7 +168,7 @@ export const TransactionsPage = () => {
                       </td>
                       <td
                         className={`text-right font-semibold ${
-                          t.type === 'income' ? 'text-emerald-600' : 'text-rose-600'
+                          t.type === 'income' ? 'text-emerald-400' : 'text-rose-400'
                         }`}
                       >
                         {t.type === 'income' ? '+' : '-'}
@@ -178,13 +178,13 @@ export const TransactionsPage = () => {
                         <div className="flex items-center justify-end gap-1">
                           <button
                             onClick={() => setEditing(t)}
-                            className="p-2 hover:bg-ink-100 rounded text-ink-400"
+                            className="p-2 hover:bg-[#0b1222] rounded text-[#f4ede0]/60 hover:text-[#c9a96e]"
                           >
                             <Pencil className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => setDeleting(t)}
-                            className="p-2 hover:bg-rose-50 rounded text-ink-400 hover:text-rose-600"
+                            className="p-2 hover:bg-rose-950/40 rounded text-[#f4ede0]/60 hover:text-rose-400"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -259,9 +259,9 @@ const StatCard = ({
   tone: 'brand' | 'green' | 'red';
 }) => {
   const tones: Record<string, string> = {
-    brand: 'bg-brand-50 text-brand-600',
-    green: 'bg-emerald-50 text-emerald-600',
-    red: 'bg-rose-50 text-rose-600',
+    brand: 'bg-[#0b1222] text-[#c9a96e] border border-[#3d301d]',
+    green: 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/60',
+    red: 'bg-rose-950/60 text-rose-400 border border-rose-800/60',
   };
   return (
     <div className="card p-5 flex items-center gap-4">
@@ -269,8 +269,8 @@ const StatCard = ({
         <Icon className="w-5 h-5" />
       </div>
       <div>
-        <p className="text-xs text-ink-500 font-medium uppercase tracking-wide">{label}</p>
-        <p className="mt-1 text-xl font-bold text-ink-900">{value}</p>
+        <p className="text-xs uppercase font-sans tracking-widest text-[#c9a96e] font-semibold">{label}</p>
+        <p className="mt-1 text-xl font-bold font-sans text-[#f4ede0]">{value}</p>
       </div>
     </div>
   );
@@ -286,24 +286,24 @@ const PropertyPickerModal = ({
   onSelect: (id: string) => void;
 }) => (
   <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-    <div className="absolute inset-0 bg-ink-900/50" onClick={onCancel} />
-    <div className="relative w-full max-w-sm bg-white rounded-xl2 shadow-soft">
-      <div className="px-6 py-4 border-b border-ink-200">
-        <h3 className="font-semibold text-ink-900">Select a property</h3>
+    <div className="absolute inset-0 bg-[#0b1222]/80 backdrop-blur-sm" onClick={onCancel} />
+    <div className="relative w-full max-w-sm bg-[#111a2e] rounded-2xl border border-[#3d301d] shadow-2xl text-[#f4ede0]">
+      <div className="px-6 py-4 border-b border-[#3d301d]">
+        <h3 className="font-serif text-lg font-normal text-[#f4ede0]">Select a property</h3>
       </div>
       <div className="max-h-64 overflow-y-auto px-3 py-3 space-y-1">
         {properties.map((p) => (
           <button
             key={p.id}
             onClick={() => onSelect(p.id)}
-            className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-brand-50 text-sm transition"
+            className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-[#0b1222] text-xs font-sans border border-transparent hover:border-[#3d301d] transition"
           >
-            <div className="font-medium text-ink-900">{p.name}</div>
-            <div className="text-xs text-ink-500">{p.address}</div>
+            <div className="font-semibold text-sm text-[#f4ede0]">{p.name}</div>
+            <div className="text-xs text-[#f4ede0]/50">{p.address}</div>
           </button>
         ))}
       </div>
-      <div className="px-6 py-4 border-t border-ink-100">
+      <div className="px-6 py-4 border-t border-[#3d301d]">
         <button onClick={onCancel} className="btn-secondary w-full">Cancel</button>
       </div>
     </div>

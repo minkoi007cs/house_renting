@@ -72,7 +72,7 @@ export const CreatePropertyForm = ({ onClose, onSuccess, initialData, propertyId
     <Modal title={isEdit ? 'Edit Property' : 'Add Property'} onClose={onClose} size="lg">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {error && (
-          <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-600 text-sm">
+          <div className="p-3 bg-rose-950/60 border border-rose-800/80 rounded-lg text-rose-400 text-sm">
             {error}
           </div>
         )}
@@ -94,7 +94,7 @@ export const CreatePropertyForm = ({ onClose, onSuccess, initialData, propertyId
             className="input"
             placeholder="e.g. Westerville Single-Family Home"
           />
-          {errors.name && <p className="mt-1 text-xs text-rose-500">{errors.name.message}</p>}
+          {errors.name && <p className="mt-1 text-xs text-rose-400">{errors.name.message}</p>}
         </div>
 
         <div>
@@ -105,7 +105,7 @@ export const CreatePropertyForm = ({ onClose, onSuccess, initialData, propertyId
             placeholder="123 Main St, Columbus, OH 43215"
           />
           {errors.address && (
-            <p className="mt-1 text-xs text-rose-500">{errors.address.message}</p>
+            <p className="mt-1 text-xs text-rose-400">{errors.address.message}</p>
           )}
         </div>
 
@@ -118,7 +118,7 @@ export const CreatePropertyForm = ({ onClose, onSuccess, initialData, propertyId
               className="input"
               placeholder="1500"
             />
-            <p className="mt-1 text-xs text-ink-400">Reference rent — contracts can override.</p>
+            <p className="mt-1 text-xs text-[#f4ede0]/50">Reference rent — contracts can override.</p>
           </div>
           <div>
             <label className="label">Status</label>
@@ -143,13 +143,13 @@ export const CreatePropertyForm = ({ onClose, onSuccess, initialData, propertyId
         <button
           type="button"
           onClick={() => setShowAdvanced((v) => !v)}
-          className="text-xs text-brand-600 hover:text-brand-700 font-medium"
+          className="text-xs text-[#c9a96e] hover:text-[#d6b87e] font-medium"
         >
           {showAdvanced ? 'Hide' : 'Show'} advanced options
         </button>
 
         {showAdvanced && (
-          <div className="space-y-4 pt-2 border-t border-ink-100">
+          <div className="space-y-4 pt-2 border-t border-[#3d301d]">
             <div>
               <label className="label">Property type</label>
               <select {...register('type')} className="input">

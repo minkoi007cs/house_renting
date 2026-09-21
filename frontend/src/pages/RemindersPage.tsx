@@ -36,14 +36,14 @@ export const RemindersPage = () => {
 
   return (
     <Layout title="Reminders">
-      <div className="space-y-5">
+      <div className="space-y-5 font-sans">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div className="flex gap-4 text-sm text-ink-500">
+          <div className="flex gap-4 text-sm text-[#f4ede0]/70">
             <span>
-              <span className="font-semibold text-ink-800">{pending.length}</span> pending
+              <span className="font-semibold text-[#c9a96e]">{pending.length}</span> pending
             </span>
             {overdue.length > 0 && (
-              <span className="flex items-center gap-1 text-rose-600 font-medium">
+              <span className="flex items-center gap-1 text-rose-400 font-medium">
                 <AlertCircle className="w-4 h-4" /> {overdue.length} overdue
               </span>
             )}
@@ -105,67 +105,67 @@ export const RemindersPage = () => {
                   key={r.id}
                   className={`card px-4 py-3.5 flex items-center gap-3 transition ${
                     r.status === 'done'
-                      ? 'opacity-60'
+                      ? 'opacity-50'
                       : overdue
-                      ? 'border-rose-200 bg-rose-50/40'
+                      ? 'border-rose-800/80 bg-rose-950/40'
                       : soon
-                      ? 'border-amber-200 bg-amber-50/40'
+                      ? 'border-amber-800/80 bg-amber-950/40'
                       : ''
                   }`}
                 >
                   <button
                     onClick={() => toggleReminder(r)}
-                    className="flex-shrink-0 text-ink-400 hover:text-brand-600 transition"
+                    className="flex-shrink-0 text-[#f4ede0]/50 hover:text-[#c9a96e] transition"
                     title={r.status === 'done' ? 'Mark pending' : 'Mark done'}
                   >
                     {r.status === 'done' ? (
-                      <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                      <CheckCircle2 className="w-5 h-5 text-emerald-400" />
                     ) : overdue ? (
                       <Circle className="w-5 h-5 text-rose-400" />
                     ) : soon ? (
                       <Circle className="w-5 h-5 text-amber-400" />
                     ) : (
-                      <Circle className="w-5 h-5" />
+                      <Circle className="w-5 h-5 text-[#c9a96e]" />
                     )}
                   </button>
 
                   <div className="flex-1 min-w-0">
                     <p
                       className={`font-medium ${
-                        r.status === 'done' ? 'text-ink-400 line-through' : 'text-ink-900'
+                        r.status === 'done' ? 'text-[#f4ede0]/40 line-through' : 'text-[#f4ede0]'
                       }`}
                     >
                       {r.title}
                     </p>
-                    <div className="flex flex-wrap gap-3 mt-1 text-xs text-ink-500">
+                    <div className="flex flex-wrap gap-3 mt-1 text-xs text-[#f4ede0]/60">
                       <span className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" /> {formatDate(r.due_date)}
+                        <Calendar className="w-3 h-3 text-[#c9a96e]" /> {formatDate(r.due_date)}
                       </span>
                       <span>{REMINDER_TYPE_LABELS[r.type] || r.type}</span>
-                      {r.property && <span className="text-ink-400">· {r.property.name}</span>}
+                      {r.property && <span className="text-[#f4ede0]/40">· {r.property.name}</span>}
                       {overdue && (
-                        <span className="text-rose-600 font-medium flex items-center gap-0.5">
+                        <span className="text-rose-400 font-medium flex items-center gap-0.5">
                           <AlertCircle className="w-3 h-3" /> Overdue
                         </span>
                       )}
                       {soon && (
-                        <span className="text-amber-600 font-medium flex items-center gap-0.5">
+                        <span className="text-amber-400 font-medium flex items-center gap-0.5">
                           <AlertCircle className="w-3 h-3" /> Due in {daysUntil}d
                         </span>
                       )}
                     </div>
                     {r.description && (
-                      <p className="text-xs text-ink-400 mt-1 truncate">{r.description}</p>
+                      <p className="text-xs text-[#f4ede0]/50 mt-1 truncate">{r.description}</p>
                     )}
                   </div>
 
                   <div className="flex items-center gap-1 flex-shrink-0">
-                    <button onClick={() => setEditing(r)} className="p-2 hover:bg-ink-100 rounded text-ink-400">
+                    <button onClick={() => setEditing(r)} className="p-2 hover:bg-[#0b1222] rounded text-[#f4ede0]/60 hover:text-[#c9a96e]">
                       <Pencil className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => setDeleting(r)}
-                      className="p-2 hover:bg-rose-50 rounded text-ink-400 hover:text-rose-600"
+                      className="p-2 hover:bg-rose-950/40 rounded text-[#f4ede0]/60 hover:text-rose-400"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -234,24 +234,24 @@ const PropertyPickerModal = ({
   onSelect: (id: string) => void;
 }) => (
   <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-    <div className="absolute inset-0 bg-ink-900/50" onClick={onCancel} />
-    <div className="relative w-full max-w-sm bg-white rounded-xl2 shadow-soft">
-      <div className="px-6 py-4 border-b border-ink-200">
-        <h3 className="font-semibold text-ink-900">Select a property</h3>
+    <div className="absolute inset-0 bg-[#0b1222]/80 backdrop-blur-sm" onClick={onCancel} />
+    <div className="relative w-full max-w-sm bg-[#111a2e] rounded-2xl border border-[#3d301d] shadow-2xl text-[#f4ede0]">
+      <div className="px-6 py-4 border-b border-[#3d301d]">
+        <h3 className="font-serif text-lg font-normal text-[#f4ede0]">Select a property</h3>
       </div>
       <div className="max-h-64 overflow-y-auto px-3 py-3 space-y-1">
         {properties.map((p) => (
           <button
             key={p.id}
             onClick={() => onSelect(p.id)}
-            className="w-full text-left px-3 py-2.5 rounded-lg hover:bg-brand-50 text-sm transition"
+            className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-[#0b1222] text-xs font-sans border border-transparent hover:border-[#3d301d] transition"
           >
-            <div className="font-medium text-ink-900">{p.name}</div>
-            <div className="text-xs text-ink-500">{p.address}</div>
+            <div className="font-semibold text-sm text-[#f4ede0]">{p.name}</div>
+            <div className="text-xs text-[#f4ede0]/50">{p.address}</div>
           </button>
         ))}
       </div>
-      <div className="px-6 py-4 border-t border-ink-100">
+      <div className="px-6 py-4 border-t border-[#3d301d]">
         <button onClick={onCancel} className="btn-secondary w-full">Cancel</button>
       </div>
     </div>

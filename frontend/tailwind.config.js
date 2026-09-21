@@ -1,48 +1,38 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        brand: {
-          50: '#f5f3ff',
-          100: '#ede9fe',
-          200: '#ddd6fe',
-          300: '#c4b5fd',
-          400: '#a78bfa',
-          500: '#8b5cf6',
-          600: '#7c3aed',
-          700: '#6d28d9',
-          800: '#5b21b6',
-          900: '#4c1d95',
+        'harlow-navy': '#0b1222',
+        'harlow-cream': '#f4ede0',
+        'harlow-gold': '#c9a96e',
+        'harlow-card': '#111a2e',
+        'harlow-border': '#3d301d',
+        'harlow-muted': '#baa58b',
+        background: 'hsl(220, 43%, 9%)',
+        foreground: 'hsl(34, 33%, 92%)',
+        primary: {
+          DEFAULT: 'hsl(38, 48%, 60%)',
+          foreground: 'hsl(220, 43%, 9%)',
         },
-        ink: {
-          50: '#f8fafc',
-          100: '#f1f5f9',
-          200: '#e2e8f0',
-          300: '#cbd5e1',
-          400: '#94a3b8',
-          500: '#64748b',
-          600: '#475569',
-          700: '#334155',
-          800: '#1e293b',
-          900: '#0f172a',
+        muted: {
+          DEFAULT: 'hsl(220, 40%, 12%)',
+          foreground: 'hsl(34, 20%, 65%)',
         },
+        border: 'hsl(38, 30%, 22%)',
+        card: 'hsl(220, 40%, 12%)',
       },
       fontFamily: {
-        sans: [
-          'Outfit',
-          'ui-sans-serif',
-          'system-ui',
-          '-apple-system',
-          'Segoe UI',
-          'Roboto',
-          'sans-serif',
-        ],
+        serif: ['Libre Baskerville', 'Georgia', 'serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
-        card: '0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 0 rgb(15 23 42 / 0.06)',
-        soft: '0 4px 24px -8px rgb(15 23 42 / 0.08)',
+        card: '0 8px 30px rgba(0, 0, 0, 0.4)',
+        soft: '0 12px 40px rgba(201, 169, 110, 0.15)',
+        gold: '0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(201,169,110,0.3)',
+        'gold-glow': '0 0 30px rgba(201,169,110,0.25)',
       },
       borderRadius: {
         xl2: '1rem',
@@ -50,5 +40,4 @@ export default {
     },
   },
   plugins: [],
-  safelist: ['bg-white/8'],
 };

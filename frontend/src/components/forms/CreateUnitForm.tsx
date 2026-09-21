@@ -45,7 +45,7 @@ export const CreateUnitForm = ({ onClose, onSubmit, initialData, isEdit = false 
     <Modal title={isEdit ? 'Edit Unit' : 'Add Unit'} onClose={onClose} size="sm">
       <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+          <div className="p-3 bg-rose-950/60 border border-rose-800/80 rounded-lg text-rose-400 text-sm">
             {error}
           </div>
         )}
@@ -53,7 +53,7 @@ export const CreateUnitForm = ({ onClose, onSubmit, initialData, isEdit = false 
         <div>
           <label className="label">Unit Name *</label>
           <input {...register('name')} className="input" placeholder="e.g. Room 101" />
-          {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name.message}</p>}
+          {errors.name && <p className="mt-1 text-xs text-rose-400">{errors.name.message}</p>}
         </div>
 
         <div>
