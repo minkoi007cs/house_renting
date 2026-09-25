@@ -1,29 +1,19 @@
 {
-  "name": "house-rental-app",
+  "name": "house-renting-monorepo",
   "version": "1.0.0",
-  "description": "House Rental Management Application",
+  "description": "Smart House & Apartment Property Management Application Monorepo",
   "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
   "scripts": {
-    "install:all": "npm install && npm install --prefix backend && npm install --prefix frontend",
-    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "dev:backend": "npm run start:dev --prefix backend",
-    "dev:frontend": "npm run dev --prefix frontend",
-    "build": "npm run build --prefix backend && npm run build --prefix frontend",
-    "build:backend": "npm run build --prefix backend",
-    "build:frontend": "npm run build --prefix frontend",
-    "start:prod": "npm start --prefix backend",
-    "lint": "npm run lint --prefix backend && npm run lint --prefix frontend",
-    "format": "npm run format --prefix backend && npm run format --prefix frontend",
-    "clean": "npm run clean:backend && npm run clean:frontend",
-    "clean:backend": "rm -rf backend/dist backend/node_modules",
-    "clean:frontend": "rm -rf frontend/dist frontend/node_modules",
-    "clean:all": "npm run clean && rm -rf node_modules package-lock.json"
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"apps/**/*.{ts,tsx,js,json}\""
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
-  },
-  "dependencies": {
-    "dotenv": "^17.4.2",
-    "pg": "^8.21.0"
+    "prettier": "^3.1.1",
+    "turbo": "^2.4.4"
   }
 }

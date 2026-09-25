@@ -1,5 +1,5 @@
 {
-  "name": "house-rental-backend",
+  "name": "@house-renting/api",
   "version": "1.0.0",
   "description": "Backend for House Rental Management App",
   "author": "Your Name",
