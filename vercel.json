@@ -1,0 +1,14 @@
+{
+  "buildCommand": "npm run build --workspace=@house-renting/api && npm run build --workspace=@house-renting/web",
+  "outputDirectory": "apps/web/dist",
+  "installCommand": "npm install",
+  "functions": {
+    "apps/api/api/index.js": {
+      "includeFiles": "apps/api/dist/**"
+    }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/apps/api/api/index" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
