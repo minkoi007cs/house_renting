@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Home,
@@ -12,15 +12,9 @@ import {
   ChevronRight,
   X,
 } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 import { useAuthStore } from '@/store/authStore';
-import api from '@/services/api';
 import heroImage from '@/assets/luxury-hero.jpg';
-
-declare global {
-  interface Window {
-    google?: any;
-  }
-}
 
 interface FeatureHighlight {
   icon: typeof Building2;
@@ -63,74 +57,30 @@ const APP_FEATURES: FeatureHighlight[] = [
 
 export const LoginPage = () => {
   const navigate = useNavigate();
-  const { token, setUser, setToken, setError, error, isLoading, setLoading } = useAuthStore();
-  const googleButtonRef = useRef<HTMLDivElement>(null);
+  const { signInWithGoogle, isLoading: isAuthLoading } = useAuth();
+  const { token, setUser, setToken, setError, error } = useAuthStore();
   const [showFeaturesModal, setShowFeaturesModal] = useState(false);
+  const [isSigningIn, setIsSigningIn] = useState(false);
 
   useEffect(() => {
     if (token) navigate('/dashboard', { replace: true });
   }, [token, navigate]);
 
-  useEffect(() => {
-    const initGoogle = () => {
-      if (window.google?.accounts?.id && googleButtonRef.current) {
-        window.google.accounts.id.initialize({
-          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
-          callback: handleGoogleResponse,
-          auto_select: false,
-          cancel_on_tap_outside: true,
-        });
-
-        window.google.accounts.id.renderButton(googleButtonRef.current, {
-          theme: 'filled_black',
-          size: 'large',
-          width: 320,
-          text: 'signin_with',
-          shape: 'rectangular',
-          logo_alignment: 'left',
-        });
-      }
-    };
-
-    if (window.google?.accounts?.id) {
-      initGoogle();
-    } else {
-      const script = document.getElementById('google-gsi');
-      if (script) {
-        script.addEventListener('load', initGoogle);
-        return () => script.removeEventListener('load', initGoogle);
-      }
-    }
-  }, []);
-
-  const handleGoogleResponse = async (response: any) => {
+  const handleGoogleSignIn = async () => {
     try {
-      setLoading(true);
+      setIsSigningIn(true);
       setError(null);
-      if (!response.credential) throw new Error('No credential received from Google');
-      const result = await api.post('/auth/google', { idToken: response.credential });
-      if (result.data?.status === 'success') {
-        const { userId, email, name, token: jwt } = result.data.data;
-        setUser({ id: userId, email, name });
-        setToken(jwt);
-        navigate('/dashboard', { replace: true });
-      } else {
-        throw new Error('Unexpected response from server');
-      }
+      await signInWithGoogle();
     } catch (err: any) {
-      const msg =
-        err?.response?.data?.message ||
-        (err instanceof Error ? err.message : 'Google authentication failed');
+      const msg = err?.message || 'Không thể đăng nhập bằng tài khoản Google. Vui lòng thử lại.';
       setError(msg);
-    } finally {
-      setLoading(false);
+      setIsSigningIn(false);
     }
   };
 
-  // Demo access for preview and evaluation without Google OAuth setup
+  // Demo access for preview and evaluation
   const handleDemoLogin = async () => {
     try {
-      setLoading(true);
       setError(null);
       const demoUser = {
         id: 'demo-user-id',
@@ -140,10 +90,8 @@ export const LoginPage = () => {
       setUser(demoUser);
       setToken('demo-jwt-token-' + Date.now());
       navigate('/dashboard', { replace: true });
-    } catch (err: any) {
+    } catch {
       setError('Unable to initialize demo session.');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -156,11 +104,8 @@ export const LoginPage = () => {
           alt="Luxury Modern Rental Architecture"
           className="w-full h-full object-cover object-center transform scale-105"
         />
-        {/* Horizontal Gradient Seam - Seamlessly blends from solid navy on left to image on right */}
         <div className="absolute inset-0 bg-gradient-to-r from-[#070d18] via-[#070d18]/90 lg:via-[#070d18]/40 to-transparent" />
-        {/* Extra soft left fade on desktop */}
         <div className="hidden lg:block absolute inset-y-0 left-0 w-48 bg-gradient-to-r from-[#070d18] to-transparent" />
-        {/* Top and Bottom soft vignette fades */}
         <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#070d18] via-[#070d18]/80 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#070d18] via-[#070d18]/80 to-transparent" />
       </div>
@@ -264,7 +209,7 @@ export const LoginPage = () => {
               </div>
               <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#070d18] border border-[#3d301d] text-[10px] uppercase tracking-wider text-[#c9a96e]">
                 <ShieldCheck className="w-3.5 h-3.5" />
-                <span>Google Auth</span>
+                <span>Supabase Auth</span>
               </div>
             </div>
 
@@ -275,20 +220,38 @@ export const LoginPage = () => {
               </div>
             )}
 
-            {/* Google Sign-In Button Slot */}
+            {/* Google Sign-In Button */}
             <div className="space-y-3">
-              <div className="flex justify-center items-center p-1 rounded-xl bg-[#070d18]/90 border border-[#3d301d] hover:border-[#c9a96e]/50 transition-colors shadow-inner">
-                <div
-                  ref={googleButtonRef}
-                  className="w-full flex justify-center py-0.5 min-h-[44px]"
-                />
-              </div>
+              <button
+                onClick={handleGoogleSignIn}
+                disabled={isSigningIn || isAuthLoading}
+                className="w-full py-3 px-4 rounded-xl font-medium text-sm bg-white text-gray-900 hover:bg-gray-100 hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-all duration-200 flex items-center justify-center gap-3 cursor-pointer disabled:opacity-50"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24">
+                  <path
+                    fill="#4285F4"
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                  />
+                </svg>
+                <span>{isSigningIn ? 'Đang chuyển hướng Google...' : 'Đăng nhập bằng Google'}</span>
+              </button>
 
               {/* Instant Action Buttons */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                 <button
                   onClick={handleDemoLogin}
-                  disabled={isLoading}
                   className="w-full py-2.5 px-4 rounded-xl text-xs font-semibold uppercase tracking-wider bg-[#c9a96e] text-[#070d18] hover:bg-[#d6b87e] hover:shadow-[0_0_25px_rgba(201,169,110,0.35)] transition-all duration-200 flex items-center justify-center gap-2 group cursor-pointer"
                 >
                   <span>Instant Demo Tour</span>
@@ -306,7 +269,7 @@ export const LoginPage = () => {
             </div>
 
             <p className="text-[10px] text-[#f4ede0]/40 text-center mt-3">
-              Single Sign-On powered by Google. Multi-tenant secure workspace.
+              Single Sign-On powered by Supabase Auth (Google Provider). Multi-tenant secure workspace.
             </p>
           </div>
 

@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from '@/contexts/AuthContext';
 import { useAuthStore } from '@/store/authStore';
 import { PageLoader } from '@/components/common/Spinner';
 import { useAuthBootstrap } from '@/hooks/useAuthBootstrap';
@@ -36,26 +37,28 @@ const wrap = (el: React.ReactNode) => <ProtectedRoute>{el}</ProtectedRoute>;
 
 export function App() {
   return (
-    <Router>
-      <ToastContainer />
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><PageLoader /></div>}>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/auth/callback" element={<LoginPage />} />
-          <Route path="/dashboard" element={wrap(<DashboardPage />)} />
-          <Route path="/properties" element={wrap(<PropertiesPage />)} />
-          <Route path="/properties/:id" element={wrap(<PropertyDetailPage />)} />
-          <Route path="/tenants" element={wrap(<TenantsPage />)} />
-          <Route path="/contracts" element={wrap(<ContractsPage />)} />
-          <Route path="/transactions" element={wrap(<TransactionsPage />)} />
-          <Route path="/reminders" element={wrap(<RemindersPage />)} />
-          <Route path="/reports" element={wrap(<ReportsPage />)} />
-          <Route path="/settings" element={wrap(<SettingsPage />)} />
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
-      </Suspense>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <ToastContainer />
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><PageLoader /></div>}>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/auth/callback" element={<LoginPage />} />
+            <Route path="/dashboard" element={wrap(<DashboardPage />)} />
+            <Route path="/properties" element={wrap(<PropertiesPage />)} />
+            <Route path="/properties/:id" element={wrap(<PropertyDetailPage />)} />
+            <Route path="/tenants" element={wrap(<TenantsPage />)} />
+            <Route path="/contracts" element={wrap(<ContractsPage />)} />
+            <Route path="/transactions" element={wrap(<TransactionsPage />)} />
+            <Route path="/reminders" element={wrap(<RemindersPage />)} />
+            <Route path="/reports" element={wrap(<ReportsPage />)} />
+            <Route path="/settings" element={wrap(<SettingsPage />)} />
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </Suspense>
+      </Router>
+    </AuthProvider>
   );
 }
 
